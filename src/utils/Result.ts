@@ -27,7 +27,7 @@ export const isErr = <T, E>(result: Result<T, E>): result is { ok: false; error:
  */
 export const unwrap = <T, E>(result: Result<T, E>): T => {
   if (result.ok) return result.value;
-  throw result.error;
+  throw (result as { ok: false; error: E }).error;
 };
 
 /**
@@ -44,7 +44,7 @@ export const map = <T, U, E>(
   result: Result<T, E>,
   fn: (value: T) => U
 ): Result<U, E> => {
-  return result.ok ? Ok(fn(result.value)) : result;
+  return result.ok ? Ok(fn(result.value)) : (result as Result<U, E>);
 };
 
 /**
@@ -54,7 +54,7 @@ export const mapErr = <T, E, F>(
   result: Result<T, E>,
   fn: (error: E) => F
 ): Result<T, F> => {
-  return result.ok ? result : Err(fn(result.error));
+  return result.ok ? (result as Result<T, F>) : Err(fn((result as { ok: false; error: E }).error));
 };
 
 /**
@@ -64,7 +64,7 @@ export const andThen = <T, U, E>(
   result: Result<T, E>,
   fn: (value: T) => Result<U, E>
 ): Result<U, E> => {
-  return result.ok ? fn(result.value) : result;
+  return result.ok ? fn(result.value) : (result as Result<U, E>);
 };
 
 /**
@@ -74,7 +74,7 @@ export const andThen = <T, U, E>(
 export const combine = <T, E>(results: Result<T, E>[]): Result<T[], E> => {
   const values: T[] = [];
   for (const result of results) {
-    if (!result.ok) return result;
+    if (!result.ok) return result as Result<T[], E>;
     values.push(result.value);
   }
   return Ok(values);
