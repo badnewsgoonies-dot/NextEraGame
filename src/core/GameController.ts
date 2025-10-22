@@ -318,5 +318,12 @@ export class GameController {
   getStateMachine(): GameStateMachine {
     return this.stateMachine;
   }
+
+  /**
+   * Get save system for UI access to save/load operations
+   */
+  getSaveSystem(): SaveSystem {
+    return this.saveSystem;
+  }
 }
 
