@@ -9,6 +9,44 @@
  * - Permadeath defeat flow (Decision #5)
  */
 
+/**
+ * NextEraGame - Type System
+ * 
+ * This file contains all type definitions for the game.
+ * 
+ * ============================================
+ * IMPLEMENTATION STATUS
+ * ============================================
+ * 
+ * ✅ FULLY IMPLEMENTED:
+ * - Core game types (Unit, Opponent, Battle, Reward, etc.)
+ * - Save/load system types (SaveEnvelope, SaveSliceChoice, etc.)
+ * - State machine types (GameState, transitions)
+ * - All current game systems have full type coverage
+ * 
+ * 📋 PLANNED (Type scaffolding in place, NOT YET IMPLEMENTED):
+ * - Equipment System (Equipment interface)
+ * - Inventory Management (InventoryData interface)
+ * - Leveling System (LevelingData interface)
+ * - Power Booster System (PowerBooster interface)
+ * 
+ * ============================================
+ * WHEN IMPLEMENTING FUTURE FEATURES
+ * ============================================
+ * 
+ * Follow this process:
+ * 1. Remove "TODO" comments from relevant type
+ * 2. Create corresponding System class (e.g., EquipmentSystem.ts)
+ * 3. Create UI screens/components
+ * 4. Write comprehensive tests (unit + integration)
+ * 5. Update save/load logic with proper defaults
+ * 6. Update GameController to orchestrate new system
+ * 7. Add to state machine if new screens needed
+ * 
+ * All future feature fields in SaveEnvelope are OPTIONAL
+ * to maintain backward compatibility with existing saves.
+ */
+
 import type { Result } from '../utils/Result.js';
 
 // ============================================
@@ -165,6 +203,36 @@ export interface SaveEnvelope {
   readonly progression: ProgressionCounters; // Persistent stats
   readonly choice: SaveSliceChoice; // Next opponent choice state
   readonly runSeed: number; // Root seed for this run
+  
+  // ============================================
+  // FUTURE FEATURES (Optional - Backward Compatible)
+  // These fields are optional to maintain save compatibility.
+  // When implementing, provide defaults for missing values.
+  // ============================================
+  
+  /**
+   * Equipment system data (Planned)
+   * Default: {} if undefined
+   */
+  readonly equippedItems?: Record<string, Equipment[]>; // unitId -> equipped items
+  
+  /**
+   * Full inventory data (Planned)
+   * Default: { items: [], equipment: [], maxItemSlots: 50, maxEquipmentSlots: 50 }
+   */
+  readonly inventoryData?: InventoryData;
+  
+  /**
+   * Per-unit leveling data (Planned)
+   * Default: {} if undefined
+   */
+  readonly levelingData?: Record<string, LevelingData>; // unitId -> leveling data
+  
+  /**
+   * Active power boosters (Planned)
+   * Default: [] if undefined
+   */
+  readonly activeBoosters?: readonly PowerBooster[];
 }
 
 // ============================================
@@ -264,7 +332,13 @@ export type GameState =
   | 'battle'
   | 'rewards'
   | 'recruit'
-  | 'defeat'; // Decision #5: Permadeath flow
+  | 'defeat' // Decision #5: Permadeath flow
+  // ============================================
+  // FUTURE STATES (Not yet implemented)
+  // ============================================
+  | 'inventory'    // TODO: Inventory management screen
+  | 'equipment'    // TODO: Equipment management screen  
+  | 'level_up';    // TODO: Level-up screen with stat allocation
 
 /**
  * Valid state transitions
@@ -278,6 +352,13 @@ export const STATE_TRANSITIONS: Record<GameState, readonly GameState[]> = {
   rewards: ['recruit'],
   recruit: ['opponent_select'], // Loop back for next battle
   defeat: ['menu'], // Decision #5: Instant restart
+  
+  // ============================================
+  // FUTURE TRANSITIONS (Not yet wired)
+  // ============================================
+  inventory: ['menu', 'team_prep'], // TODO: Access from menu or before battle
+  equipment: ['inventory', 'menu'], // TODO: Access from inventory or menu
+  level_up: ['rewards', 'recruit'], // TODO: Trigger after rewards if level gained
 } as const;
 
 // ============================================
@@ -400,3 +481,95 @@ export interface ISaveStore {
   list(): Promise<Array<{ slot: string; modified: string; size: number }>>;
 }
 
+// ============================================
+// FUTURE FEATURES (Type Scaffolding Only)
+// ============================================
+
+/**
+ * Equipment System (Planned - Not Yet Implemented)
+ * 
+ * TODO: Implement when ready:
+ * - Create EquipmentSystem class
+ * - Create Equipment screen/UI
+ * - Add equip/unequip logic
+ * - Write comprehensive tests
+ */
+export interface Equipment {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly slot: 'weapon' | 'armor' | 'accessory';
+  readonly stats: {
+    readonly hp?: number;
+    readonly atk?: number;
+    readonly def?: number;
+    readonly speed?: number;
+  };
+  readonly rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+  readonly levelRequirement?: number;
+  readonly spriteUrl?: string;
+}
+
+/**
+ * Inventory System (Planned - Not Yet Implemented)
+ * 
+ * TODO: Implement when ready:
+ * - Create InventorySystem class
+ * - Create Inventory screen/UI
+ * - Add item management logic
+ * - Write comprehensive tests
+ */
+export interface InventoryData {
+  readonly items: readonly Item[];
+  readonly equipment: readonly Equipment[];
+  readonly maxItemSlots: number;
+  readonly maxEquipmentSlots: number;
+}
+
+/**
+ * Leveling System (Planned - Not Yet Implemented)
+ * 
+ * TODO: Implement when ready:
+ * - Create LevelingSystem class
+ * - Create Level-up screen/UI
+ * - Add XP calculation and stat growth
+ * - Write comprehensive tests
+ */
+export interface LevelingData {
+  readonly unitId: string;
+  readonly currentXP: number;
+  readonly level: number;
+  readonly xpToNextLevel: number;
+  readonly statPoints?: number; // For manual allocation (if implemented)
+  readonly statGrowth?: {
+    readonly hp: number;
+    readonly atk: number;
+    readonly def: number;
+    readonly speed: number;
+  };
+}
+
+/**
+ * Power Booster System (Planned - Not Yet Implemented)
+ * 
+ * TODO: Implement when ready:
+ * - Create PowerBoosterSystem class
+ * - Add buff/debuff application logic
+ * - Add visual indicators in battle
+ * - Write comprehensive tests
+ */
+export interface PowerBooster {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly type: 'buff' | 'debuff';
+  readonly statModifier: {
+    readonly hp?: number;
+    readonly atk?: number;
+    readonly def?: number;
+    readonly speed?: number;
+  };
+  readonly duration: number; // Number of battles or turns
+  readonly stackable: boolean;
+  readonly iconUrl?: string;
+}
