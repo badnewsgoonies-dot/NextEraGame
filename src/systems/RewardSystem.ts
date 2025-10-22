@@ -14,6 +14,7 @@ import type {
   OpponentSpec, 
   BattleResult,
   Item,
+  Equipment,
   Difficulty 
 } from '../types/game.js';
 import { ITEM_CATALOG } from '../data/items.js';
@@ -43,6 +44,13 @@ export class RewardSystem {
     // Roll for item drops
     const items = this.rollItems(rng, opponentSpec.difficulty);
 
+    // Generate equipment drops
+    const equipment = this.generateEquipment(
+      opponentSpec.difficulty,
+      rng,
+      opponentSpec.units.length
+    );
+
     // Only return actually defeated enemies (not all opponent units)
     const defeatedEnemies = opponentSpec.units.filter(unit =>
       battleResult.unitsDefeated.includes(unit.id)
@@ -53,6 +61,7 @@ export class RewardSystem {
       difficulty: opponentSpec.difficulty,
       experience,
       itemCount: items.length,
+      equipmentCount: equipment.length,
       defeatedCount: defeatedEnemies.length,
     });
 
@@ -60,6 +69,7 @@ export class RewardSystem {
       items,
       defeatedEnemies,
       experience,
+      equipment,
     };
   }
 
@@ -125,6 +135,60 @@ export class RewardSystem {
     }
 
     return rng.choose(itemsOfRarity);
+  }
+
+  /**
+   * Generate equipment drops from battle
+   * Drop rate and rarity affected by difficulty
+   */
+  private generateEquipment(
+    difficulty: Difficulty,
+    rng: IRng,
+    enemyCount: number
+  ): Equipment[] {
+    const equipment: Equipment[] = [];
+    
+    // Drop chance per enemy
+    const dropChance = difficulty === 'Hard' ? 0.4
+                     : difficulty === 'Normal' ? 0.3
+                     : 0.2;
+    
+    for (let i = 0; i < enemyCount; i++) {
+      if (rng.float() > dropChance) continue;
+      
+      // Random slot
+      const slots = ['weapon', 'armor', 'accessory'] as const;
+      const slot = slots[rng.int(0, 2)];
+      
+      // Random rarity (simplified distribution)
+      const rarityRoll = rng.float();
+      const rarity = rarityRoll > 0.95 ? 'epic'
+                   : rarityRoll > 0.80 ? 'rare'
+                   : rarityRoll > 0.60 ? 'uncommon'
+                   : 'common';
+      
+      // Stat bonuses based on rarity
+      const baseBonus = rarity === 'epic' ? 20
+                      : rarity === 'rare' ? 15
+                      : rarity === 'uncommon' ? 10
+                      : 5;
+      
+      // Stats based on slot type
+      const stats = slot === 'weapon' ? { atk: baseBonus }
+                  : slot === 'armor' ? { def: baseBonus }
+                  : { speed: baseBonus }; // accessory
+      
+      equipment.push({
+        id: `equip-${Date.now()}-${rng.int(1000, 9999)}`,
+        name: `${rarity.charAt(0).toUpperCase() + rarity.slice(1)} ${slot.charAt(0).toUpperCase() + slot.slice(1)}`,
+        description: `A ${rarity} ${slot} found in battle`,
+        slot,
+        stats,
+        rarity,
+      });
+    }
+    
+    return equipment;
   }
 
   /**

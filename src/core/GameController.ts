@@ -239,6 +239,38 @@ export class GameController {
   }
 
   /**
+   * Transition from rewards to equipment screen
+   */
+  handleRewardsContinue(): Result<void, string> {
+    if (this.stateMachine.getState() !== 'rewards') {
+      return err('Cannot continue - not in rewards state');
+    }
+
+    const transition = this.stateMachine.transitionTo('equipment');
+    if (!transition.ok) {
+      return err(`State transition failed: ${transition.error}`);
+    }
+
+    return ok(undefined);
+  }
+
+  /**
+   * Transition from equipment to recruit screen
+   */
+  handleEquipmentContinue(): Result<void, string> {
+    if (this.stateMachine.getState() !== 'equipment') {
+      return err('Cannot continue - not in equipment state');
+    }
+
+    const transition = this.stateMachine.transitionTo('recruit');
+    if (!transition.ok) {
+      return err(`State transition failed: ${transition.error}`);
+    }
+
+    return ok(undefined);
+  }
+
+  /**
    * Save current game state
    */
   async saveGame(slot: string): Promise<Result<void, string>> {

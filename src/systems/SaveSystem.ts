@@ -14,13 +14,14 @@
  */
 
 import type { ILogger } from './Logger.js';
-import type { ISaveStore, SaveEnvelope, PlayerUnit, Item, ProgressionCounters, SaveSliceChoice } from '../types/game.js';
+import type { ISaveStore, SaveEnvelope, PlayerUnit, Item, ProgressionCounters, SaveSliceChoice, InventoryData } from '../types/game.js';
 import { ok, err, type Result } from '../utils/Result.js';
 import { InMemorySaveStore } from './SaveStore.js';
 
 export interface GameStateSnapshot {
   readonly playerTeam: readonly PlayerUnit[];
   readonly inventory: readonly Item[];
+  readonly inventoryData?: InventoryData; // NEW: Equipment inventory
   readonly progression: ProgressionCounters;
   readonly choice: SaveSliceChoice;
   readonly runSeed: number;
@@ -56,9 +57,21 @@ export class SaveSystem {
         progression: state.progression,
         choice: state.choice,
         runSeed: state.runSeed,
+        inventoryData: state.inventoryData, // Include equipment inventory
       };
 
-      const serialized = JSON.stringify(envelope);
+      // Custom serializer to handle Map objects
+      const serialized = JSON.stringify(envelope, (_key, value) => {
+        // Serialize Map to array of entries
+        if (value instanceof Map) {
+          return {
+            __type: 'Map',
+            entries: Array.from(value.entries())
+          };
+        }
+        return value;
+      });
+      
       await this.store.write(slot, serialized);
 
       this.logger.info('save:success', { slot, size: serialized.length });
@@ -76,12 +89,31 @@ export class SaveSystem {
   async load(slot: string): Promise<Result<SaveEnvelope, string>> {
     try {
       const serialized = await this.store.read(slot);
-      const envelope = JSON.parse(serialized) as SaveEnvelope;
+      
+      // Custom deserializer to restore Map objects
+      const envelope = JSON.parse(serialized, (_key, value) => {
+        // Restore Map from serialized format
+        if (value?.__type === 'Map') {
+          return new Map(value.entries);
+        }
+        return value;
+      }) as SaveEnvelope;
 
       // Validate version
       if (envelope.version !== 'v1') {
         this.logger.warn('save:unsupported_version', { slot, version: envelope.version });
         return err(`Unsupported save version: ${envelope.version}`);
+      }
+
+      // Ensure backward compatibility: provide default empty inventory if not present
+      if (!envelope.inventoryData) {
+        (envelope as { inventoryData?: InventoryData }).inventoryData = {
+          items: [],
+          equippedItems: new Map(),
+          unequippedItems: [],
+          maxItemSlots: 50,
+          maxEquipmentSlots: 50
+        };
       }
 
       this.logger.info('save:loaded', { slot, timestamp: envelope.timestamp });

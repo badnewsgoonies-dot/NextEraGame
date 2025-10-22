@@ -60,7 +60,7 @@ describe('RewardsScreen', () => {
 
       render(<RewardsScreen rewards={rewards} {...mockHandlers} />);
 
-      expect(screen.getByRole('button', { name: /Continue to Recruitment/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Continue to Equipment/ })).toBeInTheDocument();
     });
   });
 
@@ -290,7 +290,7 @@ describe('RewardsScreen', () => {
 
       render(<RewardsScreen rewards={rewards} {...mockHandlers} />);
 
-      const continueButton = screen.getByRole('button', { name: /Continue to Recruitment/ });
+      const continueButton = screen.getByRole('button', { name: /Continue to Equipment/ });
       fireEvent.click(continueButton);
 
       expect(mockHandlers.onContinue).toHaveBeenCalledOnce();
@@ -306,7 +306,7 @@ describe('RewardsScreen', () => {
 
       render(<RewardsScreen rewards={rewards} {...mockHandlers} />);
 
-      const continueButton = screen.getByRole('button', { name: /Continue to Recruitment/ });
+      const continueButton = screen.getByRole('button', { name: /Continue to Equipment/ });
       fireEvent.click(continueButton);
 
       expect(mockHandlers.onContinue).toHaveBeenCalledOnce();
@@ -321,7 +321,7 @@ describe('RewardsScreen', () => {
 
       render(<RewardsScreen rewards={rewards} {...mockHandlers} />);
 
-      const continueButton = screen.getByRole('button', { name: /Continue to Recruitment/ });
+      const continueButton = screen.getByRole('button', { name: /Continue to Equipment/ });
       
       fireEvent.click(continueButton);
       fireEvent.click(continueButton);
@@ -342,7 +342,7 @@ describe('RewardsScreen', () => {
 
       expect(screen.getByText('No items gained this battle')).toBeInTheDocument();
       expect(screen.queryByText('Experience Gained')).not.toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Continue to Recruitment/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Continue to Equipment/ })).toBeInTheDocument();
     });
 
     test('handles item without rarity', () => {
@@ -529,7 +529,7 @@ describe('RewardsScreen', () => {
       const { rerender } = render(<RewardsScreen rewards={rewards1} {...mockHandlers} />);
       
       expect(screen.getByText(/Rewards/)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Continue to Recruitment/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Continue to Equipment/ })).toBeInTheDocument();
 
       // Rerender with different content
       const item = createItem('sword', 'Sword', 'weapon');
@@ -542,7 +542,7 @@ describe('RewardsScreen', () => {
       rerender(<RewardsScreen rewards={rewards2} {...mockHandlers} />);
 
       expect(screen.getByText(/Rewards/)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Continue to Recruitment/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Continue to Equipment/ })).toBeInTheDocument();
     });
 
     test('maintains proper hierarchy with mixed content', () => {
@@ -558,7 +558,7 @@ describe('RewardsScreen', () => {
       // Header should appear before items section
       const header = screen.getByText(/Rewards/);
       const itemsSection = screen.getByText('Items Gained:');
-      const continueButton = screen.getByRole('button', { name: /Continue to Recruitment/ });
+      const continueButton = screen.getByRole('button', { name: /Continue to Equipment/ });
 
       expect(header).toBeInTheDocument();
       expect(itemsSection).toBeInTheDocument();
@@ -566,3 +566,4 @@ describe('RewardsScreen', () => {
     });
   });
 });
+

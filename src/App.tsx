@@ -13,16 +13,18 @@ import { GameController } from './core/GameController.js';
 import { RewardSystem } from './systems/RewardSystem.js';
 import { TeamManager } from './systems/TeamManager.js';
 import { SettingsManager } from './systems/SettingsManager.js';
+import { equipItem, unequipItem } from './systems/EquipmentSystem.js';
 import { MainMenuScreen } from './screens/MainMenuScreen.js';
 import { StarterSelectScreen } from './screens/StarterSelectScreen.js';
 import { OpponentSelectScreen } from './screens/OpponentSelectScreen.js';
 import { BattleScreen } from './screens/BattleScreen.js';
 import { RewardsScreen } from './screens/RewardsScreen.js';
+import { EquipmentScreen } from './screens/EquipmentScreen.js';
 import { RecruitScreen } from './screens/RecruitScreen.js';
 import { SettingsScreen } from './screens/SettingsScreen.js';
 import { LoadGameModal } from './components/LoadGameModal.js';
 import { makeRng } from './utils/rng.js';
-import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit } from './types/game.js';
+import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit, InventoryData } from './types/game.js';
 
 type AppScreen = 
   | 'menu'
@@ -30,6 +32,7 @@ type AppScreen =
   | 'opponent_select'
   | 'battle'
   | 'rewards'
+  | 'equipment'
   | 'recruit'
   | 'defeat'
   | 'settings';
@@ -43,6 +46,13 @@ export function App(): React.ReactElement {
   
   const [screen, setScreen] = useState<AppScreen>('menu');
   const [playerTeam, setPlayerTeam] = useState<PlayerUnit[]>([]);
+  const [inventory, setInventory] = useState<InventoryData>({
+    items: [],
+    equippedItems: new Map(),
+    unequippedItems: [],
+    maxItemSlots: 50,
+    maxEquipmentSlots: 50
+  });
   const [previews, setPreviews] = useState<readonly OpponentPreview[]>([]);
   const [battleResult, setBattleResult] = useState<BattleResult | null>(null);
   const [rewards, setRewards] = useState<BattleReward | null>(null);
@@ -81,6 +91,13 @@ export function App(): React.ReactElement {
     setPlayerUnits([]);
     setEnemyUnits([]);
     setPlayerTeam([]);
+    setInventory({
+      items: [],
+      equippedItems: new Map(),
+      unequippedItems: [],
+      maxItemSlots: 50,
+      maxEquipmentSlots: 50
+    });
     setScreen('starter_select');
   };
 
@@ -309,8 +326,45 @@ export function App(): React.ReactElement {
 
   // Rewards handlers
   const handleRewardsContinue = () => {
-    // Transition FSM from rewards → recruit
-    const transition = controller.getStateMachine().transitionTo('recruit');
+    // Add equipment to inventory
+    if (rewards?.equipment && rewards.equipment.length > 0) {
+      setInventory(prev => ({
+        ...prev,
+        unequippedItems: [...prev.unequippedItems, ...rewards.equipment]
+      }));
+    }
+
+    // Transition FSM from rewards → equipment
+    const transition = controller.handleRewardsContinue();
+    if (!transition.ok) {
+      console.error('Failed to transition to equipment state:', transition.error);
+      return;
+    }
+    setScreen('equipment');
+  };
+
+  // Equipment handlers
+  const handleEquip = (unitId: string, equipment: any) => {
+    const result = equipItem(inventory, unitId, equipment);
+    if (result.ok) {
+      setInventory(result.value);
+    } else {
+      console.error('Failed to equip item:', result.error);
+    }
+  };
+
+  const handleUnequip = (unitId: string, slot: 'weapon' | 'armor' | 'accessory') => {
+    const result = unequipItem(inventory, unitId, slot);
+    if (result.ok) {
+      setInventory(result.value);
+    } else {
+      console.error('Failed to unequip item:', result.error);
+    }
+  };
+
+  const handleEquipmentContinue = () => {
+    // Transition FSM from equipment → recruit
+    const transition = controller.handleEquipmentContinue();
     if (!transition.ok) {
       console.error('Failed to transition to recruit state:', transition.error);
       return;
@@ -431,6 +485,17 @@ export function App(): React.ReactElement {
           <RewardsScreen
             rewards={rewards}
             onContinue={handleRewardsContinue}
+          />
+        );
+
+      case 'equipment':
+        return (
+          <EquipmentScreen
+            team={playerTeam}
+            inventory={inventory}
+            onEquip={handleEquip}
+            onUnequip={handleUnequip}
+            onContinue={handleEquipmentContinue}
           />
         );
 

@@ -25,6 +25,7 @@ export interface AnimatedUnitSpriteProps {
   onAttackComplete?: () => void;
   onHitComplete?: () => void;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 // Fallback colored circles (existing system)
@@ -43,6 +44,7 @@ export function AnimatedUnitSprite({
   onAttackComplete,
   onHitComplete,
   className = '',
+  style,
 }: AnimatedUnitSpriteProps): React.ReactElement {
   const animator = useRef(new SpriteAnimator()).current;
   const [currentSprite, setCurrentSprite] = useState<string | null>(null);
@@ -135,6 +137,7 @@ export function AnimatedUnitSprite({
         style={{ 
           imageRendering: 'pixelated',
           filter: unit.currentHp <= 0 ? 'grayscale(100%) opacity(0.5)' : 'none',
+          ...style,
         }}
         onLoad={() => setSpriteLoading(false)}
         onError={() => {

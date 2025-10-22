@@ -26,8 +26,8 @@ describe('GameStateMachine', () => {
       expect(fsm.getState()).toBe('starter_select');
     });
 
-    test('complete happy path: menu → starter → opponent → team → battle → rewards → recruit → opponent (loop)', () => {
-      const states: GameState[] = ['starter_select', 'opponent_select', 'team_prep', 'battle', 'rewards', 'recruit', 'opponent_select'];
+    test('complete happy path: menu → starter → opponent → team → battle → rewards → equipment → recruit → opponent (loop)', () => {
+      const states: GameState[] = ['starter_select', 'opponent_select', 'team_prep', 'battle', 'rewards', 'equipment', 'recruit', 'opponent_select'];
       
       for (const state of states) {
         const result = fsm.transitionTo(state);
@@ -54,7 +54,7 @@ describe('GameStateMachine', () => {
       expect(fsm.getState()).toBe('menu');
     });
 
-    test('win flow: battle → rewards → recruit → opponent_select', () => {
+    test('win flow: battle → rewards → equipment → recruit → opponent_select', () => {
       // Navigate to battle
       fsm.transitionTo('starter_select');
       fsm.transitionTo('opponent_select');
@@ -63,6 +63,7 @@ describe('GameStateMachine', () => {
 
       // Win battle
       expect(fsm.transitionTo('rewards').ok).toBe(true);
+      expect(fsm.transitionTo('equipment').ok).toBe(true);
       expect(fsm.transitionTo('recruit').ok).toBe(true);
       expect(fsm.transitionTo('opponent_select').ok).toBe(true);
       expect(fsm.getState()).toBe('opponent_select');

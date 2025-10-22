@@ -13,6 +13,7 @@ export interface AnimatedEnemySpriteProps {
   unit: BattleUnit;
   isHit?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 // Fallback colors if sprite fails
@@ -27,6 +28,7 @@ export function AnimatedEnemySprite({
   unit,
   isHit = false,
   className = '',
+  style,
 }: AnimatedEnemySpriteProps): React.ReactElement {
   const [spriteLoadFailed, setSpriteLoadFailed] = useState(false);
   const [spriteLoading, setSpriteLoading] = useState(true);
@@ -77,6 +79,7 @@ export function AnimatedEnemySprite({
         style={{ 
           imageRendering: 'pixelated',
           transition: 'opacity 500ms, filter 500ms',
+          ...style,
         }}
         onLoad={() => setSpriteLoading(false)}
         onError={() => {

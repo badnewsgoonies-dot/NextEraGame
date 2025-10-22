@@ -276,6 +276,7 @@ export interface BattleReward {
   readonly items: readonly Item[];
   readonly defeatedEnemies: readonly EnemyUnitTemplate[]; // Available for recruitment
   readonly experience: number;
+  readonly equipment: readonly Equipment[]; // Equipment drops
 }
 
 // ============================================
@@ -349,7 +350,8 @@ export const STATE_TRANSITIONS: Record<GameState, readonly GameState[]> = {
   opponent_select: ['team_prep'],
   team_prep: ['battle'],
   battle: ['rewards', 'defeat', 'menu'], // Can win, lose, or draw (draw = instant restart)
-  rewards: ['recruit'],
+  rewards: ['equipment'], // CHANGED: now goes to equipment screen
+  equipment: ['recruit'], // NEW: equipment screen goes to recruit
   recruit: ['opponent_select'], // Loop back for next battle
   defeat: ['menu'], // Decision #5: Instant restart
   
@@ -357,7 +359,6 @@ export const STATE_TRANSITIONS: Record<GameState, readonly GameState[]> = {
   // FUTURE TRANSITIONS (Not yet wired)
   // ============================================
   inventory: ['menu', 'team_prep'], // TODO: Access from menu or before battle
-  equipment: ['inventory', 'menu'], // TODO: Access from inventory or menu
   level_up: ['rewards', 'recruit'], // TODO: Trigger after rewards if level gained
 } as const;
 
@@ -511,17 +512,15 @@ export interface Equipment {
 }
 
 /**
- * Inventory System (Planned - Not Yet Implemented)
+ * Inventory System
  * 
- * TODO: Implement when ready:
- * - Create InventorySystem class
- * - Create Inventory screen/UI
- * - Add item management logic
- * - Write comprehensive tests
+ * Tracks equipped items per unit and unequipped equipment pool.
+ * Structure: Map uses "unitId-slot" as key (e.g., "unit1-weapon")
  */
 export interface InventoryData {
   readonly items: readonly Item[];
-  readonly equipment: readonly Equipment[];
+  readonly equippedItems: ReadonlyMap<string, Equipment>; // "unitId-slot" -> Equipment
+  readonly unequippedItems: readonly Equipment[]; // Unequipped equipment pool
   readonly maxItemSlots: number;
   readonly maxEquipmentSlots: number;
 }

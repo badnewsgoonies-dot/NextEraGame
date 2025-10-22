@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /*
  * Logger: Structured logging with levels and context.
  * Use for debugging and monitoring. Disable in production if needed.

@@ -98,7 +98,8 @@ export function useManualBattle({
   const [roundOrder, setRoundOrder] = useState<string[]>([]);
   const [roundIdx, setRoundIdx] = useState(0);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [targetedId, setTargetedId] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [targetedId, _setTargetedId] = useState<string | null>(null); // Reserved for future targeting feature
   const [phase, setPhase] = useState<BattlePhase>('menu');
 
   // Battle mechanics

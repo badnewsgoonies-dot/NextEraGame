@@ -13,7 +13,7 @@
  * - Accessible ARIA labels for screen readers
  */
 
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 import type { BattleUnit } from '../../types/game.js';
 import { AnimatedUnitSprite } from './AnimatedUnitSprite.js';
 import { AnimatedEnemySprite } from './AnimatedEnemySprite.js';

@@ -59,6 +59,41 @@ export function RewardsScreen({ rewards, onContinue }: RewardsScreenProps): Reac
           )}
         </div>
 
+        {/* Equipment Gained */}
+        {rewards.equipment && rewards.equipment.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
+              Equipment Gained:
+            </h2>
+            <div className="space-y-3">
+              {rewards.equipment.map((equip) => (
+                <div
+                  key={equip.id}
+                  className="flex items-center gap-4 p-4 bg-purple-100 dark:bg-purple-900/30 rounded-lg"
+                >
+                  <div className="text-3xl">
+                    {equip.slot === 'weapon' ? '⚔️' : equip.slot === 'armor' ? '🛡️' : '💍'}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-900 dark:text-white">
+                      {equip.name}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      {equip.slot.charAt(0).toUpperCase() + equip.slot.slice(1)} • {equip.rarity}
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-700 dark:text-gray-300">
+                    {equip.stats.hp && `+${equip.stats.hp} HP `}
+                    {equip.stats.atk && `+${equip.stats.atk} ATK `}
+                    {equip.stats.def && `+${equip.stats.def} DEF `}
+                    {equip.stats.speed && `+${equip.stats.speed} SPD`}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Experience */}
         {rewards.experience > 0 && (
           <div className="mb-8">
@@ -78,7 +113,7 @@ export function RewardsScreen({ rewards, onContinue }: RewardsScreenProps): Reac
           onClick={onContinue}
           className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-xl rounded-lg transition-colors shadow-lg"
         >
-          Continue to Recruitment →
+          Continue to Equipment →
         </button>
       </div>
     </div>
