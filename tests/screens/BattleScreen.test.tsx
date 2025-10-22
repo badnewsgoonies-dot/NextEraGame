@@ -10,6 +10,22 @@ import fc from 'fast-check';
 import { BattleScreen } from '../../src/screens/BattleScreen.js';
 import type { BattleUnit, BattleResult } from '../../src/types/game.js';
 
+// ✅ MOCK AT MODULE TOP LEVEL (Vitest hoists this automatically)
+vi.mock('../../src/data/spriteRegistry.js', () => ({
+  getBattleBackground: vi.fn(() => '/test-background.png'),
+  preloadCommonSprites: vi.fn(() => Promise.resolve()),
+  getUnitSprite: vi.fn(() => '/test-sprite.png'),
+  getEnemySprite: vi.fn(() => '/test-enemy.png'),
+  getUnitWeapon: vi.fn(() => 'lSword'),
+  getPartySpriteSet: vi.fn((unitName) => ({
+    idle: `/sprites/${unitName}-idle.gif`,
+    attack1: `/sprites/${unitName}-attack1.gif`,
+    attack2: `/sprites/${unitName}-attack2.gif`,
+    hit: `/sprites/${unitName}-hit.gif`,
+    downed: `/sprites/${unitName}-downed.gif`,
+  })),
+}));
+
 // Convert test fixtures to BattleUnit format
 const mockPlayerUnits: BattleUnit[] = [
   {
@@ -75,23 +91,7 @@ describe('BattleScreen', () => {
 
   beforeEach(() => {
     onComplete = vi.fn();
-    // Mock sprite loading
-    vi.mock('../../src/data/spriteRegistry.js', () => ({
-      getBattleBackground: vi.fn(() => '/test-background.png'),
-      preloadCommonSprites: vi.fn(() => Promise.resolve()),
-      getUnitSprite: vi.fn(() => '/test-sprite.png'),
-      getEnemySprite: vi.fn(() => '/test-enemy.png'),
-      getUnitWeapon: vi.fn(() => 'lSword'),
-      getPartySpriteSet: vi.fn(() => ({
-        idle: '/test-party-idle.gif',
-        attack1: '/test-party-attack1.gif',
-        attack2: '/test-party-attack2.gif',
-        hit: '/test-party-hit.gif',
-        downed: '/test-party-downed.gif',
-        cast1: '/test-party-cast1.gif',
-        cast2: '/test-party-cast2.gif',
-      })),
-    }));
+    // Mock is now at module level (top of file)
   });
 
   describe('Rendering', () => {

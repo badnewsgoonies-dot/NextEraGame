@@ -7,7 +7,7 @@
  * - Full integration with GameController, RewardSystem, TeamManager
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ConsoleLogger } from './systems/Logger.js';
 import { GameController } from './core/GameController.js';
 import { RewardSystem } from './systems/RewardSystem.js';
@@ -22,6 +22,7 @@ import { RecruitScreen } from './screens/RecruitScreen.js';
 import { SettingsScreen } from './screens/SettingsScreen.js';
 import { makeRng } from './utils/rng.js';
 import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit } from './types/game.js';
+import { LocalStorageSaveStore } from './systems/SaveStore.js';
 
 type AppScreen = 
   | 'menu'
@@ -35,11 +36,16 @@ type AppScreen =
 
 export function App(): React.ReactElement {
   const [logger] = useState(() => new ConsoleLogger('info'));
-  const [controller] = useState(() => new GameController(logger));
+  const [controller] = useState(() => {
+    const gameController = new GameController(logger);
+    // Use LocalStorage for browser persistence
+    gameController.getSaveSystem().setStore(new LocalStorageSaveStore());
+    return gameController;
+  });
   const [rewardSystem] = useState(() => new RewardSystem(logger));
   const [teamManager] = useState(() => new TeamManager());
   const [settingsManager] = useState(() => new SettingsManager());
-  
+
   const [screen, setScreen] = useState<AppScreen>('menu');
   const [playerTeam, setPlayerTeam] = useState<PlayerUnit[]>([]);
   const [previews, setPreviews] = useState<readonly OpponentPreview[]>([]);
@@ -47,9 +53,24 @@ export function App(): React.ReactElement {
   const [rewards, setRewards] = useState<BattleReward | null>(null);
   const [playerUnits, setPlayerUnits] = useState<BattleUnit[]>([]);
   const [enemyUnits, setEnemyUnits] = useState<BattleUnit[]>([]);
+  const [hasSaves, setHasSaves] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Check for existing saves
-  const hasSaves = false; // TODO: Implement save detection
+  // Check for existing saves on mount and after saves
+  const checkSaves = async () => {
+    try {
+      const result = await controller.getSaveSystem().hasSaves();
+      if (result.ok) {
+        setHasSaves(result.value);
+      }
+    } catch (error) {
+      logger.warn('Failed to check for saves:', error);
+    }
+  };
+
+  useEffect(() => {
+    checkSaves().finally(() => setIsLoading(false));
+  }, [controller, logger]);
 
   // Menu handlers
   const handleNewGame = () => {
@@ -63,14 +84,89 @@ export function App(): React.ReactElement {
     setScreen('starter_select');
   };
 
-  const handleContinue = () => {
-    // TODO: Load last save
-    console.log('Continue not implemented');
+  const handleContinue = async () => {
+    try {
+      // Get list of save slots
+      const slotsResult = await controller.getSaveSystem().listSlots();
+      if (!slotsResult.ok) {
+        logger.error('Failed to list save slots:', slotsResult.error);
+        return;
+      }
+
+      const slots = slotsResult.value;
+      if (slots.length === 0) {
+        logger.warn('No saves found');
+        return;
+      }
+
+      // Load the most recent save (by modified date)
+      const mostRecentSlot = slots.sort((a, b) => new Date(b.modified).getTime() - new Date(a.modified).getTime())[0];
+
+      const loadResult = await controller.loadGame(mostRecentSlot.slot);
+      if (!loadResult.ok) {
+        logger.error('Failed to load save:', loadResult.error);
+        return;
+      }
+
+      // Restore UI state from loaded game
+      const state = controller.getState();
+      setPlayerTeam(state.playerTeam);
+
+      // Generate opponent choices for current state
+      const choicesResult = controller.generateOpponentChoices();
+      if (choicesResult.ok) {
+        setPreviews(choicesResult.value);
+        setScreen('opponent_select');
+      } else {
+        logger.error('Failed to generate choices after load:', choicesResult.error);
+        // Fall back to menu if we can't generate choices
+        setScreen('menu');
+      }
+    } catch (error) {
+      logger.error('Continue game failed:', error);
+    }
   };
 
-  const handleLoadGame = () => {
-    // TODO: Show save slots
-    console.log('Load game not implemented');
+  const handleLoadGame = async () => {
+    try {
+      // Get list of save slots
+      const slotsResult = await controller.getSaveSystem().listSlots();
+      if (!slotsResult.ok) {
+        logger.error('Failed to list save slots:', slotsResult.error);
+        return;
+      }
+
+      const slots = slotsResult.value;
+      if (slots.length === 0) {
+        logger.warn('No saves found');
+        return;
+      }
+
+      // Load the most recent save (loads most recently modified)
+      const mostRecentSlot = slots.sort((a, b) => new Date(b.modified).getTime() - new Date(a.modified).getTime())[0];
+
+      const loadResult = await controller.loadGame(mostRecentSlot.slot);
+      if (!loadResult.ok) {
+        logger.error('Failed to load save:', loadResult.error);
+        return;
+      }
+
+      // Restore UI state from loaded game
+      const state = controller.getState();
+      setPlayerTeam(state.playerTeam);
+
+      // Generate opponent choices for current state
+      const choicesResult = controller.generateOpponentChoices();
+      if (choicesResult.ok) {
+        setPreviews(choicesResult.value);
+        setScreen('opponent_select');
+      } else {
+        logger.error('Failed to generate choices after load:', choicesResult.error);
+        setScreen('menu');
+      }
+    } catch (error) {
+      logger.error('Load game failed:', error);
+    }
   };
 
   const handleOpenSettings = () => {
@@ -78,8 +174,12 @@ export function App(): React.ReactElement {
   };
 
   const handleExit = () => {
-    console.log('Exit game');
-    // In production, this would close the window or return to launcher
+    // In a real application, this would close the window or return to launcher
+    // For web deployment, we could navigate to the home page or show a confirmation
+    if (confirm('Are you sure you want to exit the game?')) {
+      // Could navigate to home page or close tab
+      window.close();
+    }
   };
 
   // Starter selection
@@ -104,13 +204,13 @@ export function App(): React.ReactElement {
   const handleSelectOpponent = (opponentId: string) => {
     const selectResult = controller.selectOpponent(opponentId);
     if (!selectResult.ok) {
-      console.error('Failed to select opponent:', selectResult.error);
+      logger.error('Failed to select opponent:', selectResult.error);
       return;
     }
 
     const startResult = controller.startBattle();
     if (!startResult.ok) {
-      console.error('Failed to start battle:', startResult.error);
+      logger.error('Failed to start battle:', startResult.error);
       return;
     }
 
@@ -156,9 +256,22 @@ export function App(): React.ReactElement {
   };
 
   // Battle handlers - NOW accepts result from manual battle screen
-  const handleBattleComplete = (result: BattleResult) => {
+  const handleBattleComplete = async (result: BattleResult) => {
     setBattleResult(result);
-    
+
+    // Auto-save after battle completion
+    try {
+      const saveResult = await controller.saveGame('autosave');
+      if (saveResult.ok) {
+        await checkSaves(); // Refresh save detection
+        logger.info('Auto-saved after battle');
+      } else {
+        logger.warn('Auto-save failed:', saveResult.error);
+      }
+    } catch (error) {
+      logger.warn('Auto-save error:', error);
+    }
+
     // Generate rewards if player won
     if (result.winner === 'player') {
       const selectedPreview = previews.find(p => p.spec.id === controller.getState().selectedOpponentId);
@@ -192,51 +305,77 @@ export function App(): React.ReactElement {
     // Transition FSM from rewards → recruit
     const transition = controller.getStateMachine().transitionTo('recruit');
     if (!transition.ok) {
-      console.error('Failed to transition to recruit state:', transition.error);
+      logger.error('Failed to transition to recruit state:', transition.error);
       return;
     }
     setScreen('recruit');
   };
 
   // Recruit handlers
-  const handleRecruit = (enemyId: string, replaceUnitId?: string) => {
+  const handleRecruit = async (enemyId: string, replaceUnitId?: string) => {
     if (!rewards) return;
 
     const enemyTemplate = rewards.defeatedEnemies.find(e => e.id === enemyId);
     if (!enemyTemplate) {
-      console.error('Enemy not found:', enemyId);
+      logger.error('Enemy not found for recruitment:', { enemyId });
       return;
     }
 
     const recruitResult = teamManager.recruitUnit(playerTeam, enemyTemplate, replaceUnitId);
     if (recruitResult.ok) {
       setPlayerTeam(recruitResult.value as PlayerUnit[]);
-      
+
+      // Auto-save after recruitment
+      try {
+        const saveResult = await controller.saveGame('autosave');
+        if (saveResult.ok) {
+          await checkSaves(); // Refresh save detection
+          logger.info('Auto-saved after recruitment');
+        } else {
+          logger.warn('Auto-save failed after recruitment:', saveResult.error);
+        }
+      } catch (error) {
+        logger.warn('Auto-save error after recruitment:', error);
+      }
+
       // Advance to next battle (transitions FSM to opponent_select)
       const advanceResult = controller.advanceToNextBattle();
       if (!advanceResult.ok) {
-        console.error('Failed to advance to next battle:', advanceResult.error);
+        logger.error('Failed to advance to next battle:', advanceResult.error);
         return;
       }
-      
+
       const choicesResult = controller.generateOpponentChoices();
       if (choicesResult.ok) {
         setPreviews(choicesResult.value);
         setScreen('opponent_select');
       }
     } else {
-      console.error('Recruitment failed:', recruitResult.error);
+      logger.error('Recruitment failed:', recruitResult.error);
     }
   };
 
-  const handleSkipRecruit = () => {
+  const handleSkipRecruit = async () => {
+    // Auto-save after skipping recruitment
+    try {
+      const saveResult = await controller.saveGame('autosave');
+      if (saveResult.ok) {
+        await checkSaves(); // Refresh save detection
+        logger.info('Auto-saved after skipping recruitment');
+      } else {
+        logger.warn('Auto-save failed after skipping recruitment:', saveResult.error);
+      }
+    } catch (error) {
+      logger.warn('Auto-save error after skipping recruitment:', error);
+    }
+
     // Advance to next battle (transitions FSM to opponent_select)
     const advanceResult = controller.advanceToNextBattle();
     if (!advanceResult.ok) {
-      console.error('Failed to advance to next battle:', advanceResult.error);
+      logger.error('Failed to advance to next battle after skipping recruitment:', advanceResult.error);
       return;
     }
-    
+
     const choicesResult = controller.generateOpponentChoices();
     if (choicesResult.ok) {
       setPreviews(choicesResult.value);
@@ -253,6 +392,18 @@ export function App(): React.ReactElement {
   const handleSettingsBack = () => {
     setScreen('menu');
   };
+
+  // Show loading screen while checking for saves
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Render appropriate screen
   switch (screen) {

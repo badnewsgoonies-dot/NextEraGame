@@ -139,5 +139,19 @@ export class SaveSystem {
       return false;
     }
   }
+
+  /**
+   * Check if any saves exist
+   */
+  async hasSaves(): Promise<Result<boolean, string>> {
+    try {
+      const slots = await this.store.list();
+      return ok(slots.length > 0);
+    } catch (e) {
+      const error = e as Error;
+      this.logger.error('save:has_saves_failed', { error: error.message });
+      return err(`Failed to check for saves: ${error.message}`);
+    }
+  }
 }
 

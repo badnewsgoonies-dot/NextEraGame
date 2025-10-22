@@ -318,5 +318,12 @@ export class GameController {
   getStateMachine(): GameStateMachine {
     return this.stateMachine;
   }
+
+  /**
+   * Get save system (for persistence management)
+   */
+  getSaveSystem(): SaveSystem {
+    return this.saveSystem;
+  }
 }
 
