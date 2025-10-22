@@ -81,12 +81,22 @@ describe('BattleScreen', () => {
       preloadCommonSprites: vi.fn(() => Promise.resolve()),
       getUnitSprite: vi.fn(() => '/test-sprite.png'),
       getEnemySprite: vi.fn(() => '/test-enemy.png'),
+      getUnitWeapon: vi.fn(() => 'lSword'),
+      getPartySpriteSet: vi.fn(() => ({
+        idle: '/test-party-idle.gif',
+        attack1: '/test-party-attack1.gif',
+        attack2: '/test-party-attack2.gif',
+        hit: '/test-party-hit.gif',
+        downed: '/test-party-downed.gif',
+        cast1: '/test-party-cast1.gif',
+        cast2: '/test-party-cast2.gif',
+      })),
     }));
   });
 
   describe('Rendering', () => {
     test('renders battle screen with player units', () => {
-      const { getByText } = render(
+      const { getAllByText } = render(
         <BattleScreen
           playerUnits={mockPlayerUnits}
           enemyUnits={[weakEnemy]}
@@ -95,8 +105,9 @@ describe('BattleScreen', () => {
         />
       );
 
-      expect(getByText('Warrior')).toBeDefined();
-      expect(getByText('Rogue')).toBeDefined();
+      // Check that unit names are displayed (they may appear in multiple places)
+      expect(getAllByText('Warrior').length).toBeGreaterThan(0);
+      expect(getAllByText('Rogue').length).toBeGreaterThan(0);
     });
 
     test('renders battle screen with enemy units', () => {
@@ -407,7 +418,11 @@ describe('BattleScreen', () => {
         />
       );
 
-      // Flee to end battle quickly
+      // Wait for battle to initialize, then flee to end battle quickly
+      await waitFor(() => {
+        expect(container.querySelector('[aria-label="Battle screen"]')).toBeInTheDocument();
+      });
+
       fireEvent.keyDown(container, { key: 'Escape' });
 
       await waitFor(() => expect(onComplete).toHaveBeenCalled());
@@ -435,6 +450,11 @@ describe('BattleScreen', () => {
           seed={12345}
         />
       );
+
+      // Wait for battle to initialize, then flee
+      await waitFor(() => {
+        expect(container.querySelector('[aria-label="Battle screen"]')).toBeInTheDocument();
+      });
 
       fireEvent.keyDown(container, { key: 'Escape' });
 
