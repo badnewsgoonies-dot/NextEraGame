@@ -65,7 +65,7 @@ export function App(): React.ReactElement {
       if (result.ok) {
         const slots = result.value;
         setHasSaves(slots.length > 0);
-        setSaveSlots(slots);
+        setSaveSlots([...slots]); // Convert readonly to mutable array
       }
     } catch (error) {
       console.error('Failed to check saves:', error);
@@ -130,6 +130,54 @@ export function App(): React.ReactElement {
 
   const handleLoadGame = () => {
     setShowLoadModal(true);
+  };
+
+  const handleLoadFromSlot = async (slot: string) => {
+    setShowLoadModal(false);
+
+    try {
+      console.log('Loading save from slot:', slot);
+
+      const loadResult = await controller.loadGame(slot);
+      if (!loadResult.ok) {
+        console.error('Failed to load:', loadResult.error);
+        alert(`Failed to load game: ${loadResult.error}`);
+        return;
+      }
+
+      // Restore UI state (same as handleContinue)
+      const gameState = controller.getState();
+      setPlayerTeam(gameState.playerTeam);
+
+      if (gameState.currentChoices && gameState.currentChoices.length > 0) {
+        setPreviews(gameState.currentChoices);
+        setScreen('opponent_select');
+      } else {
+        const choicesResult = controller.generateOpponentChoices();
+        if (choicesResult.ok) {
+          setPreviews(choicesResult.value);
+          setScreen('opponent_select');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load from slot:', error);
+      alert('Failed to load game');
+    }
+  };
+
+  const handleDeleteSave = async (slot: string): Promise<void> => {
+    try {
+      const deleteResult = await controller.getSaveSystem().deleteSave(slot);
+      if (deleteResult.ok) {
+        console.log('Deleted save:', slot);
+        await checkForSaves(); // Refresh save list
+      } else {
+        throw new Error(deleteResult.error);
+      }
+    } catch (error) {
+      console.error('Failed to delete save:', error);
+      throw error; // Re-throw so modal can handle it
+    }
   };
 
   const handleOpenSettings = () => {
@@ -327,114 +375,130 @@ export function App(): React.ReactElement {
   };
 
   // Render appropriate screen
-  switch (screen) {
-    case 'menu':
-      return (
-        <MainMenuScreen
-          onNewGame={handleNewGame}
-          onContinue={handleContinue}
-          onLoadGame={handleLoadGame}
-          onSettings={handleOpenSettings}
-          onExit={handleExit}
-          hasSaves={hasSaves}
-        />
-      );
+  const renderScreen = () => {
+    switch (screen) {
+      case 'menu':
+        return (
+          <MainMenuScreen
+            onNewGame={handleNewGame}
+            onContinue={handleContinue}
+            onLoadGame={handleLoadGame}
+            onSettings={handleOpenSettings}
+            onExit={handleExit}
+            hasSaves={hasSaves}
+          />
+        );
 
-    case 'starter_select':
-      return (
-        <StarterSelectScreen
-          onSelect={handleStarterSelected}
-          onCancel={handleStarterCancel}
-        />
-      );
+      case 'starter_select':
+        return (
+          <StarterSelectScreen
+            onSelect={handleStarterSelected}
+            onCancel={handleStarterCancel}
+          />
+        );
 
-    case 'opponent_select':
-      return (
-        <OpponentSelectScreen
-          previews={previews}
-          battleIndex={controller.getState().battleIndex}
-          onSelect={handleSelectOpponent}
-          onCancel={() => {
-            // Return to menu (note: could add controller.abortRun() if needed)
-            setScreen('menu');
-          }}
-        />
-      );
+      case 'opponent_select':
+        return (
+          <OpponentSelectScreen
+            previews={previews}
+            battleIndex={controller.getState().battleIndex}
+            onSelect={handleSelectOpponent}
+            onCancel={() => {
+              // Return to menu (note: could add controller.abortRun() if needed)
+              setScreen('menu');
+            }}
+          />
+        );
 
-    case 'battle':
-      if (playerUnits.length === 0 || enemyUnits.length === 0) {
-        return <div>Loading battle...</div>;
-      }
-      return (
-        <BattleScreen
-          playerUnits={playerUnits}
-          enemyUnits={enemyUnits}
-          onComplete={handleBattleComplete}
-          battleIndex={controller.getState().battleIndex}
-        />
-      );
+      case 'battle':
+        if (playerUnits.length === 0 || enemyUnits.length === 0) {
+          return <div>Loading battle...</div>;
+        }
+        return (
+          <BattleScreen
+            playerUnits={playerUnits}
+            enemyUnits={enemyUnits}
+            onComplete={handleBattleComplete}
+            battleIndex={controller.getState().battleIndex}
+          />
+        );
 
-    case 'rewards':
-      if (!rewards) {
-        return <div>Loading rewards...</div>;
-      }
-      return (
-        <RewardsScreen
-          rewards={rewards}
-          onContinue={handleRewardsContinue}
-        />
-      );
+      case 'rewards':
+        if (!rewards) {
+          return <div>Loading rewards...</div>;
+        }
+        return (
+          <RewardsScreen
+            rewards={rewards}
+            onContinue={handleRewardsContinue}
+          />
+        );
 
-    case 'recruit':
-      if (!rewards) {
-        return <div>Loading recruitment...</div>;
-      }
-      return (
-        <RecruitScreen
-          defeatedEnemies={rewards.defeatedEnemies}
-          currentTeam={playerTeam}
-          onRecruit={handleRecruit}
-          onSkip={handleSkipRecruit}
-        />
-      );
+      case 'recruit':
+        if (!rewards) {
+          return <div>Loading recruitment...</div>;
+        }
+        return (
+          <RecruitScreen
+            defeatedEnemies={rewards.defeatedEnemies}
+            currentTeam={playerTeam}
+            onRecruit={handleRecruit}
+            onSkip={handleSkipRecruit}
+          />
+        );
 
-    case 'defeat':
-      return (
-        <div className="min-h-screen bg-gradient-to-b from-red-800 to-red-900 flex items-center justify-center">
-          <div className="text-center max-w-md bg-white dark:bg-gray-800 rounded-lg p-8 shadow-2xl">
-            <div className="text-7xl mb-4">💀</div>
-            <h1 className="text-5xl font-bold text-red-500 mb-4">Defeat</h1>
-            <p className="text-xl text-gray-700 dark:text-gray-300 mb-2">
-              Your party was defeated...
-            </p>
-            {battleResult && (
-              <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-                Survived {battleResult.turnsTaken} turns
+      case 'defeat':
+        return (
+          <div className="min-h-screen bg-gradient-to-b from-red-800 to-red-900 flex items-center justify-center">
+            <div className="text-center max-w-md bg-white dark:bg-gray-800 rounded-lg p-8 shadow-2xl">
+              <div className="text-7xl mb-4">💀</div>
+              <h1 className="text-5xl font-bold text-red-500 mb-4">Defeat</h1>
+              <p className="text-xl text-gray-700 dark:text-gray-300 mb-2">
+                Your party was defeated...
               </p>
-            )}
-            <button
-              onClick={handleDefeatRestart}
-              className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors shadow-lg"
-            >
-              Return to Menu
-            </button>
+              {battleResult && (
+                <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                  Survived {battleResult.turnsTaken} turns
+                </p>
+              )}
+              <button
+                onClick={handleDefeatRestart}
+                className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors shadow-lg"
+              >
+                Return to Menu
+              </button>
+            </div>
           </div>
-        </div>
-      );
+        );
 
-    case 'settings':
-      return (
-        <SettingsScreen
-          onBack={handleSettingsBack}
-          settingsManager={settingsManager}
+      case 'settings':
+        return (
+          <SettingsScreen
+            onBack={handleSettingsBack}
+            settingsManager={settingsManager}
+          />
+        );
+
+      default:
+        return (
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+            <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <>
+      {renderScreen()}
+      {showLoadModal && (
+        <LoadGameModal
+          saves={saveSlots}
+          onLoad={handleLoadFromSlot}
+          onClose={() => setShowLoadModal(false)}
+          onDelete={handleDeleteSave}
         />
-      );
-
-    default:
-      return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
-        </div>
-      );
-  }
+      )}
+    </>
+  );
 }
