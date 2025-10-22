@@ -1,11 +1,9 @@
 /*
  * NextEra MVP Styles
- * Tailwind CSS + Custom Utilities
+ * Tailwind CSS v4 + Custom Utilities
  */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Screen reader only utility */
 @layer utilities {
