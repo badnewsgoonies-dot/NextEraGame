@@ -10,6 +10,32 @@ import fc from 'fast-check';
 import { BattleScreen } from '../../src/screens/BattleScreen.js';
 import type { BattleUnit, BattleResult } from '../../src/types/game.js';
 
+// Mock sprite registry at module top level (MUST be here for Vitest hoisting)
+vi.mock('../../src/data/spriteRegistry.js', () => ({
+  getBattleBackground: vi.fn(() => '/test-background.png'),
+  preloadCommonSprites: vi.fn(() => Promise.resolve()),
+  getUnitSprite: vi.fn((unitName) => `/test-${unitName}.png`),
+  getEnemySprite: vi.fn((enemyName, role) => `/test-${enemyName}.png`),
+  getUnitWeapon: vi.fn((unitName) => {
+    const weapons: Record<string, string> = {
+      warrior: 'lSword',
+      mage: 'lBlade',
+      healer: 'Mace',
+      rogue: 'lBlade'
+    };
+    return weapons[unitName?.toLowerCase()] || 'lSword';
+  }),
+  getPartySpriteSet: vi.fn((unitName, weapon) => ({
+    idle: `/sprites/${unitName}-idle.gif`,
+    attack1: `/sprites/${unitName}-attack1.gif`,
+    attack2: `/sprites/${unitName}-attack2.gif`,
+    hit: `/sprites/${unitName}-hit.gif`,
+    downed: `/sprites/${unitName}-downed.gif`,
+    victory: `/sprites/${unitName}-victory.gif`
+  })),
+  getBattleBackgroundForTags: vi.fn((tags, fallbackIndex) => '/test-background.png')
+}));
+
 // Convert test fixtures to BattleUnit format
 const mockPlayerUnits: BattleUnit[] = [
   {
@@ -75,13 +101,7 @@ describe('BattleScreen', () => {
 
   beforeEach(() => {
     onComplete = vi.fn();
-    // Mock sprite loading
-    vi.mock('../../src/data/spriteRegistry.js', () => ({
-      getBattleBackground: vi.fn(() => '/test-background.png'),
-      preloadCommonSprites: vi.fn(() => Promise.resolve()),
-      getUnitSprite: vi.fn(() => '/test-sprite.png'),
-      getEnemySprite: vi.fn(() => '/test-enemy.png'),
-    }));
+    // Sprite mocks now at module top level
   });
 
   describe('Rendering', () => {
