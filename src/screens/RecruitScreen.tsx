@@ -76,7 +76,7 @@ export function RecruitScreen({
             <div className="text-6xl mb-4">🎉</div>
             <h2 className="text-2xl font-bold text-white mb-2">No Enemies Defeated</h2>
             <p className="text-purple-200">
-              Your team survived without losing any enemies, or all enemies escaped!
+              Your team survived without defeating any enemies, or all enemies escaped!
             </p>
           </div>
         ) : (
