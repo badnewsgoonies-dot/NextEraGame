@@ -15,9 +15,11 @@ import fc from 'fast-check';
 import { makeRng } from '../../src/utils/rng.js';
 import { ConsoleLogger } from '../../src/systems/Logger.js';
 import { ChoiceSystem } from '../../src/systems/ChoiceSystem.js';
-import { SaveSystem } from '../../src/systems/SaveSystem.js';
+import { SaveSystem, type GameStateSnapshot } from '../../src/systems/SaveSystem.js';
 import { InMemorySaveStore } from '../../src/systems/SaveStore.js';
-import type { GameStateSnapshot, OpponentPreview } from '../../src/types/game.js';
+import { GameController } from '../../src/core/GameController.js';
+import { mockPlayerTeam } from '../fixtures/battleFixtures.js';
+import type { OpponentPreview } from '../../src/types/game.js';
 
 describe('Integration: Full Game Flow', () => {
   let choiceSystem: ChoiceSystem;
@@ -374,6 +376,59 @@ describe('Integration: Full Game Flow', () => {
         expect(loaded.value.progression.battlesWon).toBe(battleResult.winner === 'player' ? 1 : 0);
         expect(loaded.value.choice.battleIndex).toBe(battleIndex + 1);
       }
+    });
+  });
+
+  describe('Defeat Flow - Progression Preservation', () => {
+    test('defeat state transition preserves game state', () => {
+      const controller = new GameController(logger);
+      
+      // Start run (transitions to 'opponent_select')
+      controller.startRun(mockPlayerTeam, 12345);
+      expect(controller.getCurrentState()).toBe('opponent_select');
+      
+      const stateBeforeDefeat = controller.getState();
+      const progressionBeforeDefeat = { ...stateBeforeDefeat.progression };
+      
+      // Transition through defeat flow: opponent_select → team_prep → battle → defeat → menu
+      controller.getStateMachine().transitionTo('team_prep');
+      controller.getStateMachine().transitionTo('battle');
+      expect(controller.getCurrentState()).toBe('battle');
+      
+      controller.getStateMachine().transitionTo('defeat');
+      expect(controller.getCurrentState()).toBe('defeat');
+      
+      controller.getStateMachine().transitionTo('menu');
+      expect(controller.getCurrentState()).toBe('menu');
+      
+      // CRITICAL: State should persist through defeat transition
+      const stateAfterDefeat = controller.getState();
+      expect(stateAfterDefeat.runSeed).toBe(12345); // Run data preserved
+      expect(stateAfterDefeat.progression).toEqual(progressionBeforeDefeat); // Progression intact
+    });
+
+    test('new run after defeat resets battle index', () => {
+      const controller = new GameController(logger);
+      
+      // First run
+      controller.startRun(mockPlayerTeam, 99999);
+      
+      // Simulate defeat
+      controller.getStateMachine().transitionTo('battle');
+      controller.getStateMachine().transitionTo('defeat');
+      controller.getStateMachine().transitionTo('menu');
+      
+      const afterDefeat = controller.getState();
+      const runsAttemptedAfterDefeat = afterDefeat.progression.runsAttempted;
+      
+      // Start new run - this should reset run-specific data
+      controller.startRun(mockPlayerTeam, 77777);
+      const afterNewRun = controller.getState();
+      
+      expect(afterNewRun.runSeed).toBe(77777); // New seed
+      expect(afterNewRun.battleIndex).toBe(0); // Reset
+      expect(afterNewRun.currentChoices).toBeNull(); // No choices until generated
+      expect(afterNewRun.progression.runsAttempted).toBe(runsAttemptedAfterDefeat + 1); // Incremented
     });
   });
 });
