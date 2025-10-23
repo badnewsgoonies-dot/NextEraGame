@@ -261,6 +261,8 @@ export function BattleScreen({
       setRoundIdx(nextIndex);
       setActiveId(roundOrder[nextIndex] ?? null);
     }
+    // Reset phase to 'menu' for the next turn
+    setPhase('menu');
   }, [roundIdx, roundOrder, computeRoundOrder]);
 
   /**
@@ -353,8 +355,8 @@ export function BattleScreen({
       }
       hasHandledTurn.current.add(turnKey);
     }
-    // Enemy turn: execute AI attack
-    else if (phase === 'menu' || phase === 'resolving') {
+    // Enemy turn: execute AI attack (only trigger when phase is 'menu')
+    else if (phase === 'menu') {
       hasHandledTurn.current.add(turnKey);
       setPhase('animating');
 
@@ -439,7 +441,10 @@ export function BattleScreen({
       // Show item menu (keyboard/enter flow)
       const consumables = gameController.getConsumables();
       if (consumables.length === 0) {
-        // No items - return to menu (could show a message)
+        // No items - still show menu with "No items available" message
+        setItemMenuIndex(0);
+        setSelectedItem(null);
+        setPhase('item-menu');
         return;
       }
       setItemMenuIndex(0);
@@ -477,13 +482,7 @@ export function BattleScreen({
           setPhase('resolving');
           advanceTurnPointer();
         } else if (label === 'Items') {
-          // Show item menu
-          const consumables = gameController.getConsumables();
-          if (consumables.length === 0) {
-            // No items - return to menu
-            // TODO: Show "No items available" message
-            return;
-          }
+          // Show item menu (always, even if empty - will show "No items available")
           setItemMenuIndex(0);
           setSelectedItem(null);
           setPhase('item-menu');
@@ -662,7 +661,9 @@ export function BattleScreen({
 
   const keyboardEnabled = phase === 'menu' || phase === 'targeting' || phase === 'item-menu' || phase === 'item-targeting';
 
-  const consumables = useMemo(() => gameController.getConsumables(), [gameController]);
+  // Get consumables fresh each time to ensure inventory changes are reflected
+  // Note: gameController state is mutable, so useMemo wouldn't catch changes
+  const consumables = gameController.getConsumables();
 
   useKeyboard({
     enabled: keyboardEnabled,

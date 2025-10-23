@@ -8,7 +8,9 @@ import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react';
 import fc from 'fast-check';
 import { BattleScreen } from '../../src/screens/BattleScreen.js';
-import type { BattleUnit, BattleResult } from '../../src/types/game.js';
+import type { BattleUnit, BattleResult, PlayerUnit } from '../../src/types/game.js';
+import { GameController } from '../../src/core/GameController.js';
+import { ConsoleLogger } from '../../src/systems/Logger.js';
 
 // Mock sprite registry at module top level (MUST be here for Vitest hoisting)
 vi.mock('../../src/data/spriteRegistry.js', () => ({
@@ -99,9 +101,21 @@ const weakEnemy: BattleUnit = {
 
 describe('BattleScreen', () => {
   let onComplete: ReturnType<typeof vi.fn>;
+  let gameController: GameController;
 
   beforeEach(() => {
     onComplete = vi.fn();
+    // Create fresh GameController for each test
+    const logger = new ConsoleLogger('error');
+    gameController = new GameController(logger);
+    // Initialize with starter team to set up inventory
+    const starterTeam: PlayerUnit[] = mockPlayerUnits.map(u => ({
+      ...u,
+      hp: u.currentHp,
+      level: 1,
+      experience: 0,
+    }));
+    gameController.startRun(starterTeam, 12345);
     // Sprite mocks now at module top level
   });
 
@@ -115,6 +129,7 @@ describe('BattleScreen', () => {
             enemyUnits={[weakEnemy]}
             onComplete={onComplete}
             seed={12345}
+          gameController={gameController}
           />
         );
       });
@@ -136,6 +151,7 @@ describe('BattleScreen', () => {
           enemyUnits={mockEnemyUnits}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -149,6 +165,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -163,6 +180,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -178,6 +196,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -198,6 +217,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -221,6 +241,7 @@ describe('BattleScreen', () => {
           enemyUnits={[sameSpeedEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -240,6 +261,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -269,6 +291,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -293,10 +316,14 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
       // React 19: Fire keyboard events on window (useKeyboard listens there)
+      await act(async () => {
+        fireEvent.keyDown(window, { key: 'ArrowDown' });
+      });
       await act(async () => {
         fireEvent.keyDown(window, { key: 'ArrowDown' });
       });
@@ -324,6 +351,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -359,6 +387,7 @@ describe('BattleScreen', () => {
           enemyUnits={twoEnemies}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -394,6 +423,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -436,6 +466,7 @@ describe('BattleScreen', () => {
             onComplete={onCompleteLocal}
             seed={seed}
             battleIndex={0}
+          gameController={gameController}
           />
         );
 
@@ -489,6 +520,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -528,6 +560,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -556,6 +589,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -602,6 +636,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -617,6 +652,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -636,6 +672,7 @@ describe('BattleScreen', () => {
           enemyUnits={mockEnemyUnits}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -657,6 +694,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -671,6 +709,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 
@@ -693,6 +732,7 @@ describe('BattleScreen', () => {
             enemyUnits={mockEnemyUnits}
             onComplete={onComplete}
             seed={12345}
+          gameController={gameController}
           />
         );
       }).not.toThrow();
@@ -705,6 +745,7 @@ describe('BattleScreen', () => {
             playerUnits={mockPlayerUnits}
             enemyUnits={mockEnemyUnits}
             onComplete={onComplete}
+            gameController={gameController}
           />
         );
       }).not.toThrow();
@@ -719,6 +760,7 @@ describe('BattleScreen', () => {
             onComplete={onComplete}
             seed={12345}
             battleIndex={5}
+          gameController={gameController}
           />
         );
       }).not.toThrow();
@@ -734,6 +776,7 @@ describe('BattleScreen', () => {
             enemyUnits={[weakEnemy]}
             onComplete={onComplete}
             seed={12345}
+          gameController={gameController}
           />
         );
       }).not.toThrow();
@@ -758,6 +801,7 @@ describe('BattleScreen', () => {
             enemyUnits={fourEnemies}
             onComplete={onComplete}
             seed={12345}
+          gameController={gameController}
           />
         );
       }).not.toThrow();
@@ -775,6 +819,7 @@ describe('BattleScreen', () => {
           enemyUnits={[weakEnemy]}
           onComplete={onComplete}
           seed={12345}
+        gameController={gameController}
         />
       );
 

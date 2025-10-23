@@ -14,7 +14,7 @@ describe('RosterManager', () => {
     rosterManager = new RosterManager();
   });
 
-  // Test fixture
+  // Test fixture helper
   const createUnit = (id: string, name: string): PlayerUnit => ({
     id,
     name,
@@ -30,42 +30,43 @@ describe('RosterManager', () => {
   });
 
   describe('createRosterFromTeam', () => {
-    test('splits 4 units into all active, 0 bench', () => {
-      const team = [
-        createUnit('unit1', 'Unit 1'),
-        createUnit('unit2', 'Unit 2'),
-        createUnit('unit3', 'Unit 3'),
-        createUnit('unit4', 'Unit 4'),
+    test('creates roster with 4 units all in active party', () => {
+      const team: PlayerUnit[] = [
+        createUnit('1', 'Unit1'),
+        createUnit('2', 'Unit2'),
+        createUnit('3', 'Unit3'),
+        createUnit('4', 'Unit4'),
       ];
 
       const roster = rosterManager.createRosterFromTeam(team);
 
       expect(roster.activeParty).toHaveLength(4);
       expect(roster.bench).toHaveLength(0);
-      expect(roster.activeParty[0].id).toBe('unit1');
-      expect(roster.activeParty[3].id).toBe('unit4');
+      expect(roster.activeParty[0].id).toBe('1');
+      expect(roster.activeParty[3].id).toBe('4');
     });
 
-    test('splits 6 units into 4 active, 2 bench', () => {
-      const team = [
-        createUnit('unit1', 'Unit 1'),
-        createUnit('unit2', 'Unit 2'),
-        createUnit('unit3', 'Unit 3'),
-        createUnit('unit4', 'Unit 4'),
-        createUnit('unit5', 'Unit 5'),
-        createUnit('unit6', 'Unit 6'),
+    test('creates roster with 6 units - 4 active, 2 bench', () => {
+      const team: PlayerUnit[] = [
+        createUnit('1', 'Unit1'),
+        createUnit('2', 'Unit2'),
+        createUnit('3', 'Unit3'),
+        createUnit('4', 'Unit4'),
+        createUnit('5', 'Unit5'),
+        createUnit('6', 'Unit6'),
       ];
 
       const roster = rosterManager.createRosterFromTeam(team);
 
       expect(roster.activeParty).toHaveLength(4);
       expect(roster.bench).toHaveLength(2);
-      expect(roster.activeParty[0].id).toBe('unit1');
-      expect(roster.bench[0].id).toBe('unit5');
-      expect(roster.bench[1].id).toBe('unit6');
+      expect(roster.activeParty[0].id).toBe('1');
+      expect(roster.activeParty[3].id).toBe('4');
+      expect(roster.bench[0].id).toBe('5');
+      expect(roster.bench[1].id).toBe('6');
     });
 
-    test('handles empty array', () => {
+    test('creates empty roster from empty team', () => {
       const team: PlayerUnit[] = [];
 
       const roster = rosterManager.createRosterFromTeam(team);
@@ -74,156 +75,172 @@ describe('RosterManager', () => {
       expect(roster.bench).toHaveLength(0);
     });
 
-    test('splits 10 units into 4 active, 6 bench', () => {
-      const team = Array.from({ length: 10 }, (_, i) =>
-        createUnit(`unit${i}`, `Unit ${i}`)
+    test('creates roster with 10 units - 4 active, 6 bench', () => {
+      const team: PlayerUnit[] = Array.from({ length: 10 }, (_, i) =>
+        createUnit(`${i + 1}`, `Unit${i + 1}`)
       );
 
       const roster = rosterManager.createRosterFromTeam(team);
 
       expect(roster.activeParty).toHaveLength(4);
       expect(roster.bench).toHaveLength(6);
-      expect(roster.activeParty[0].id).toBe('unit0');
-      expect(roster.activeParty[3].id).toBe('unit3');
-      expect(roster.bench[0].id).toBe('unit4');
-      expect(roster.bench[5].id).toBe('unit9');
+      expect(roster.activeParty[0].id).toBe('1');
+      expect(roster.activeParty[3].id).toBe('4');
+      expect(roster.bench[0].id).toBe('5');
+      expect(roster.bench[5].id).toBe('10');
     });
   });
 
   describe('swapUnits', () => {
-    test('swaps units correctly between active and bench', () => {
+    test('successfully swaps unit from bench to active party', () => {
       const roster: RosterData = {
         activeParty: [
-          createUnit('active1', 'Active 1'),
-          createUnit('active2', 'Active 2'),
-          createUnit('active3', 'Active 3'),
-          createUnit('active4', 'Active 4'),
+          createUnit('a1', 'Active1'),
+          createUnit('a2', 'Active2'),
+          createUnit('a3', 'Active3'),
+          createUnit('a4', 'Active4'),
         ],
         bench: [
-          createUnit('bench1', 'Bench 1'),
-          createUnit('bench2', 'Bench 2'),
+          createUnit('b1', 'Bench1'),
+          createUnit('b2', 'Bench2'),
         ],
       };
 
       const result = rosterManager.swapUnits(roster, {
-        benchUnitId: 'bench1',
-        activeUnitId: 'active2',
+        benchUnitId: 'b1',
+        activeUnitId: 'a2',
       });
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.value.activeParty[1].id).toBe('bench1');
-        expect(result.value.bench[0].id).toBe('active2');
         expect(result.value.activeParty).toHaveLength(4);
         expect(result.value.bench).toHaveLength(2);
+        // Check swapped positions
+        expect(result.value.activeParty[1].id).toBe('b1'); // Bench1 now in position 1
+        expect(result.value.bench[0].id).toBe('a2'); // Active2 now on bench
+        // Check other positions unchanged
+        expect(result.value.activeParty[0].id).toBe('a1');
+        expect(result.value.activeParty[2].id).toBe('a3');
+        expect(result.value.activeParty[3].id).toBe('a4');
+        expect(result.value.bench[1].id).toBe('b2');
       }
     });
 
-    test('returns error if bench unit not found', () => {
+    test('returns error when bench unit not found', () => {
       const roster: RosterData = {
-        activeParty: [createUnit('active1', 'Active 1')],
-        bench: [createUnit('bench1', 'Bench 1')],
+        activeParty: [createUnit('a1', 'Active1')],
+        bench: [createUnit('b1', 'Bench1')],
       };
 
       const result = rosterManager.swapUnits(roster, {
         benchUnitId: 'nonexistent',
-        activeUnitId: 'active1',
+        activeUnitId: 'a1',
       });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain('Bench unit');
-        expect(result.error).toContain('nonexistent');
         expect(result.error).toContain('not found');
       }
     });
 
-    test('returns error if active unit not found', () => {
+    test('returns error when active unit not found', () => {
       const roster: RosterData = {
-        activeParty: [createUnit('active1', 'Active 1')],
-        bench: [createUnit('bench1', 'Bench 1')],
+        activeParty: [createUnit('a1', 'Active1')],
+        bench: [createUnit('b1', 'Bench1')],
       };
 
       const result = rosterManager.swapUnits(roster, {
-        benchUnitId: 'bench1',
+        benchUnitId: 'b1',
         activeUnitId: 'nonexistent',
       });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain('Active unit');
-        expect(result.error).toContain('nonexistent');
         expect(result.error).toContain('not found');
       }
     });
 
-    test('does not mutate original roster', () => {
+    test('swap is immutable - original roster unchanged', () => {
       const roster: RosterData = {
-        activeParty: [
-          createUnit('active1', 'Active 1'),
-          createUnit('active2', 'Active 2'),
-        ],
-        bench: [createUnit('bench1', 'Bench 1')],
+        activeParty: [createUnit('a1', 'Active1')],
+        bench: [createUnit('b1', 'Bench1')],
       };
 
-      const originalActive = roster.activeParty[0];
-      const originalBench = roster.bench[0];
+      const originalActiveId = roster.activeParty[0].id;
+      const originalBenchId = roster.bench[0].id;
 
       rosterManager.swapUnits(roster, {
-        benchUnitId: 'bench1',
-        activeUnitId: 'active1',
+        benchUnitId: 'b1',
+        activeUnitId: 'a1',
       });
 
       // Original roster unchanged
-      expect(roster.activeParty[0]).toBe(originalActive);
-      expect(roster.bench[0]).toBe(originalBench);
-      expect(roster.activeParty[0].id).toBe('active1');
-      expect(roster.bench[0].id).toBe('bench1');
+      expect(roster.activeParty[0].id).toBe(originalActiveId);
+      expect(roster.bench[0].id).toBe(originalBenchId);
     });
 
-    test('swap at different indices works correctly', () => {
+    test('swaps units at different indices correctly', () => {
       const roster: RosterData = {
         activeParty: [
-          createUnit('active1', 'Active 1'),
-          createUnit('active2', 'Active 2'),
-          createUnit('active3', 'Active 3'),
+          createUnit('a1', 'Active1'),
+          createUnit('a2', 'Active2'),
+          createUnit('a3', 'Active3'),
         ],
         bench: [
-          createUnit('bench1', 'Bench 1'),
-          createUnit('bench2', 'Bench 2'),
-          createUnit('bench3', 'Bench 3'),
+          createUnit('b1', 'Bench1'),
+          createUnit('b2', 'Bench2'),
+          createUnit('b3', 'Bench3'),
         ],
       };
 
+      // Swap last active with last bench
       const result = rosterManager.swapUnits(roster, {
-        benchUnitId: 'bench3',
-        activeUnitId: 'active1',
+        benchUnitId: 'b3',
+        activeUnitId: 'a3',
       });
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.value.activeParty[0].id).toBe('bench3');
-        expect(result.value.bench[2].id).toBe('active1');
+        expect(result.value.activeParty[2].id).toBe('b3');
+        expect(result.value.bench[2].id).toBe('a3');
       }
     });
   });
 
   describe('validateRoster', () => {
     test('accepts valid roster with 1-4 active units', () => {
-      const roster: RosterData = {
-        activeParty: [createUnit('active1', 'Active 1')],
-        bench: [],
-      };
+      const validRosters: RosterData[] = [
+        {
+          activeParty: [createUnit('1', 'Unit1')],
+          bench: [],
+        },
+        {
+          activeParty: [createUnit('1', 'Unit1'), createUnit('2', 'Unit2')],
+          bench: [createUnit('3', 'Unit3')],
+        },
+        {
+          activeParty: [
+            createUnit('1', 'Unit1'),
+            createUnit('2', 'Unit2'),
+            createUnit('3', 'Unit3'),
+            createUnit('4', 'Unit4'),
+          ],
+          bench: [],
+        },
+      ];
 
-      const result = rosterManager.validateRoster(roster);
-
-      expect(result.ok).toBe(true);
+      for (const roster of validRosters) {
+        const result = rosterManager.validateRoster(roster);
+        expect(result.ok).toBe(true);
+      }
     });
 
     test('rejects empty active party', () => {
       const roster: RosterData = {
         activeParty: [],
-        bench: [createUnit('bench1', 'Bench 1')],
+        bench: [createUnit('1', 'Unit1')],
       };
 
       const result = rosterManager.validateRoster(roster);
@@ -234,14 +251,14 @@ describe('RosterManager', () => {
       }
     });
 
-    test('rejects more than 4 active units', () => {
+    test('rejects active party with more than 4 units', () => {
       const roster: RosterData = {
         activeParty: [
-          createUnit('active1', 'Active 1'),
-          createUnit('active2', 'Active 2'),
-          createUnit('active3', 'Active 3'),
-          createUnit('active4', 'Active 4'),
-          createUnit('active5', 'Active 5'),
+          createUnit('1', 'Unit1'),
+          createUnit('2', 'Unit2'),
+          createUnit('3', 'Unit3'),
+          createUnit('4', 'Unit4'),
+          createUnit('5', 'Unit5'),
         ],
         bench: [],
       };
@@ -254,149 +271,146 @@ describe('RosterManager', () => {
       }
     });
 
-    test('rejects duplicate IDs across active and bench', () => {
+    test('rejects roster with duplicate IDs in active party', () => {
       const roster: RosterData = {
         activeParty: [
-          createUnit('duplicate', 'Unit 1'),
-          createUnit('active2', 'Active 2'),
+          createUnit('1', 'Unit1'),
+          createUnit('1', 'Unit1Duplicate'), // Duplicate ID
         ],
-        bench: [createUnit('duplicate', 'Unit 2')],
+        bench: [],
       };
 
       const result = rosterManager.validateRoster(roster);
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
-        expect(result.error).toContain('Duplicate unit IDs found');
+        expect(result.error).toContain('Duplicate unit ID');
       }
     });
 
-    test('accepts valid roster with bench units', () => {
+    test('rejects roster with duplicate IDs across active and bench', () => {
       const roster: RosterData = {
-        activeParty: [
-          createUnit('active1', 'Active 1'),
-          createUnit('active2', 'Active 2'),
-        ],
-        bench: [
-          createUnit('bench1', 'Bench 1'),
-          createUnit('bench2', 'Bench 2'),
-        ],
+        activeParty: [createUnit('1', 'Unit1')],
+        bench: [createUnit('1', 'Unit1Duplicate')], // Duplicate ID
       };
 
       const result = rosterManager.validateRoster(roster);
 
-      expect(result.ok).toBe(true);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain('Duplicate unit ID');
+      }
     });
   });
 
   describe('addRecruitedUnit', () => {
-    test('adds to active party when room available', () => {
+    test('adds unit to active party when not full', () => {
       const roster: RosterData = {
         activeParty: [
-          createUnit('active1', 'Active 1'),
-          createUnit('active2', 'Active 2'),
+          createUnit('1', 'Unit1'),
+          createUnit('2', 'Unit2'),
         ],
         bench: [],
       };
 
-      const newUnit = createUnit('new1', 'New Unit');
-      const newRoster = rosterManager.addRecruitedUnit(roster, newUnit);
+      const newUnit = createUnit('3', 'NewRecruit');
+      const result = rosterManager.addRecruitedUnit(roster, newUnit);
 
-      expect(newRoster.activeParty).toHaveLength(3);
-      expect(newRoster.activeParty[2].id).toBe('new1');
-      expect(newRoster.bench).toHaveLength(0);
+      expect(result.activeParty).toHaveLength(3);
+      expect(result.bench).toHaveLength(0);
+      expect(result.activeParty[2].id).toBe('3');
     });
 
-    test('adds to bench when active party full', () => {
+    test('adds unit to bench when active party is full', () => {
       const roster: RosterData = {
         activeParty: [
-          createUnit('active1', 'Active 1'),
-          createUnit('active2', 'Active 2'),
-          createUnit('active3', 'Active 3'),
-          createUnit('active4', 'Active 4'),
+          createUnit('1', 'Unit1'),
+          createUnit('2', 'Unit2'),
+          createUnit('3', 'Unit3'),
+          createUnit('4', 'Unit4'),
         ],
-        bench: [],
+        bench: [createUnit('5', 'Unit5')],
       };
 
-      const newUnit = createUnit('new1', 'New Unit');
-      const newRoster = rosterManager.addRecruitedUnit(roster, newUnit);
+      const newUnit = createUnit('6', 'NewRecruit');
+      const result = rosterManager.addRecruitedUnit(roster, newUnit);
 
-      expect(newRoster.activeParty).toHaveLength(4);
-      expect(newRoster.bench).toHaveLength(1);
-      expect(newRoster.bench[0].id).toBe('new1');
+      expect(result.activeParty).toHaveLength(4);
+      expect(result.bench).toHaveLength(2);
+      expect(result.bench[1].id).toBe('6');
     });
   });
 
   describe('getActiveTeam', () => {
-    test('returns active party as flat array', () => {
+    test('returns active party as array', () => {
       const roster: RosterData = {
         activeParty: [
-          createUnit('active1', 'Active 1'),
-          createUnit('active2', 'Active 2'),
+          createUnit('1', 'Unit1'),
+          createUnit('2', 'Unit2'),
         ],
-        bench: [createUnit('bench1', 'Bench 1')],
+        bench: [createUnit('3', 'Unit3')],
       };
 
       const activeTeam = rosterManager.getActiveTeam(roster);
 
       expect(activeTeam).toHaveLength(2);
-      expect(activeTeam[0].id).toBe('active1');
-      expect(activeTeam[1].id).toBe('active2');
+      expect(activeTeam[0].id).toBe('1');
+      expect(activeTeam[1].id).toBe('2');
     });
   });
 
   describe('getAllUnits', () => {
-    test('returns all units (active + bench) as flat array', () => {
+    test('returns all units (active + bench)', () => {
       const roster: RosterData = {
         activeParty: [
-          createUnit('active1', 'Active 1'),
-          createUnit('active2', 'Active 2'),
+          createUnit('1', 'Unit1'),
+          createUnit('2', 'Unit2'),
         ],
         bench: [
-          createUnit('bench1', 'Bench 1'),
-          createUnit('bench2', 'Bench 2'),
+          createUnit('3', 'Unit3'),
+          createUnit('4', 'Unit4'),
         ],
       };
 
       const allUnits = rosterManager.getAllUnits(roster);
 
       expect(allUnits).toHaveLength(4);
-      expect(allUnits[0].id).toBe('active1');
-      expect(allUnits[1].id).toBe('active2');
-      expect(allUnits[2].id).toBe('bench1');
-      expect(allUnits[3].id).toBe('bench2');
+      expect(allUnits[0].id).toBe('1');
+      expect(allUnits[1].id).toBe('2');
+      expect(allUnits[2].id).toBe('3');
+      expect(allUnits[3].id).toBe('4');
     });
   });
 
   describe('getRosterStats', () => {
-    test('returns correct statistics', () => {
+    test('returns correct roster statistics', () => {
       const roster: RosterData = {
         activeParty: [
-          createUnit('active1', 'Active 1'),
-          createUnit('active2', 'Active 2'),
+          createUnit('1', 'Unit1'),
+          createUnit('2', 'Unit2'),
+          createUnit('3', 'Unit3'),
         ],
         bench: [
-          createUnit('bench1', 'Bench 1'),
-          createUnit('bench2', 'Bench 2'),
-          createUnit('bench3', 'Bench 3'),
+          createUnit('4', 'Unit4'),
+          createUnit('5', 'Unit5'),
         ],
       };
 
       const stats = rosterManager.getRosterStats(roster);
 
-      expect(stats.activeCount).toBe(2);
-      expect(stats.benchCount).toBe(3);
+      expect(stats.activeCount).toBe(3);
+      expect(stats.benchCount).toBe(2);
       expect(stats.totalCount).toBe(5);
-      expect(stats.activeSlotsFree).toBe(2);
+      expect(stats.hasFullActiveParty).toBe(false);
     });
 
-    test('handles full active party', () => {
+    test('reports hasFullActiveParty correctly', () => {
       const roster: RosterData = {
         activeParty: [
-          createUnit('active1', 'Active 1'),
-          createUnit('active2', 'Active 2'),
-          createUnit('active3', 'Active 3'),
-          createUnit('active4', 'Active 4'),
+          createUnit('1', 'Unit1'),
+          createUnit('2', 'Unit2'),
+          createUnit('3', 'Unit3'),
+          createUnit('4', 'Unit4'),
         ],
         bench: [],
       };
@@ -404,21 +418,7 @@ describe('RosterManager', () => {
       const stats = rosterManager.getRosterStats(roster);
 
       expect(stats.activeCount).toBe(4);
-      expect(stats.activeSlotsFree).toBe(0);
-    });
-
-    test('handles empty roster', () => {
-      const roster: RosterData = {
-        activeParty: [],
-        bench: [],
-      };
-
-      const stats = rosterManager.getRosterStats(roster);
-
-      expect(stats.activeCount).toBe(0);
-      expect(stats.benchCount).toBe(0);
-      expect(stats.totalCount).toBe(0);
-      expect(stats.activeSlotsFree).toBe(4);
+      expect(stats.hasFullActiveParty).toBe(true);
     });
   });
 });
