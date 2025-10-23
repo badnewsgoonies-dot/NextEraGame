@@ -1,0 +1,14 @@
+Vercel CLI 48.5.0
+Loading scopes…
+Searching for existing projects…
+Linked to next-era/dist (created .vercel and added it to .gitignore)
+Deploying next-era/dist
+Inspect: https://vercel.com/next-era/dist/EwHBR9rEvbfXvgPUKjnoBicsDnCH [2s]
+Production: https://dist-5wx9x65wx-next-era.vercel.app [2s]
+https://dist-5wx9x65wx-next-era.vercel.appQueued
+Building
+Completing
+
+Common next commands:
+- `vercel inspect dist-5wx9x65wx-next-era.vercel.app --logs`
+- `vercel redeploy dist-5wx9x65wx-next-era.vercel.app`
