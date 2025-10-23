@@ -13,6 +13,8 @@
 import React, { useState } from 'react';
 import type { BattleUnit } from '../types/game.js';
 import { BattleScreen } from './BattleScreen.js';
+import { GameController } from '../core/GameController.js';
+import { ConsoleLogger } from '../systems/Logger.js';
 
 // Test fixture generator
 function createTestUnit(
@@ -269,6 +271,7 @@ export function BattleFormationTest(): React.ReactElement {
           }}
           seed={12345}
           battleIndex={0}
+          gameController={new GameController(new ConsoleLogger())}
         />
       </div>
     </div>

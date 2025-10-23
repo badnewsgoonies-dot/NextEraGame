@@ -106,7 +106,8 @@ export class BattleSystem {
           unitsDefeated.push(target.id);
           actions.push({
             type: 'defeat',
-            actorId: target.id,
+            actorId: actor.id,
+            targetId: target.id,
             seq: seq++,
           });
         }

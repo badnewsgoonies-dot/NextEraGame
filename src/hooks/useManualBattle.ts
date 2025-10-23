@@ -166,7 +166,7 @@ export function useManualBattle({
    * Log an action to the battle result
    */
   const pushAction = useCallback((a: Omit<CombatAction, 'seq'>) => {
-    setActions(prev => [...prev, { ...a, seq }]);
+    setActions(prev => [...prev, { ...a, seq } as CombatAction]);
     setSeq(s => s + 1);
   }, [seq]);
 

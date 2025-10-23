@@ -87,14 +87,15 @@ describe('Battle Items Integration', () => {
     // Wait for battle to initialize
     await screen.findByRole('application');
 
-    // Find the action menu
-    const actionButtons = screen.getAllByRole('button').filter(btn => 
+    // Wait for action menu items to render (they use role="menuitem")
+    const actionButtons = await screen.findAllByRole('menuitem');
+    const filteredButtons = actionButtons.filter(btn => 
       btn.textContent?.includes('Attack') || 
       btn.textContent?.includes('Items')
     );
 
     // Click "Items" action
-    const itemsButton = actionButtons.find(btn => btn.textContent === 'Items');
+    const itemsButton = filteredButtons.find(btn => btn.textContent === 'Items');
     expect(itemsButton).toBeDefined();
     if (itemsButton) {
       fireEvent.click(itemsButton);
@@ -147,8 +148,11 @@ describe('Battle Items Integration', () => {
 
     await screen.findByRole('application');
 
+    // Wait for action menu items to render (they use role="menuitem")
+    const allButtons = await screen.findAllByRole('menuitem');
+    
     // Click Items action
-    const itemsButton = screen.getAllByRole('button').find(btn => btn.textContent === 'Items');
+    const itemsButton = allButtons.find(btn => btn.textContent === 'Items');
     if (itemsButton) {
       fireEvent.click(itemsButton);
     }

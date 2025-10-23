@@ -236,8 +236,8 @@ export function BattleScreen({
    * Log an action to the battle result
    */
   const pushAction = useCallback(
-    (a: Omit<BattleResult['actions'][number], 'seq'>) => {
-      setActions(prev => [...prev, { ...a, seq }]);
+    (a: Omit<CombatAction, 'seq'>) => {
+      setActions(prev => [...prev, { ...a, seq } as CombatAction]);
       setSeq(s => s + 1);
     },
     [seq]
@@ -435,6 +435,16 @@ export function BattleScreen({
       pushAction({ type: 'defend', actorId: actor.id });
       setPhase('resolving');
       advanceTurnPointer();
+    } else if (label === 'Items') {
+      // Show item menu (keyboard/enter flow)
+      const consumables = gameController.getConsumables();
+      if (consumables.length === 0) {
+        // No items - return to menu (could show a message)
+        return;
+      }
+      setItemMenuIndex(0);
+      setSelectedItem(null);
+      setPhase('item-menu');
     } else if (label === 'Flee') {
       // Flee from battle
       confirmFlee();
