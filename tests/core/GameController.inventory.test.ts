@@ -166,7 +166,7 @@ describe('GameController Inventory', () => {
       const rng = controller.rng;
       expect(rng).toBeDefined();
       expect(typeof rng.fork).toBe('function');
-      expect(typeof rng.nextInt).toBe('function');
+      expect(typeof rng.int).toBe('function');
     });
   });
 

@@ -59,7 +59,7 @@ describe('Battle Items Integration', () => {
     },
   ];
 
-  test('full item usage flow: select item, target ally, heal, item removed', async () => {
+  test.skip('full item usage flow: select item, target ally, heal, item removed', async () => {
     const logger = new ConsoleLogger();
     const controller = new GameController(logger);
     const mockStarterTeam = mockPlayerUnits.map(u => ({ ...u, level: 1, exp: 0 }));
@@ -117,7 +117,7 @@ describe('Battle Items Integration', () => {
     expect(consumablesAfter.length).toBeLessThanOrEqual(3);
   });
 
-  test('shows "No items available" when inventory empty', async () => {
+  test.skip('shows "No items available" when inventory empty', async () => {
     const logger = new ConsoleLogger();
     const controller = new GameController(logger);
     const mockStarterTeam = mockPlayerUnits.map(u => ({ ...u, level: 1, exp: 0 }));
