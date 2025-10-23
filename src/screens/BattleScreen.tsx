@@ -31,7 +31,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import type { BattleUnit, BattleResult, Role, Item } from '../types/game.js';
+import type { BattleUnit, BattleResult, Role, Item, CombatAction } from '../types/game.js';
 import type { GameController } from '../core/GameController.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
 import { BattleUnitSlot } from '../components/battle/BattleUnitSlot.js';
@@ -241,7 +241,7 @@ export function BattleScreen({
       setSeq(s => s + 1);
     },
     [seq]
-  );
+  ) as (a: any) => void;
 
   /**
    * Advance to the next unit's turn

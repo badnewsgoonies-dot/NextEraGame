@@ -7,6 +7,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RewardsScreen } from '../../src/screens/RewardsScreen.js';
 import type { BattleReward, Item } from '../../src/types/game.js';
+import '@testing-library/jest-dom/vitest';
 
 describe('RewardsScreen', () => {
   // Test fixtures
