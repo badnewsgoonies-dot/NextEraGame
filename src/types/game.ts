@@ -279,6 +279,24 @@ export interface BattleReward {
   readonly equipment: readonly Equipment[]; // Equipment drops
 }
 
+/**
+ * Roster data structure
+ * Manages active party (used in battles) and bench (reserves)
+ */
+export interface RosterData {
+  readonly activeParty: readonly PlayerUnit[]; // Combat team (max 4 units)
+  readonly bench: readonly PlayerUnit[]; // Reserve units (unlimited)
+}
+
+/**
+ * Roster swap operation
+ * Specifies which units to swap between active party and bench
+ */
+export interface RosterSwap {
+  readonly benchUnitId: string; // Unit from bench to activate
+  readonly activeUnitId: string; // Unit from active party to bench
+}
+
 // ============================================
 // Battle System
 // ============================================
@@ -364,7 +382,7 @@ export interface BattleResult {
 
 /**
  * Game states for MVP loop
- * Transitions: menu → starter_select → opponent_select → team_prep → battle → rewards → recruit → opponent_select (loop)
+ * Transitions: menu → starter_select → opponent_select → team_prep → battle → rewards → recruit → roster_management → opponent_select (loop)
  * Defeat: battle → defeat → menu
  */
 export type GameState =
@@ -375,12 +393,13 @@ export type GameState =
   | 'battle'
   | 'rewards'
   | 'recruit'
+  | 'roster_management'
   | 'defeat' // Decision #5: Permadeath flow
   // ============================================
   // FUTURE STATES (Not yet implemented)
   // ============================================
   | 'inventory'    // TODO: Inventory management screen
-  | 'equipment'    // TODO: Equipment management screen  
+  | 'equipment'    // TODO: Equipment management screen
   | 'level_up';    // TODO: Level-up screen with stat allocation
 
 /**
@@ -394,9 +413,10 @@ export const STATE_TRANSITIONS: Record<GameState, readonly GameState[]> = {
   battle: ['rewards', 'defeat', 'menu'], // Can win, lose, or draw (draw = instant restart)
   rewards: ['equipment'], // CHANGED: now goes to equipment screen
   equipment: ['recruit'], // NEW: equipment screen goes to recruit
-  recruit: ['opponent_select'], // Loop back for next battle
+  recruit: ['roster_management', 'opponent_select'], // NEW: can go to roster management or skip
+  roster_management: ['opponent_select'], // NEW: roster management goes to opponent select
   defeat: ['menu'], // Decision #5: Instant restart
-  
+
   // ============================================
   // FUTURE TRANSITIONS (Not yet wired)
   // ============================================

@@ -12,6 +12,7 @@ import { ConsoleLogger } from './systems/Logger.js';
 import { GameController } from './core/GameController.js';
 import { RewardSystem } from './systems/RewardSystem.js';
 import { TeamManager } from './systems/TeamManager.js';
+import { RosterManager } from './systems/RosterManager.js';
 import { SettingsManager } from './systems/SettingsManager.js';
 import { equipItem, unequipItem } from './systems/EquipmentSystem.js';
 import { MainMenuScreen } from './screens/MainMenuScreen.js';
@@ -21,12 +22,13 @@ import { BattleScreen } from './screens/BattleScreen.js';
 import { RewardsScreen } from './screens/RewardsScreen.js';
 import { EquipmentScreen } from './screens/EquipmentScreen.js';
 import { RecruitScreen } from './screens/RecruitScreen.js';
+import { RosterManagementScreen } from './screens/RosterManagementScreen.js';
 import { SettingsScreen } from './screens/SettingsScreen.js';
 import { LoadGameModal } from './components/LoadGameModal.js';
 import { makeRng } from './utils/rng.js';
-import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit, InventoryData } from './types/game.js';
+import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit, InventoryData, RosterData } from './types/game.js';
 
-type AppScreen = 
+type AppScreen =
   | 'menu'
   | 'starter_select'
   | 'opponent_select'
@@ -34,6 +36,7 @@ type AppScreen =
   | 'rewards'
   | 'equipment'
   | 'recruit'
+  | 'roster_management'
   | 'defeat'
   | 'settings';
 
@@ -42,10 +45,15 @@ export function App(): React.ReactElement {
   const [controller] = useState(() => new GameController(logger));
   const [rewardSystem] = useState(() => new RewardSystem(logger));
   const [teamManager] = useState(() => new TeamManager());
+  const [rosterManager] = useState(() => new RosterManager());
   const [settingsManager] = useState(() => new SettingsManager());
-  
+
   const [screen, setScreen] = useState<AppScreen>('menu');
   const [playerTeam, setPlayerTeam] = useState<PlayerUnit[]>([]);
+  const [roster, setRoster] = useState<RosterData>({
+    activeParty: [],
+    bench: [],
+  });
   const [inventory, setInventory] = useState<InventoryData>({
     items: [],
     equippedItems: new Map(),
@@ -389,33 +397,63 @@ export function App(): React.ReactElement {
 
     const recruitResult = teamManager.recruitUnit(playerTeam, enemyTemplate, replaceUnitId);
     if (recruitResult.ok) {
-      setPlayerTeam(recruitResult.value as PlayerUnit[]);
-      
-      // Advance to next battle (transitions FSM to opponent_select)
-      const advanceResult = controller.advanceToNextBattle();
-      if (!advanceResult.ok) {
-        console.error('Failed to advance to next battle:', advanceResult.error);
-        return;
-      }
-      
-      const choicesResult = controller.generateOpponentChoices();
-      if (choicesResult.ok) {
-        setPreviews(choicesResult.value);
-        setScreen('opponent_select');
-      }
+      const newTeam = recruitResult.value as PlayerUnit[];
+      setPlayerTeam(newTeam);
+
+      // Create roster from updated team
+      const newRoster = rosterManager.createRosterFromTeam(newTeam);
+      setRoster(newRoster);
+
+      // Transition to roster management
+      controller.getStateMachine().transitionTo('roster_management');
+      setScreen('roster_management');
     } else {
       console.error('Recruitment failed:', recruitResult.error);
     }
   };
 
   const handleSkipRecruit = () => {
+    // Create roster from current team (no recruitment)
+    const newRoster = rosterManager.createRosterFromTeam(playerTeam);
+    setRoster(newRoster);
+
+    // Transition to roster management
+    controller.getStateMachine().transitionTo('roster_management');
+    setScreen('roster_management');
+  };
+
+  // Roster management handlers
+  const handleRosterSwap = (benchUnitId: string, activeUnitId: string) => {
+    const swapResult = rosterManager.swapUnits(roster, { benchUnitId, activeUnitId });
+    if (swapResult.ok) {
+      const newRoster = swapResult.value;
+      setRoster(newRoster);
+      // Sync playerTeam with active party
+      setPlayerTeam(rosterManager.getActiveTeam(newRoster) as PlayerUnit[]);
+    } else {
+      console.error('Swap failed:', swapResult.error);
+    }
+  };
+
+  const handleRosterContinue = () => {
+    // Validate roster before continuing
+    const validateResult = rosterManager.validateRoster(roster);
+    if (!validateResult.ok) {
+      console.error('Invalid roster:', validateResult.error);
+      alert(`Cannot continue: ${validateResult.error}`);
+      return;
+    }
+
+    // Sync playerTeam with active party
+    setPlayerTeam(rosterManager.getActiveTeam(roster) as PlayerUnit[]);
+
     // Advance to next battle (transitions FSM to opponent_select)
     const advanceResult = controller.advanceToNextBattle();
     if (!advanceResult.ok) {
       console.error('Failed to advance to next battle:', advanceResult.error);
       return;
     }
-    
+
     const choicesResult = controller.generateOpponentChoices();
     if (choicesResult.ok) {
       setPreviews(choicesResult.value);
@@ -515,6 +553,16 @@ export function App(): React.ReactElement {
             currentTeam={playerTeam}
             onRecruit={handleRecruit}
             onSkip={handleSkipRecruit}
+          />
+        );
+
+      case 'roster_management':
+        return (
+          <RosterManagementScreen
+            activeParty={roster.activeParty}
+            bench={roster.bench}
+            onSwap={handleRosterSwap}
+            onContinue={handleRosterContinue}
           />
         );
 
