@@ -181,8 +181,9 @@ export function BattleScreen({
    */
   const finishBattle = useCallback(
     (winner: 'player' | 'enemy' | 'draw') => {
-      const unitsDefeated = enemyUnits
-        .filter(e => (enemies.find(x => x.id === e.id)?.currentHp ?? 0) <= 0)
+      // Find defeated enemies (currentHp <= 0)
+      const unitsDefeated = enemies
+        .filter(e => e.currentHp <= 0)
         .map(e => e.id);
 
       const result: BattleResult = {
@@ -193,7 +194,7 @@ export function BattleScreen({
       };
       onComplete(result);
     },
-    [actions, enemies, enemyUnits, onComplete, turnsTaken]
+    [actions, enemies, onComplete, turnsTaken]
   );
 
   /**

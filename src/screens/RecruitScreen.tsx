@@ -71,15 +71,24 @@ export function RecruitScreen({
         </div>
 
         {/* Defeated Enemies */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {defeatedEnemies.map((enemy) => {
-            const spriteColor = ROLE_COLORS[enemy.role];
-            
-            return (
-              <div
-                key={enemy.id}
-                className="bg-white dark:bg-gray-800 rounded-lg p-6 border-2 border-gray-300 dark:border-gray-600 hover:border-purple-400 transition-all hover:shadow-lg"
-              >
+        {defeatedEnemies.length === 0 ? (
+          <div className="text-center py-12 mb-8">
+            <div className="text-6xl mb-4">🎉</div>
+            <h2 className="text-2xl font-bold text-white mb-2">No Enemies Defeated</h2>
+            <p className="text-purple-200">
+              Your team survived without losing any enemies, or all enemies escaped!
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {defeatedEnemies.map((enemy) => {
+              const spriteColor = ROLE_COLORS[enemy.role];
+              
+              return (
+                <div
+                  key={enemy.id}
+                  className="bg-white dark:bg-gray-800 rounded-lg p-6 border-2 border-gray-300 dark:border-gray-600 hover:border-purple-400 transition-all hover:shadow-lg"
+                >
                 {/* Enemy Sprite */}
                 <div className="flex justify-center mb-4">
                   <div className={`w-20 h-20 rounded-full ${spriteColor} border-4 border-white shadow-lg flex items-center justify-center`}>
@@ -137,10 +146,11 @@ export function RecruitScreen({
                 >
                   Recruit
                 </button>
-              </div>
-            );
-          })}
-        </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Skip Button */}
         <div className="text-center">
