@@ -261,6 +261,8 @@ export function BattleScreen({
       setRoundIdx(nextIndex);
       setActiveId(roundOrder[nextIndex] ?? null);
     }
+    // Reset phase to 'menu' for the next turn
+    setPhase('menu');
   }, [roundIdx, roundOrder, computeRoundOrder]);
 
   /**
@@ -353,8 +355,8 @@ export function BattleScreen({
       }
       hasHandledTurn.current.add(turnKey);
     }
-    // Enemy turn: execute AI attack
-    else if (phase === 'menu' || phase === 'resolving') {
+    // Enemy turn: execute AI attack (only trigger when phase is 'menu')
+    else if (phase === 'menu') {
       hasHandledTurn.current.add(turnKey);
       setPhase('animating');
 
