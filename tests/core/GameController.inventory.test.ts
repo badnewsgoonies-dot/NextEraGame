@@ -17,16 +17,14 @@ describe('GameController Inventory', () => {
       id: 'player-1',
       name: 'Isaac',
       role: 'Tank',
-      currentHp: 100,
+      hp: 100,
       maxHp: 100,
       atk: 20,
       def: 15,
       speed: 10,
       tags: ['Holy'],
       level: 1,
-      exp: 0,
-      isPlayer: true,
-      originalIndex: 0,
+      experience: 0,
     },
   ];
 
@@ -166,7 +164,7 @@ describe('GameController Inventory', () => {
       const rng = controller.rng;
       expect(rng).toBeDefined();
       expect(typeof rng.fork).toBe('function');
-      expect(typeof rng.nextInt).toBe('function');
+      expect(typeof rng.int).toBe('function');
     });
   });
 

@@ -127,12 +127,14 @@ export class RosterManager {
     benchCount: number;
     totalCount: number;
     activeSlotsFree: number;
+    hasFullActiveParty: boolean;
   } {
     return {
       activeCount: roster.activeParty.length,
       benchCount: roster.bench.length,
       totalCount: roster.activeParty.length + roster.bench.length,
       activeSlotsFree: Math.max(0, this.maxActiveSize - roster.activeParty.length),
+      hasFullActiveParty: roster.activeParty.length >= this.maxActiveSize,
     };
   }
 }
