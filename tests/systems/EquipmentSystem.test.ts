@@ -7,6 +7,11 @@ import {
   getUnequippedItems
 } from '../../src/systems/EquipmentSystem.js';
 import type { InventoryData, Equipment, PlayerUnit } from '../../src/types/game.js';
+import { BattleSystem } from '../../src/systems/BattleSystem.js';
+import { makeRng } from '../../src/utils/rng.js';
+import { ConsoleLogger } from '../../src/systems/Logger.js';
+import { EventLogger } from '../../src/systems/EventLogger.js';
+import { mockPlayerTeam, weakEnemy } from '../fixtures/battleFixtures.js';
 
 describe('EquipmentSystem', () => {
   // Helper: Create test equipment
@@ -493,6 +498,127 @@ describe('EquipmentSystem', () => {
 
       // Stats should remain unchanged
       expect(stats).toEqual({ hp: 100, atk: 20, def: 15, speed: 10 });
+    });
+  });
+
+  describe('Equipment Integration - Combat Effects', () => {
+    test('equipped weapon increases actual battle damage', () => {
+      const logger = new ConsoleLogger('error');
+      const eventLogger = new EventLogger(logger);
+      const battleSystem = new BattleSystem(logger, eventLogger);
+      
+      // Setup: Use mockPlayerTeam fixture with known stats
+      const baseUnit: PlayerUnit = {
+        ...mockPlayerTeam[0],
+        id: 'fighter-1',
+        atk: 20,  // Base attack
+      };
+      
+      // Battle 1: No equipment (baseline)
+      const rng1 = makeRng(12345);
+      const result1 = battleSystem.executeBattle([baseUnit], [weakEnemy], rng1, 0, 'baseline');
+      
+      // Extract damage dealt from actions
+      const damageDealt1 = result1.actions
+        .filter((a: any) => a.type === 'attack' && a.actorId === 'fighter-1')
+        .reduce((sum: number, a: any) => sum + (a.damage || 0), 0);
+      
+      // Battle 2: Equipped with +10 ATK weapon
+      const weapon = createEquipment({
+        id: 'iron_sword',
+        name: 'Iron Sword',
+        slot: 'weapon',
+        stats: { atk: 10 },
+      });
+      
+      const inventory: InventoryData = {
+        ...createEmptyInventory(),
+        unequippedItems: [weapon],
+      };
+      
+      const equipResult = equipItem(inventory, 'fighter-1', weapon);
+      expect(equipResult.ok).toBe(true);
+      
+      if (!equipResult.ok) return;
+      
+      // Apply equipment bonuses to unit
+      const unitWithWeapon: PlayerUnit = {
+        ...baseUnit,
+        atk: getUnitStats(baseUnit, equipResult.value).atk,
+      };
+      
+      expect(unitWithWeapon.atk).toBe(30); // 20 base + 10 weapon
+      
+      const rng2 = makeRng(12345); // Same seed = same RNG rolls
+      const result2 = battleSystem.executeBattle([unitWithWeapon], [weakEnemy], rng2, 0, 'equipped');
+      
+      const damageDealt2 = result2.actions
+        .filter((a: any) => a.type === 'attack' && a.actorId === 'fighter-1')
+        .reduce((sum: number, a: any) => sum + (a.damage || 0), 0);
+      
+      // CRITICAL ASSERTION: Equipped weapon MUST increase damage
+      expect(damageDealt2).toBeGreaterThan(damageDealt1);
+      
+      // Damage formula: floor(atk - def/2) + rng(-2, 2)
+      // Expected increase: ~10 damage per hit (from +10 ATK)
+      const damageIncrease = damageDealt2 - damageDealt1;
+      expect(damageIncrease).toBeGreaterThanOrEqual(8); // Allow for RNG variance
+    });
+
+    test('multiple equipped items stack bonuses correctly', () => {
+      const unit = createUnit({
+        id: 'hero-1',
+        atk: 20,
+        def: 15,
+        speed: 10,
+      });
+      
+      const weapon = createEquipment({
+        id: 'weapon-1',
+        slot: 'weapon',
+        stats: { atk: 10 },
+      });
+      
+      const armor = createEquipment({
+        id: 'armor-1',
+        name: 'Iron Armor',
+        slot: 'armor',
+        stats: { def: 8 },
+      });
+      
+      const accessory = createEquipment({
+        id: 'boots-1',
+        name: 'Speed Boots',
+        slot: 'accessory',
+        stats: { speed: 5 },
+      });
+      
+      let inventory: InventoryData = {
+        ...createEmptyInventory(),
+        unequippedItems: [weapon, armor, accessory],
+      };
+      
+      // Equip all three items
+      const equipWeapon = equipItem(inventory, 'hero-1', weapon);
+      expect(equipWeapon.ok).toBe(true);
+      if (!equipWeapon.ok) return;
+      inventory = equipWeapon.value;
+      
+      const equipArmor = equipItem(inventory, 'hero-1', armor);
+      expect(equipArmor.ok).toBe(true);
+      if (!equipArmor.ok) return;
+      inventory = equipArmor.value;
+      
+      const equipAccessory = equipItem(inventory, 'hero-1', accessory);
+      expect(equipAccessory.ok).toBe(true);
+      if (!equipAccessory.ok) return;
+      inventory = equipAccessory.value;
+      
+      // Verify all bonuses stack
+      const stats = getUnitStats(unit, inventory);
+      expect(stats.atk).toBe(30);   // 20 + 10
+      expect(stats.def).toBe(23);   // 15 + 8
+      expect(stats.speed).toBe(15); // 10 + 5
     });
   });
 });

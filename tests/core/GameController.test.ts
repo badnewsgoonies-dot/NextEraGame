@@ -9,6 +9,7 @@ import { ConsoleLogger } from '../../src/systems/Logger.js';
 import { SaveSystem } from '../../src/systems/SaveSystem.js';
 import { InMemorySaveStore } from '../../src/systems/SaveStore.js';
 import { mockPlayerTeam } from '../fixtures/battleFixtures.js';
+import type { Item } from '../../src/types/game.js';
 
 describe('GameController', () => {
   let controller: GameController;
@@ -276,6 +277,61 @@ describe('GameController', () => {
         const ids2 = choices2.value.map(p => p.spec.id);
         expect(ids2).toEqual(ids1);
       }
+    });
+
+    test('equipment persists through save/load cycle', async () => {
+      // Start run
+      controller.startRun(mockPlayerTeam, 11111);
+      
+      // Add equipment items to inventory
+      const weapon: Item = {
+        id: 'legendary_blade',
+        name: 'Legendary Blade',
+        description: 'A powerful sword',
+        type: 'weapon',
+        rarity: 'epic',
+        stats: { atkBonus: 25 },
+      };
+      
+      const armor: Item = {
+        id: 'iron_plate',
+        name: 'Iron Plate Armor',
+        description: 'Heavy armor',
+        type: 'armor',
+        rarity: 'common',
+        stats: { defBonus: 15 },
+      };
+      
+      // Add items to inventory (simulating item drops/rewards)
+      const state = controller.getState();
+      state.inventory.push(weapon, armor);
+      
+      expect(state.inventory).toHaveLength(5); // 3 starting + 2 equipment
+      
+      // Save game
+      const saveResult = await controller.saveGame('equipment_test');
+      expect(saveResult.ok).toBe(true);
+      
+      // Create new controller and load
+      const newController = new GameController(logger, sharedSaveSystem);
+      const loadResult = await newController.loadGame('equipment_test');
+      expect(loadResult.ok).toBe(true);
+      
+      // Verify equipment items persisted through save/load
+      const loadedState = newController.getState();
+      expect(loadedState.inventory).toHaveLength(5);
+      
+      // Verify equipment data is intact
+      const loadedWeapon = loadedState.inventory.find(item => item.id === 'legendary_blade');
+      expect(loadedWeapon).toBeDefined();
+      expect(loadedWeapon?.type).toBe('weapon');
+      expect(loadedWeapon?.stats?.atkBonus).toBe(25);
+      expect(loadedWeapon?.rarity).toBe('epic');
+      
+      const loadedArmor = loadedState.inventory.find(item => item.id === 'iron_plate');
+      expect(loadedArmor).toBeDefined();
+      expect(loadedArmor?.type).toBe('armor');
+      expect(loadedArmor?.stats?.defBonus).toBe(15);
     });
   });
 
