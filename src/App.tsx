@@ -334,6 +334,11 @@ export function App(): React.ReactElement {
       }));
     }
 
+    // Add items (consumables) to game controller inventory
+    if (rewards?.items && rewards.items.length > 0) {
+      controller.addItems(rewards.items);
+    }
+
     // Transition FSM from rewards → equipment
     const transition = controller.handleRewardsContinue();
     if (!transition.ok) {
@@ -474,6 +479,7 @@ export function App(): React.ReactElement {
             enemyUnits={enemyUnits}
             onComplete={handleBattleComplete}
             battleIndex={controller.getState().battleIndex}
+            gameController={controller}
           />
         );
 

@@ -294,17 +294,59 @@ export interface BattleState {
 }
 
 /**
- * Combat action in the log
+ * Combat action types
  */
-export interface CombatAction {
-  readonly type: 'attack' | 'defend' | 'defeat';
+export type CombatActionType = 'attack' | 'defend' | 'defeat' | 'item-used';
+
+/**
+ * Attack action in combat log
+ */
+export interface AttackAction {
+  readonly type: 'attack';
   readonly actorId: string;
-  readonly targetId?: string;
-  readonly damage?: number;
+  readonly targetId: string;
+  readonly damage: number;
   readonly critical?: boolean;
   readonly dodged?: boolean;
   readonly seq: number; // Deterministic sequence number (NOT timestamp)
 }
+
+/**
+ * Defend action in combat log
+ */
+export interface DefendAction {
+  readonly type: 'defend';
+  readonly actorId: string;
+  readonly seq: number;
+}
+
+/**
+ * Defeat action in combat log
+ */
+export interface DefeatAction {
+  readonly type: 'defeat';
+  readonly actorId: string;
+  readonly targetId: string;
+  readonly seq: number;
+}
+
+/**
+ * Item used action in combat log
+ */
+export interface ItemUsedAction {
+  readonly type: 'item-used';
+  readonly actorId: string;
+  readonly targetId: string;
+  readonly itemId: string;
+  readonly itemName: string;
+  readonly hpRestored: number;
+  readonly seq: number;
+}
+
+/**
+ * Combat action in the log (union type)
+ */
+export type CombatAction = AttackAction | DefendAction | DefeatAction | ItemUsedAction;
 
 /**
  * Battle result (after battle ends)

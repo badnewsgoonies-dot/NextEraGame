@@ -25,6 +25,7 @@ import type {
   BattleResult,
   ProgressionCounters,
   GameState,
+  Item,
 } from '../types/game.js';
 import { ok, err, type Result } from '../utils/Result.js';
 import { GameStateMachine } from './GameStateMachine.js';
@@ -33,11 +34,13 @@ import { ChoiceSystem } from '../systems/ChoiceSystem.js';
 import { SaveSystem, type GameStateSnapshot } from '../systems/SaveSystem.js';
 import { EventLogger } from '../systems/EventLogger.js';
 import { makeRng } from '../utils/rng.js';
+import { ITEM_CATALOG } from '../data/items.js';
 
 export interface GameControllerState {
   runSeed: number;
   battleIndex: number;
   playerTeam: PlayerUnit[];
+  inventory: Item[];
   progression: ProgressionCounters;
   currentChoices: OpponentPreview[] | null;
   selectedOpponentId: string | null;
@@ -66,6 +69,7 @@ export class GameController {
       runSeed: 0,
       battleIndex: 0,
       playerTeam: [],
+      inventory: [],
       progression: {
         runsAttempted: 0,
         runsCompleted: 0,
@@ -92,11 +96,16 @@ export class GameController {
     const runSeed = seed ?? Date.now();
     this.rootRng = makeRng(runSeed);
 
+    // Initialize inventory with 3 Health Potions for testing
+    const healthPotion = ITEM_CATALOG.find(item => item.id === 'health_potion');
+    const starterInventory = healthPotion ? [healthPotion, healthPotion, healthPotion] : [];
+
     // Initialize state
     this.state = {
       runSeed,
       battleIndex: 0,
       playerTeam: [...starterTeam],
+      inventory: starterInventory,
       progression: {
         ...this.state.progression,
         runsAttempted: this.state.progression.runsAttempted + 1,
@@ -276,7 +285,7 @@ export class GameController {
   async saveGame(slot: string): Promise<Result<void, string>> {
     const snapshot: GameStateSnapshot = {
       playerTeam: this.state.playerTeam,
-      inventory: [], // TODO: Implement inventory system
+      inventory: this.state.inventory,
       progression: this.state.progression,
       choice: {
         nextChoiceSeed: String(this.state.runSeed),
@@ -306,6 +315,7 @@ export class GameController {
       runSeed: saveData.runSeed,
       battleIndex: saveData.choice.battleIndex,
       playerTeam: [...saveData.playerTeam],
+      inventory: [...saveData.inventory],
       progression: saveData.progression,
       currentChoices: saveData.choice.lastChoices ? [...saveData.choice.lastChoices] : null,
       selectedOpponentId: null,
@@ -357,5 +367,52 @@ export class GameController {
   getSaveSystem(): SaveSystem {
     return this.saveSystem;
   }
-}
 
+  /**
+   * Get current inventory (read-only)
+   */
+  getInventory(): readonly Item[] {
+    return this.state.inventory;
+  }
+
+  /**
+   * Get consumable items from inventory
+   */
+  getConsumables(): readonly Item[] {
+    return this.state.inventory.filter(item => item.type === 'consumable');
+  }
+
+  /**
+   * Add items to inventory (from battle rewards)
+   */
+  addItems(items: readonly Item[]): void {
+    this.state.inventory = [...this.state.inventory, ...items];
+  }
+
+  /**
+   * Remove item from inventory (after use in battle)
+   * Returns error if item not found
+   */
+  removeItem(itemId: string): Result<void, string> {
+    const itemIndex = this.state.inventory.findIndex(item => item.id === itemId);
+    
+    if (itemIndex === -1) {
+      return err(`Item ${itemId} not found in inventory`);
+    }
+
+    // Remove first occurrence of item
+    this.state.inventory = [
+      ...this.state.inventory.slice(0, itemIndex),
+      ...this.state.inventory.slice(itemIndex + 1),
+    ];
+
+    return ok(undefined);
+  }
+
+  /**
+   * Get RNG instance for systems that need randomness
+   */
+  get rng(): IRng {
+    return this.rootRng;
+  }
+}

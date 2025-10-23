@@ -31,10 +31,12 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import type { BattleUnit, BattleResult, Role } from '../types/game.js';
+import type { BattleUnit, BattleResult, Role, Item } from '../types/game.js';
+import type { GameController } from '../core/GameController.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
 import { BattleUnitSlot } from '../components/battle/BattleUnitSlot.js';
 import { AttackAnimation } from '../components/battle/AttackAnimation.js';
+import { HealNumber } from '../components/battle/HealNumber.js';
 import { ActionMenu } from '../components/battle/ActionMenu.js';
 import { PlayerStatusPanel } from '../components/battle/PlayerStatusPanel.js';
 import { TurnBanner } from '../components/battle/TurnBanner.js';
@@ -56,11 +58,13 @@ export interface ManualBattleScreenProps {
   seed?: number;
   /** Battle index for deterministic background selection */
   battleIndex?: number;
+  /** Game controller for inventory access */
+  gameController: GameController;
 }
 
-type Phase = 'menu' | 'targeting' | 'animating' | 'resolving';
+type Phase = 'menu' | 'targeting' | 'item-menu' | 'item-targeting' | 'animating' | 'resolving';
 
-const ACTIONS = ['Attack', 'Defend', 'Flee'] as const;
+const ACTIONS = ['Attack', 'Defend', 'Items', 'Flee'] as const;
 
 // ============================================
 // Main Component
@@ -72,6 +76,7 @@ export function BattleScreen({
   onComplete,
   seed,
   battleIndex = 0,
+  gameController,
 }: ManualBattleScreenProps): React.ReactElement {
   // ==================== Background & Sprites ====================
 
@@ -109,6 +114,13 @@ export function BattleScreen({
   const [showAttackAnim, setShowAttackAnim] = useState(false);
   const [attackAnimRole, setAttackAnimRole] = useState<Role | null>(null);
   const [attackAnimPos, setAttackAnimPos] = useState({ x: 0, y: 0 });
+
+  // Item system state
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [itemMenuIndex, setItemMenuIndex] = useState(0);
+  const [showHealAnim, setShowHealAnim] = useState(false);
+  const [healAmount, setHealAmount] = useState(0);
+  const [healPos, setHealPos] = useState({ x: 0, y: 0 });
 
   // Battle mechanics
   const defending = useRef<Set<string>>(new Set());
@@ -454,6 +466,17 @@ export function BattleScreen({
           pushAction({ type: 'defend', actorId: actor.id });
           setPhase('resolving');
           advanceTurnPointer();
+        } else if (label === 'Items') {
+          // Show item menu
+          const consumables = gameController.getConsumables();
+          if (consumables.length === 0) {
+            // No items - return to menu
+            // TODO: Show "No items available" message
+            return;
+          }
+          setItemMenuIndex(0);
+          setSelectedItem(null);
+          setPhase('item-menu');
         } else if (label === 'Flee') {
           confirmFlee();
         }
@@ -466,6 +489,7 @@ export function BattleScreen({
       advanceTurnPointer,
       confirmFlee,
       findUnit,
+      gameController,
       phase,
       pushAction,
       registerTimeout,
@@ -523,48 +547,180 @@ export function BattleScreen({
     registerTimeout,
   ]);
 
+  /**
+   * Handle item selection from item menu
+   */
+  const handleItemSelect = useCallback(
+    (index: number) => {
+      const consumables = gameController.getConsumables();
+      if (index < 0 || index >= consumables.length) return;
+
+      const item = consumables[index];
+      setSelectedItem(item);
+      setItemMenuIndex(index);
+
+      // Move to targeting phase for healing items
+      // TODO: Future - different targeting for different item types (self-only, all-allies, enemies)
+      if (alivePlayers.length === 0) return;
+      setTargetIndex(0);
+      setPhase('item-targeting');
+      setTargetedId(alivePlayers[0].id);
+    },
+    [alivePlayers, gameController]
+  );
+
+  /**
+   * Confirm item usage on target
+   */
+  const handleConfirmItemUse = useCallback(() => {
+    if (!activeId || !selectedItem) return;
+    const actor = findUnit(activeId);
+    if (!actor || phase !== 'item-targeting') return;
+
+    const target = alivePlayers[targetIndex];
+    if (!target) return;
+
+    setPhase('animating');
+
+    // Calculate heal amount
+    const hpRestore = selectedItem.stats?.hpRestore ?? 0;
+    const actualHeal = Math.min(hpRestore, target.maxHp - target.currentHp);
+
+    setTargetedId(target.id);
+    setHealAmount(actualHeal);
+    setHealPos(getTargetCenter(target.id));
+    setShowHealAnim(true);
+
+    // Log item usage action
+    pushAction({
+      type: 'item-used',
+      actorId: actor.id,
+      targetId: target.id,
+      itemId: selectedItem.id,
+      itemName: selectedItem.name,
+      hpRestored: actualHeal,
+    });
+
+    // Apply healing after short delay
+    const healTimeout = setTimeout(() => {
+      setPlayers(prev =>
+        prev.map(u =>
+          u.id === target.id ? { ...u, currentHp: Math.min(u.maxHp, u.currentHp + actualHeal) } : u
+        )
+      );
+    }, 200);
+    registerTimeout(healTimeout);
+
+    // Remove item from inventory
+    const removeResult = gameController.removeItem(selectedItem.id);
+    if (!removeResult.ok) {
+      console.error('Failed to remove item:', removeResult.error);
+    }
+
+    // Clean up and advance turn
+    const cleanupTimeout = setTimeout(() => {
+      setShowHealAnim(false);
+      setTargetedId(null);
+      setSelectedItem(null);
+      setPhase('resolving');
+      advanceTurnPointer();
+    }, 1000);
+    registerTimeout(cleanupTimeout);
+  }, [
+    activeId,
+    advanceTurnPointer,
+    alivePlayers,
+    findUnit,
+    gameController,
+    getTargetCenter,
+    phase,
+    pushAction,
+    registerTimeout,
+    selectedItem,
+    targetIndex,
+  ]);
+
+  /**
+   * Cancel item menu and return to main menu
+   */
+  const handleCancelItemMenu = useCallback(() => {
+    setSelectedItem(null);
+    setPhase('menu');
+  }, []);
+
   // ==================== Keyboard Input ====================
 
-  const keyboardEnabled = phase === 'menu' || phase === 'targeting';
+  const keyboardEnabled = phase === 'menu' || phase === 'targeting' || phase === 'item-menu' || phase === 'item-targeting';
+
+  const consumables = useMemo(() => gameController.getConsumables(), [gameController]);
 
   useKeyboard({
     enabled: keyboardEnabled,
     onUp: () => {
-      if (phase !== 'menu') return;
-      setMenuIndex(i => (i - 1 + ACTIONS.length) % ACTIONS.length);
+      if (phase === 'menu') {
+        setMenuIndex(i => (i - 1 + ACTIONS.length) % ACTIONS.length);
+      } else if (phase === 'item-menu') {
+        setItemMenuIndex(i => (i - 1 + Math.max(1, consumables.length)) % Math.max(1, consumables.length));
+      }
     },
     onDown: () => {
-      if (phase !== 'menu') return;
-      setMenuIndex(i => (i + 1) % ACTIONS.length);
+      if (phase === 'menu') {
+        setMenuIndex(i => (i + 1) % ACTIONS.length);
+      } else if (phase === 'item-menu') {
+        setItemMenuIndex(i => (i + 1) % Math.max(1, consumables.length));
+      }
     },
     onLeft: () => {
-      if (phase !== 'targeting') return;
-      setTargetIndex(i => {
-        const next = (i - 1 + aliveEnemies.length) % Math.max(1, aliveEnemies.length);
-        setTargetedId(aliveEnemies[next]?.id ?? null);
-        return next;
-      });
+      if (phase === 'targeting') {
+        setTargetIndex(i => {
+          const next = (i - 1 + aliveEnemies.length) % Math.max(1, aliveEnemies.length);
+          setTargetedId(aliveEnemies[next]?.id ?? null);
+          return next;
+        });
+      } else if (phase === 'item-targeting') {
+        setTargetIndex(i => {
+          const next = (i - 1 + alivePlayers.length) % Math.max(1, alivePlayers.length);
+          setTargetedId(alivePlayers[next]?.id ?? null);
+          return next;
+        });
+      }
     },
     onRight: () => {
-      if (phase !== 'targeting') return;
-      setTargetIndex(i => {
-        const next = (i + 1) % Math.max(1, aliveEnemies.length);
-        setTargetedId(aliveEnemies[next]?.id ?? null);
-        return next;
-      });
+      if (phase === 'targeting') {
+        setTargetIndex(i => {
+          const next = (i + 1) % Math.max(1, aliveEnemies.length);
+          setTargetedId(aliveEnemies[next]?.id ?? null);
+          return next;
+        });
+      } else if (phase === 'item-targeting') {
+        setTargetIndex(i => {
+          const next = (i + 1) % Math.max(1, alivePlayers.length);
+          setTargetedId(alivePlayers[next]?.id ?? null);
+          return next;
+        });
+      }
     },
     onEnter: () => {
       if (phase === 'menu') handleConfirmAction();
       else if (phase === 'targeting') handleConfirmTarget();
+      else if (phase === 'item-menu') handleItemSelect(itemMenuIndex);
+      else if (phase === 'item-targeting') handleConfirmItemUse();
     },
     onSpace: () => {
       if (phase === 'menu') handleConfirmAction();
       else if (phase === 'targeting') handleConfirmTarget();
+      else if (phase === 'item-menu') handleItemSelect(itemMenuIndex);
+      else if (phase === 'item-targeting') handleConfirmItemUse();
     },
     onEscape: () => {
       if (phase === 'targeting') {
         setPhase('menu');
         setTargetedId(null);
+      } else if (phase === 'item-targeting') {
+        setPhase('item-menu');
+        setTargetedId(null);
+      } else if (phase === 'item-menu') {
+        handleCancelItemMenu();
       } else if (phase === 'menu') {
         confirmFlee();
       }
@@ -674,14 +830,40 @@ export function BattleScreen({
             defending={defending.current.has(activeId ?? '')}
           />
           <div className="mt-3">
-            <ActionMenu
-              items={ACTIONS as unknown as string[]}
-              selectedIndex={menuIndex}
-              disabled={phase !== 'menu'}
-              title={phase === 'targeting' ? 'Choose Target' : 'Actions'}
-              onSelect={handleActionSelect}
-            />
-            {phase === 'targeting' && <TargetHelp />}
+            {/* Main action menu or item submenu */}
+            {phase === 'item-menu' ? (
+              <>
+                <ActionMenu
+                  items={consumables.length > 0 ? consumables.map(item => {
+                    const hpRestore = item.stats?.hpRestore ?? 0;
+                    return `${item.name} (+${hpRestore} HP)`;
+                  }) : ['No items available']}
+                  selectedIndex={consumables.length > 0 ? itemMenuIndex : 0}
+                  disabled={consumables.length === 0}
+                  title="Items"
+                  onSelect={consumables.length > 0 ? handleItemSelect : undefined}
+                />
+                <div className="mt-2 text-center text-sm text-gray-400">
+                  Press Escape to cancel
+                </div>
+              </>
+            ) : (
+              <>
+                <ActionMenu
+                  items={ACTIONS as unknown as string[]}
+                  selectedIndex={menuIndex}
+                  disabled={phase !== 'menu'}
+                  title={phase === 'targeting' ? 'Choose Target' : phase === 'item-targeting' ? 'Choose Ally' : 'Actions'}
+                  onSelect={handleActionSelect}
+                />
+                {phase === 'targeting' && <TargetHelp />}
+                {phase === 'item-targeting' && (
+                  <div className="mt-2 text-center text-sm text-yellow-300">
+                    ← → to select ally, Enter to confirm
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
 
@@ -701,10 +883,22 @@ export function BattleScreen({
         />
       )}
 
+      {/* Heal animation overlay */}
+      {showHealAnim && (
+        <HealNumber
+          amount={healAmount}
+          x={healPos.x}
+          y={healPos.y}
+          onComplete={() => setShowHealAnim(false)}
+        />
+      )}
+
       {/* Live region for screen reader announcements */}
       <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {activeId && findUnit(activeId) && `${findUnit(activeId)!.name}'s turn`}
         {phase === 'targeting' && ' - Choose a target'}
+        {phase === 'item-menu' && ' - Select an item'}
+        {phase === 'item-targeting' && ' - Choose an ally to heal'}
       </div>
     </div>
   );
