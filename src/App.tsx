@@ -382,6 +382,14 @@ export function App(): React.ReactElement {
       console.error('Failed to transition to recruit state:', transition.error);
       return;
     }
+    
+    // Auto-skip recruitment if no enemies were defeated
+    if (rewards && rewards.defeatedEnemies.length === 0) {
+      console.log('No enemies defeated - skipping recruitment');
+      handleSkipRecruit();
+      return;
+    }
+    
     setScreen('recruit');
   };
 
