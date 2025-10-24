@@ -33,8 +33,8 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Warrior',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Isaac1.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/isaac/Isaac_lSword_Front.gif',
   },
   {
     id: 'starter_guardian',
@@ -52,8 +52,8 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Tank',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Garet1.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/garet/Garet_Axe_Front.gif',
   },
   {
     id: 'starter_paladin',
@@ -71,8 +71,8 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Tank',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Felix1.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/felix/Felix_lSword_Front.gif',
   },
 
   // DPS (3)
@@ -92,8 +92,8 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Rogue',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Ivan.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/ivan/Ivan_lBlade_Front.gif',
   },
   {
     id: 'starter_mage',
@@ -111,8 +111,8 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Mage',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Ivan.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/ivan/Ivan_lBlade_Front.gif',
   },
   {
     id: 'starter_ranger',
@@ -130,8 +130,8 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Rogue',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Sheba.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/sheba/Sheba_Mace_Front.gif',
   },
 
   // SUPPORT (3)
@@ -151,8 +151,8 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Cleric',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Mia.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/mia/Mia_Mace_Front.gif',
   },
   {
     id: 'starter_shaman',
@@ -170,8 +170,8 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Support',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Jenna1.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/jenna_gs2/Jenna_lBlade_Front.gif',
   },
   {
     id: 'starter_bard',
@@ -189,8 +189,8 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Support',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Sheba.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/sheba/Sheba_Mace_Front.gif',
   },
 
   // SPECIALIST (3)
@@ -210,8 +210,8 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Specialist',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Alex.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/felix/Felix_lBlade_Front.gif',
   },
   {
     id: 'starter_engineer',
@@ -229,8 +229,8 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Specialist',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Kraden.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/piers/Piers_Mace_Front.gif',
   },
   {
     id: 'starter_summoner',
@@ -248,7 +248,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     rank: 'C',
     baseClass: 'Specialist',
     currentMp: 50,
-    portraitUrl: undefined,
-    spriteUrl: undefined,
+    portraitUrl: '/sprites/golden-sun/icons/characters/Sheba.gif',
+    spriteUrl: '/sprites/golden-sun/battle/party/sheba/Sheba_Mace_Front.gif',
   },
 ];

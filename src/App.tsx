@@ -15,6 +15,8 @@ import { TeamManager } from './systems/TeamManager.js';
 import { RosterManager } from './systems/RosterManager.js';
 import { SettingsManager } from './systems/SettingsManager.js';
 import { equipItem, unequipItem } from './systems/EquipmentSystem.js';
+import { useDevShortcuts } from './hooks/useDevShortcuts.js';
+import { GEM_CATALOG } from './data/gems.js';
 import { MainMenuScreen } from './screens/MainMenuScreen.js';
 import { StarterSelectScreen } from './screens/StarterSelectScreen.js';
 import { OpponentSelectScreen } from './screens/OpponentSelectScreen.js';
@@ -89,6 +91,68 @@ export function App(): React.ReactElement {
       console.error('Failed to check saves:', error);
     }
   };
+
+  // Developer Mode Shortcuts (only active in development)
+  useDevShortcuts({
+    onNextScreen: () => {
+      // Skip to next logical screen
+      if (screen === 'starter_select') setScreen('opponent_select');
+      else if (screen === 'opponent_select') setScreen('battle');
+      else if (screen === 'battle') {
+        // Simulate instant win
+        if (enemyUnits.length > 0) {
+          handleBattleComplete({
+            winner: 'player',
+            actions: [],
+            unitsDefeated: enemyUnits.map(e => e.id),
+            turnsTaken: 1,
+          });
+        }
+      }
+      else if (screen === 'rewards') setScreen('equipment');
+      else if (screen === 'equipment') setScreen('recruit');
+      else if (screen === 'recruit') setScreen('roster_management');
+      else if (screen === 'roster_management') handleRosterContinue();
+    },
+    onPrevScreen: () => {
+      // Go back one screen (limited support)
+      if (screen === 'opponent_select') setScreen('starter_select');
+      else if (screen === 'equipment') setScreen('rewards');
+      else if (screen === 'recruit') setScreen('equipment');
+      else console.log('[DEV] Cannot go back from current screen');
+    },
+    onWinBattle: () => {
+      if (screen === 'battle' && enemyUnits.length > 0) {
+        handleBattleComplete({
+          winner: 'player',
+          actions: [],
+          unitsDefeated: enemyUnits.map(e => e.id),
+          turnsTaken: 1,
+        });
+      }
+    },
+    onAddGems: () => {
+      // Add random gem to current rewards (if on rewards screen)
+      if (screen === 'rewards' && rewards) {
+        const randomGem = GEM_CATALOG[Math.floor(Math.random() * GEM_CATALOG.length)];
+        setRewards({
+          ...rewards,
+          gems: [...rewards.gems, randomGem.id],
+        });
+        console.log(`[DEV] Added gem: ${randomGem.name}`);
+      } else {
+        console.log('[DEV] Must be on rewards screen to add gems');
+      }
+    },
+    onShowState: () => {
+      console.log('[DEV] Current Game State:', {
+        screen,
+        teamSize: playerTeam.length,
+        battleIndex: controller.getState().battleIndex,
+        inventoryItems: inventory.items.length,
+      });
+    },
+  });
 
   // Menu handlers
   const handleNewGame = () => {
@@ -656,6 +720,17 @@ export function App(): React.ReactElement {
           onClose={() => setShowLoadModal(false)}
           onDelete={handleDeleteSave}
         />
+      )}
+
+      {/* Dev Mode Indicator (only in development) */}
+      {import.meta.env.DEV && (
+        <div className="fixed top-4 right-4 z-50 
+                        bg-yellow-500 text-black px-3 py-1.5 rounded-lg
+                        text-xs font-bold shadow-lg border-2 border-yellow-600
+                        pointer-events-none">
+          🛠️ DEV MODE
+          <div className="text-[10px] font-normal">Press Ctrl+D for shortcuts</div>
+        </div>
       )}
     </>
   );

@@ -99,6 +99,18 @@ export const UnitCard = React.memo(function UnitCard({
         ${focused || selected ? 'shadow-lg scale-105' : 'shadow-md'}
       `}
     >
+      {/* Character Portrait */}
+      {unit.portraitUrl && (
+        <div className="flex justify-center mb-3">
+          <img 
+            src={unit.portraitUrl}
+            alt={`${unit.name} portrait`}
+            className="w-16 h-16 object-contain pixel-art"
+            style={{ imageRendering: 'pixelated' }}
+          />
+        </div>
+      )}
+
       {/* Header: Name + Role + Rank */}
       <div className="flex items-start justify-between mb-3">
         <div>

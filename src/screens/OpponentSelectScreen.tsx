@@ -133,72 +133,93 @@ export function OpponentSelectScreen({
   }, [battleIndex, announce]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
-      {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-2">
-          Select Your Opponent
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 text-center">
-          Battle #{battleIndex + 1}
-        </p>
-      </div>
+    <div 
+      className="min-h-screen bg-cover bg-center bg-no-repeat relative p-8"
+      style={{
+        backgroundImage: 'url(/sprites/golden-sun/backgrounds/gs1/Sol_Sanctum.gif)',
+      }}
+    >
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/60" />
 
-      {/* Card Grid */}
-      <div 
-        role="radiogroup"
-        aria-label="Opponent selection"
-        className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6"
-      >
-        {previews.map((preview, index) => (
-          <div 
-            key={preview.spec.id} 
-            ref={(el) => { cardRefs.current[index] = el; }}
-          >
-            <OpponentCard
-              preview={preview}
-              selected={selectedIndex === index}
-              focused={focusedIndex === index}
-              expanded={expandedIndex === index}
-              onSelect={() => {
-                setSelectedIndex(index);
-                announce(`${preview.spec.name} selected`);
-              }}
-              onFocus={() => {
-                setFocusedIndex(index);
-              }}
-              onToggleExpand={() => {
-                setExpandedIndex(current => current === index ? null : index);
-              }}
-              tabIndex={focusedIndex === index ? 0 : -1}
-            />
+      {/* Content layer */}
+      <div className="relative z-10">
+        {/* Epic Header */}
+        <div className="max-w-7xl mx-auto mb-12 text-center">
+          <h1 className="text-6xl font-black text-transparent bg-clip-text 
+                       bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400
+                       drop-shadow-[0_0_30px_rgba(251,191,36,0.8)]
+                       tracking-wider
+                       mb-4
+                       animate-pulse-slow">
+            ⚔️ CHOOSE YOUR BATTLE ⚔️
+          </h1>
+          <p className="text-2xl text-yellow-200/90 drop-shadow-lg font-semibold">
+            Select your opponent wisely...
+          </p>
+          <div className="text-lg text-amber-400 mt-3 font-bold">
+            Battle #{battleIndex + 1}
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* Instructions */}
-      <div className="max-w-7xl mx-auto mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-        <p>
-          Use <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">←</kbd>
-          {' '}and{' '}
-          <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">→</kbd>
-          {' '}to navigate
-        </p>
-        <p className="mt-1">
-          Press <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Enter</kbd>
-          {' '}to select, <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Esc</kbd>
-          {' '}to cancel
-        </p>
-      </div>
+        {/* Card Grid */}
+        <div 
+          role="radiogroup"
+          aria-label="Opponent selection"
+          className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8"
+        >
+          {previews.map((preview, index) => (
+            <div 
+              key={preview.spec.id} 
+              ref={(el) => { cardRefs.current[index] = el; }}
+              className="animate-slide-in-up"
+              style={{ animationDelay: `${index * 150}ms` }}
+            >
+              <OpponentCard
+                preview={preview}
+                selected={selectedIndex === index}
+                focused={focusedIndex === index}
+                expanded={expandedIndex === index}
+                onSelect={() => {
+                  setSelectedIndex(index);
+                  announce(`${preview.spec.name} selected`);
+                }}
+                onFocus={() => {
+                  setFocusedIndex(index);
+                }}
+                onToggleExpand={() => {
+                  setExpandedIndex(current => current === index ? null : index);
+                }}
+                tabIndex={focusedIndex === index ? 0 : -1}
+              />
+            </div>
+          ))}
+        </div>
 
-      {/* Live Region for Screen Readers */}
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
-        {announcement}
+        {/* Instructions */}
+        <div className="max-w-7xl mx-auto mt-12 text-center text-sm text-yellow-200/80 drop-shadow-lg">
+          <p>
+            Use <kbd className="px-2 py-1 bg-amber-900/80 border border-yellow-600 rounded shadow-lg">←</kbd>
+            {' '}and{' '}
+            <kbd className="px-2 py-1 bg-amber-900/80 border border-yellow-600 rounded shadow-lg">→</kbd>
+            {' '}to navigate
+          </p>
+          <p className="mt-1">
+            Press <kbd className="px-2 py-1 bg-amber-900/80 border border-yellow-600 rounded shadow-lg">Enter</kbd>
+            {' '}to select, <kbd className="px-2 py-1 bg-amber-900/80 border border-yellow-600 rounded shadow-lg">Esc</kbd>
+            {' '}to cancel
+          </p>
+        </div>
+
+        {/* Live Region for Screen Readers */}
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        >
+          {announcement}
+        </div>
       </div>
     </div>
   );

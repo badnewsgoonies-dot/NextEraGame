@@ -113,11 +113,20 @@ export function RecruitScreen({
                 >
                 {/* Enemy Sprite */}
                 <div className="flex justify-center mb-4">
-                  <div className={`w-20 h-20 rounded-full ${spriteColor} border-4 border-white shadow-lg flex items-center justify-center`}>
-                    <span className="text-white text-3xl font-bold">
-                      {enemy.name.charAt(0)}
-                    </span>
-                  </div>
+                  {enemy.spriteUrl ? (
+                    <img 
+                      src={enemy.spriteUrl}
+                      alt={`${enemy.name} sprite`}
+                      className="w-24 h-24 object-contain pixel-art drop-shadow-[0_0_8px_rgba(0,0,0,0.5)]"
+                      style={{ imageRendering: 'pixelated' }}
+                    />
+                  ) : (
+                    <div className={`w-20 h-20 rounded-full ${spriteColor} border-4 border-white shadow-lg flex items-center justify-center`}>
+                      <span className="text-white text-3xl font-bold">
+                        {enemy.name.charAt(0)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Enemy Info */}
@@ -207,11 +216,20 @@ export function RecruitScreen({
                     className="p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-red-500 transition-colors duration-200 text-left"
                   >
                     <div className="flex items-center gap-3 mb-2">
-                      <div className={`w-12 h-12 rounded-full ${spriteColor} border-2 border-white flex items-center justify-center`}>
-                        <span className="text-white text-xl font-bold">
-                          {unit.name.charAt(0)}
-                        </span>
-                      </div>
+                      {unit.portraitUrl ? (
+                        <img 
+                          src={unit.portraitUrl}
+                          alt={`${unit.name} portrait`}
+                          className="w-12 h-12 object-contain pixel-art"
+                          style={{ imageRendering: 'pixelated' }}
+                        />
+                      ) : (
+                        <div className={`w-12 h-12 rounded-full ${spriteColor} border-2 border-white flex items-center justify-center`}>
+                          <span className="text-white text-xl font-bold">
+                            {unit.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
                       <div>
                         <div className="font-bold text-gray-900 dark:text-white">
                           {unit.name}

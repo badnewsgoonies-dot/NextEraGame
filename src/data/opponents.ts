@@ -22,6 +22,7 @@ const SKELETON_WARRIOR: EnemyUnitTemplate = {
   role: 'Tank',
   tags: ['Undead'],
   baseStats: { hp: 80, atk: 15, def: 12, speed: 40 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Skeleton.gif',
 };
 
 const ZOMBIE_BRUTE: EnemyUnitTemplate = {
@@ -30,6 +31,7 @@ const ZOMBIE_BRUTE: EnemyUnitTemplate = {
   role: 'Tank',
   tags: ['Undead'],
   baseStats: { hp: 100, atk: 18, def: 8, speed: 25 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Zombie.gif',
 };
 
 const NECROMANCER: EnemyUnitTemplate = {
@@ -38,6 +40,7 @@ const NECROMANCER: EnemyUnitTemplate = {
   role: 'Support',
   tags: ['Undead', 'Arcane'],
   baseStats: { hp: 60, atk: 20, def: 6, speed: 55 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Ghost_Mage.gif',
 };
 
 const GHOST_ASSASSIN: EnemyUnitTemplate = {
@@ -46,6 +49,7 @@ const GHOST_ASSASSIN: EnemyUnitTemplate = {
   role: 'DPS',
   tags: ['Undead'],
   baseStats: { hp: 50, atk: 28, def: 4, speed: 70 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Ghost.gif',
 };
 
 const BATTLE_MECH_ALPHA: EnemyUnitTemplate = {
@@ -54,6 +58,7 @@ const BATTLE_MECH_ALPHA: EnemyUnitTemplate = {
   role: 'Tank',
   tags: ['Mech'],
   baseStats: { hp: 120, atk: 22, def: 20, speed: 30 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Golem.gif',
 };
 
 const DRONE_SWARM: EnemyUnitTemplate = {
@@ -62,6 +67,7 @@ const DRONE_SWARM: EnemyUnitTemplate = {
   role: 'DPS',
   tags: ['Mech'],
   baseStats: { hp: 40, atk: 25, def: 3, speed: 80 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Flash_Ant.gif',
 };
 
 const REPAIR_BOT: EnemyUnitTemplate = {
@@ -70,6 +76,7 @@ const REPAIR_BOT: EnemyUnitTemplate = {
   role: 'Support',
   tags: ['Mech'],
   baseStats: { hp: 70, atk: 10, def: 15, speed: 50 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Mimic.gif',
 };
 
 const SIEGE_CANNON: EnemyUnitTemplate = {
@@ -78,6 +85,7 @@ const SIEGE_CANNON: EnemyUnitTemplate = {
   role: 'Specialist',
   tags: ['Mech'],
   baseStats: { hp: 80, atk: 35, def: 10, speed: 20 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Grand_Golem.gif',
 };
 
 const DIRE_WOLF: EnemyUnitTemplate = {
@@ -86,6 +94,7 @@ const DIRE_WOLF: EnemyUnitTemplate = {
   role: 'DPS',
   tags: ['Beast'],
   baseStats: { hp: 65, atk: 24, def: 6, speed: 65 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Wild_Wolf.gif',
 };
 
 const BEAR_GUARDIAN: EnemyUnitTemplate = {
@@ -94,6 +103,7 @@ const BEAR_GUARDIAN: EnemyUnitTemplate = {
   role: 'Tank',
   tags: ['Beast', 'Nature'],
   baseStats: { hp: 110, atk: 20, def: 14, speed: 35 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Grizzly.gif',
 };
 
 const SERPENT_STRIKER: EnemyUnitTemplate = {
@@ -102,6 +112,7 @@ const SERPENT_STRIKER: EnemyUnitTemplate = {
   role: 'DPS',
   tags: ['Beast'],
   baseStats: { hp: 55, atk: 26, def: 5, speed: 75 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Creeper.gif',
 };
 
 const PALADIN_KNIGHT: EnemyUnitTemplate = {
@@ -110,6 +121,7 @@ const PALADIN_KNIGHT: EnemyUnitTemplate = {
   role: 'Tank',
   tags: ['Holy'],
   baseStats: { hp: 95, atk: 18, def: 16, speed: 45 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Minotaurus.gif',
 };
 
 const CLERIC_HEALER: EnemyUnitTemplate = {
@@ -118,6 +130,7 @@ const CLERIC_HEALER: EnemyUnitTemplate = {
   role: 'Support',
   tags: ['Holy'],
   baseStats: { hp: 70, atk: 12, def: 10, speed: 50 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Faery.gif',
 };
 
 const HOLY_AVENGER: EnemyUnitTemplate = {
@@ -126,6 +139,7 @@ const HOLY_AVENGER: EnemyUnitTemplate = {
   role: 'DPS',
   tags: ['Holy'],
   baseStats: { hp: 75, atk: 30, def: 8, speed: 60 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Gargoyle.gif',
 };
 
 const ARCANE_EVOKER: EnemyUnitTemplate = {
@@ -134,6 +148,7 @@ const ARCANE_EVOKER: EnemyUnitTemplate = {
   role: 'DPS',
   tags: ['Arcane'],
   baseStats: { hp: 55, atk: 32, def: 4, speed: 65 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Gnome_Wizard.gif',
 };
 
 const VOID_WALKER: EnemyUnitTemplate = {
@@ -142,6 +157,7 @@ const VOID_WALKER: EnemyUnitTemplate = {
   role: 'Specialist',
   tags: ['Arcane'],
   baseStats: { hp: 60, atk: 28, def: 6, speed: 70 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Horned_Ghost.gif',
 };
 
 const CRYSTAL_GUARDIAN: EnemyUnitTemplate = {
@@ -150,6 +166,7 @@ const CRYSTAL_GUARDIAN: EnemyUnitTemplate = {
   role: 'Tank',
   tags: ['Arcane'],
   baseStats: { hp: 90, atk: 16, def: 18, speed: 40 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Grand_Chimera.gif',
 };
 
 const TREANT_ANCIENT: EnemyUnitTemplate = {
@@ -158,6 +175,7 @@ const TREANT_ANCIENT: EnemyUnitTemplate = {
   role: 'Tank',
   tags: ['Nature'],
   baseStats: { hp: 130, atk: 20, def: 12, speed: 25 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Mad_Plant.gif',
 };
 
 const THORN_ARCHER: EnemyUnitTemplate = {
@@ -166,6 +184,7 @@ const THORN_ARCHER: EnemyUnitTemplate = {
   role: 'DPS',
   tags: ['Nature'],
   baseStats: { hp: 60, atk: 26, def: 7, speed: 55 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Hobgoblin.gif',
 };
 
 const DRUID_SHAMAN: EnemyUnitTemplate = {
@@ -174,6 +193,7 @@ const DRUID_SHAMAN: EnemyUnitTemplate = {
   role: 'Support',
   tags: ['Nature'],
   baseStats: { hp: 65, atk: 15, def: 8, speed: 50 },
+  spriteUrl: '/sprites/golden-sun/battle/enemies/Amaze.gif',
 };
 
 // ============================================

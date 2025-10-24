@@ -122,11 +122,20 @@ export function RosterManagementScreen({
 
                   {/* Unit Sprite */}
                   <div className="flex justify-center mb-4">
-                    <div className={`w-20 h-20 rounded-full ${spriteColor} border-4 border-white shadow-lg flex items-center justify-center`}>
-                      <span className="text-white text-3xl font-bold">
-                        {unit.name.charAt(0)}
-                      </span>
-                    </div>
+                    {(unit.portraitUrl || unit.spriteUrl) ? (
+                      <img 
+                        src={unit.portraitUrl || unit.spriteUrl}
+                        alt={`${unit.name} sprite`}
+                        className="w-20 h-20 object-contain pixel-art drop-shadow-lg"
+                        style={{ imageRendering: 'pixelated' }}
+                      />
+                    ) : (
+                      <div className={`w-20 h-20 rounded-full ${spriteColor} border-4 border-white shadow-lg flex items-center justify-center`}>
+                        <span className="text-white text-3xl font-bold">
+                          {unit.name.charAt(0)}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Unit Info */}
@@ -202,11 +211,20 @@ export function RosterManagementScreen({
 
                     {/* Unit Sprite */}
                     <div className="flex justify-center mb-4">
-                      <div className={`w-20 h-20 rounded-full ${spriteColor} border-4 border-white shadow-lg flex items-center justify-center`}>
-                        <span className="text-white text-3xl font-bold">
-                          {unit.name.charAt(0)}
-                        </span>
-                      </div>
+                      {(unit.portraitUrl || unit.spriteUrl) ? (
+                        <img 
+                          src={unit.portraitUrl || unit.spriteUrl}
+                          alt={`${unit.name} sprite`}
+                          className="w-20 h-20 object-contain pixel-art drop-shadow-lg"
+                          style={{ imageRendering: 'pixelated' }}
+                        />
+                      ) : (
+                        <div className={`w-20 h-20 rounded-full ${spriteColor} border-4 border-white shadow-lg flex items-center justify-center`}>
+                          <span className="text-white text-3xl font-bold">
+                            {unit.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Unit Info */}
