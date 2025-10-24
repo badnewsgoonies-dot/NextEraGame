@@ -72,6 +72,100 @@ export type Tag = 'Undead' | 'Mech' | 'Beast' | 'Holy' | 'Arcane' | 'Nature';
 export type Difficulty = 'Standard' | 'Normal' | 'Hard';
 
 // ============================================
+// Progression Systems (Rank, Class, Gems, Abilities)
+// ============================================
+
+/**
+ * Unit Rank System
+ * - Units start at C rank
+ * - Merge duplicate units to upgrade rank (C→B→A→S)
+ * - Each rank provides stat multiplier to base stats
+ */
+export type UnitRank = 'C' | 'B' | 'A' | 'S';
+
+/**
+ * Base Class System
+ * - Determines unit's fundamental combat style
+ * - Inherited from template
+ */
+export type BaseClass = 'Warrior' | 'Mage' | 'Rogue' | 'Cleric' | 'Tank' | 'Support' | 'Specialist';
+
+/**
+ * Subclass System
+ * - Granted by equipped gems (Golden Sun Djinn-style)
+ * - Provides percentage-based stat modifiers
+ * - Persists while gem equipped
+ */
+export type Subclass = 
+  | 'Fire Adept'
+  | 'Water Adept'
+  | 'Earth Adept'
+  | 'Air Adept'
+  | 'Mystic Adept';
+
+/**
+ * Class modifiers (percentage bonuses from subclass)
+ */
+export interface ClassModifiers {
+  readonly hp: number;      // Multiplier (1.0 = 100%, 1.1 = +10%)
+  readonly attack: number;
+  readonly defense: number;
+  readonly speed: number;
+}
+
+/**
+ * Ability System - MP-based spells
+ */
+export type AbilityTargetType = 
+  | 'single_enemy'
+  | 'all_enemies'
+  | 'single_ally'
+  | 'all_allies'
+  | 'self';
+
+export type AbilityEffectType = 
+  | 'damage'
+  | 'heal'
+  | 'buff'
+  | 'debuff'
+  | 'debuff_remove';
+
+export interface AbilityEffect {
+  readonly type: AbilityEffectType;
+  readonly target: AbilityTargetType;
+  readonly power: number;
+  readonly element?: 'fire' | 'water' | 'earth' | 'air' | 'physical';
+  readonly buffStat?: 'attack' | 'defense' | 'speed';
+  readonly buffAmount?: number;
+  readonly buffDuration?: number; // In turns
+}
+
+export interface Ability {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly mpCost: number;
+  readonly effect: AbilityEffect;
+}
+
+/**
+ * Gem System - Djinn-inspired equipment
+ */
+export type GemState = 'active' | 'inactive';
+
+export interface GemPassiveBonus {
+  readonly hp?: number;
+  readonly attack?: number;
+  readonly defense?: number;
+  readonly speed?: number;
+}
+
+export interface EquippedGem {
+  readonly gemId: string;
+  readonly state: GemState;
+}
+
+// ============================================
 // Unit System
 // ============================================
 
@@ -108,13 +202,32 @@ export interface EnemyUnitTemplate {
 }
 
 /**
- * Player unit (extends Unit with team metadata)
+ * Player unit (extends Unit with progression systems)
  */
 export interface PlayerUnit extends Unit {
+  readonly templateId: string; // Links to EnemyUnitTemplate (for detecting duplicates in merge system)
   readonly role: Role;
   readonly tags: readonly Tag[];
-  readonly level: number;
-  readonly experience: number;
+  
+  // ===== PROGRESSION SYSTEMS =====
+  readonly rank: UnitRank; // Starts at 'C', upgrades via merging duplicates
+  readonly baseClass: BaseClass; // Fundamental class (inherited from template)
+  readonly subclass?: Subclass; // Granted by equipped gem
+  
+  // ===== LEVELING (Foundation - implemented later) =====
+  readonly level: number;      // Starts at 1
+  readonly experience: number; // Starts at 0
+  
+  // ===== CURRENT BATTLE STATE =====
+  readonly currentMp: number; // Current MP (for abilities), max 50
+  
+  // ===== EQUIPMENT =====
+  readonly equippedWeapon?: string;
+  readonly equippedArmor?: string;
+  readonly equippedAccessory?: string;
+  readonly equippedGem?: EquippedGem; // NEW: Gem system
+  
+  // ===== DISPLAY =====
   readonly portraitUrl?: string;
   readonly spriteUrl?: string;
 }
