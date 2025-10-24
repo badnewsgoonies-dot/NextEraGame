@@ -7,6 +7,7 @@
  * - Keyboard selection (Enter/Space to confirm)
  * - Live region for screen reader announcements
  * - Expandable cards (Up/Down arrows)
+ * - Mobile-friendly confirm button
  * - Performance target: <4ms initial render
  * 
  * Keyboard Controls:
@@ -132,6 +133,9 @@ export function OpponentSelectScreen({
     announce(`3 opponents available for battle ${battleIndex + 1}. Use arrow keys to navigate.`);
   }, [battleIndex, announce]);
 
+  // Get selected preview for button text
+  const selectedPreview = selectedIndex !== null ? previews[selectedIndex] : null;
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
       {/* Header */}
@@ -176,6 +180,19 @@ export function OpponentSelectScreen({
         ))}
       </div>
 
+      {/* Mobile Confirm Button - Shows after selection */}
+      {selectedPreview && (
+        <div className="max-w-7xl mx-auto mt-8 flex justify-center">
+          <button
+            onClick={confirmSelection}
+            className="px-8 py-4 min-h-[48px] bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 text-white font-bold text-lg rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 active:scale-95"
+            aria-label={`Confirm selection of ${selectedPreview.spec.name}`}
+          >
+            Confirm: {selectedPreview.spec.name}
+          </button>
+        </div>
+      )}
+
       {/* Instructions */}
       <div className="max-w-7xl mx-auto mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
         <p>
@@ -203,4 +220,3 @@ export function OpponentSelectScreen({
     </div>
   );
 }
-
