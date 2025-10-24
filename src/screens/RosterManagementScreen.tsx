@@ -105,7 +105,7 @@ export function RosterManagementScreen({
                 <button
                   key={unit.id}
                   onClick={() => handleActiveClick(unit.id)}
-                  className={`bg-white dark:bg-gray-800 rounded-lg p-6 border-2 transition-all hover:shadow-lg text-left ${
+                  className={`bg-white dark:bg-gray-800 rounded-lg p-6 border-2 transition-[colors,shadow] duration-200 hover:shadow-lg text-left ${
                     isSelected
                       ? 'border-yellow-400 shadow-yellow-400/50 shadow-lg'
                       : 'border-green-500 hover:border-green-400'
@@ -185,7 +185,7 @@ export function RosterManagementScreen({
                   <button
                     key={unit.id}
                     onClick={() => handleBenchClick(unit.id)}
-                    className={`bg-white dark:bg-gray-800 rounded-lg p-6 border-2 transition-all hover:shadow-lg text-left ${
+                    className={`bg-white dark:bg-gray-800 rounded-lg p-6 border-2 transition-[colors,shadow] duration-200 hover:shadow-lg text-left ${
                       isSelected
                         ? 'border-yellow-400 shadow-yellow-400/50 shadow-lg'
                         : 'border-gray-500 hover:border-gray-400'

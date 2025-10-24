@@ -296,12 +296,43 @@ export function App(): React.ReactElement {
       const selectedPreview = previews.find(p => p.spec.id === controller.getState().selectedOpponentId);
       if (selectedPreview) {
         const rewardRng = makeRng(controller.getState().runSeed).fork('rewards').fork(String(controller.getState().battleIndex));
+        
+        // FIX: Get actual defeated enemy units (not just IDs)
+        // The battle returns indexed IDs like "cleric_healer_0", but we have the full units
+        const defeatedEnemyUnits = enemyUnits.filter(enemy => 
+          result.unitsDefeated.includes(enemy.id)
+        );
+        
         const generatedRewards = rewardSystem.generateRewards(
           selectedPreview.spec,
           result,
           rewardRng
         );
-        setRewards(generatedRewards);
+        
+        // Override defeated enemies with actual defeated units (not template matching)
+        const fixedRewards = {
+          ...generatedRewards,
+          defeatedEnemies: defeatedEnemyUnits.map(enemy => {
+            // Find the template this enemy was created from
+            // Strip the "_${index}" suffix to match back to template
+            const templateId = enemy.id.replace(/_\d+$/, '');
+            const template = selectedPreview.spec.units.find(t => t.id === templateId);
+            return template || {
+              id: enemy.id,
+              name: enemy.name,
+              role: enemy.role,
+              tags: enemy.tags,
+              baseStats: {
+                hp: enemy.maxHp,
+                atk: enemy.atk,
+                def: enemy.def,
+                speed: enemy.speed,
+              },
+              spriteKey: `enemy-${enemy.name.toLowerCase().replace(/\s+/g, '-')}`,
+            };
+          }),
+        };
+        setRewards(fixedRewards);  // Use the fixed rewards!
       }
     }
 

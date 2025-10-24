@@ -87,7 +87,7 @@ export function RecruitScreen({
               return (
                 <div
                   key={enemy.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg p-6 border-2 border-gray-300 dark:border-gray-600 hover:border-purple-400 transition-all hover:shadow-lg"
+                  className="bg-white dark:bg-gray-800 rounded-lg p-6 border-2 border-gray-300 dark:border-gray-600 hover:border-purple-400 transition-[colors,shadow] duration-200 hover:shadow-lg"
                 >
                 {/* Enemy Sprite */}
                 <div className="flex justify-center mb-4">
@@ -182,7 +182,7 @@ export function RecruitScreen({
                   <button
                     key={unit.id}
                     onClick={() => handleReplace(unit.id)}
-                    className="p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-red-500 transition-all text-left"
+                    className="p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-red-500 transition-colors duration-200 text-left"
                   >
                     <div className="flex items-center gap-3 mb-2">
                       <div className={`w-12 h-12 rounded-full ${spriteColor} border-2 border-white flex items-center justify-center`}>

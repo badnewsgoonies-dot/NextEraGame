@@ -105,7 +105,7 @@ export const OpponentCard = React.memo(function OpponentCard({
       className={`
         bg-white dark:bg-surface-dark rounded-lg p-4 
         ${borderColor} ${shadow} ${opacity}
-        transition-all duration-200 cursor-pointer
+        transition-[colors,shadow,opacity] duration-200 cursor-pointer
         focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
       `}
     >

@@ -94,7 +94,7 @@ export const UnitCard = React.memo(function UnitCard({
       className={`
         ${bgColor} ${borderColor} ${cursor}
         rounded-lg p-4 
-        transition-all duration-200
+        transition-[colors,shadow,transform] duration-200
         focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
         ${focused || selected ? 'shadow-lg scale-105' : 'shadow-md'}
       `}
