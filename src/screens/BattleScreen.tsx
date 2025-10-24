@@ -145,6 +145,10 @@ export function BattleScreen({
   const defending = useRef<Set<string>>(new Set());
   const rngRef = useRef(makeRng(seed ?? Date.now()));
 
+  // Click debouncing to prevent spam clicking race conditions
+  const [isProcessing, setIsProcessing] = useState(false);
+  const processingTimeout = useRef<NodeJS.Timeout | null>(null);
+
   // Action log for BattleResult
   const [seq, setSeq] = useState(1);
   const [actions, setActions] = useState<BattleResult['actions']>([]);
@@ -194,12 +198,27 @@ export function BattleScreen({
   const getUnitAbilitiesForBattle = useCallback((battleUnit: BattleUnit): readonly Ability[] => {
     if (!battleUnit.isPlayer) return []; // Only player units have abilities
 
-    const playerTeam = gameController.getTeam();
-    const playerUnit = playerTeam.find(u => u.id === battleUnit.id);
+    try {
+      const playerTeam = gameController.getTeam();
 
-    if (!playerUnit) return [];
+      if (!playerTeam || playerTeam.length === 0) {
+        console.warn('⚠️ No player team found');
+        return [];
+      }
 
-    return getUnitAbilities(playerUnit);
+      const playerUnit = playerTeam.find(u => u.id === battleUnit.id);
+
+      if (!playerUnit) {
+        console.warn(`⚠️ Unit ${battleUnit.name} not found in team`);
+        return [];
+      }
+
+      const abilities = getUnitAbilities(playerUnit);
+      return abilities || [];
+    } catch (error) {
+      console.error('❌ Error getting abilities:', error);
+      return [];
+    }
   }, [gameController]);
 
   /**
@@ -212,6 +231,19 @@ export function BattleScreen({
   }, [alivePlayers, aliveEnemies]);
 
   // ==================== Battle Actions ====================
+
+  /**
+   * Start processing cooldown to prevent spam clicking
+   */
+  const startProcessing = useCallback(() => {
+    setIsProcessing(true);
+    if (processingTimeout.current) {
+      clearTimeout(processingTimeout.current);
+    }
+    processingTimeout.current = setTimeout(() => {
+      setIsProcessing(false);
+    }, 300); // 300ms cooldown between actions
+  }, []);
 
   /**
    * Complete the battle and report results
@@ -511,7 +543,18 @@ export function BattleScreen({
    */
   const handleActionSelect = useCallback(
     (index: number) => {
-      if (phase !== 'menu') return;
+      // Strict guards to prevent freezes
+      if (phase !== 'menu') {
+        console.warn('⚠️ Blocked action - wrong phase:', phase);
+        return;
+      }
+
+      if (isProcessing) {
+        console.warn('⚠️ Blocked action - already processing');
+        return;
+      }
+
+      startProcessing();
       setMenuIndex(index);
 
       // Immediately execute selected action
@@ -535,8 +578,11 @@ export function BattleScreen({
           // Show abilities menu
           setPhase('ability-menu');
         } else if (label === 'Gems') {
-          // Show gem menu
-          setPhase('gem-menu');
+          // Gem effects not yet implemented - show message in console
+          console.warn('💎 Gem effects UI not yet implemented');
+          // For now, just stay in menu phase (don't freeze!)
+          // TODO: Implement gem effect selection UI
+          // setPhase('gem-menu'); // Commented out - no UI exists for this phase!
         } else if (label === 'Items') {
           // Show item menu (always, even if empty - will show "No items available")
           setItemMenuIndex(0);
@@ -555,9 +601,11 @@ export function BattleScreen({
       confirmFlee,
       findUnit,
       gameController,
+      isProcessing,
       phase,
       pushAction,
       registerTimeout,
+      startProcessing,
     ]
   );
 
