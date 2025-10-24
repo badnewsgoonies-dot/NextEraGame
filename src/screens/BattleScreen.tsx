@@ -31,8 +31,10 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import type { BattleUnit, BattleResult, Role, Item, CombatAction } from '../types/game.js';
+import type { BattleUnit, BattleResult, Role, Item, CombatAction, Ability, PlayerUnit } from '../types/game.js';
 import type { GameController } from '../core/GameController.js';
+import { getUnitAbilities } from '../systems/GemSystem.js';
+import { canUseAbility, useAbility, calculateAbilityDamage, calculateAbilityHealing } from '../systems/AbilitySystem.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
 import { BattleUnitSlot } from '../components/battle/BattleUnitSlot.js';
 import { AttackAnimation } from '../components/battle/AttackAnimation.js';
@@ -131,12 +133,11 @@ export function BattleScreen({
   const [healAmount, setHealAmount] = useState(0);
   const [healPos, setHealPos] = useState({ x: 0, y: 0 });
 
-  // Ability system state (NEW - for gem-granted abilities)
-  // TODO: Implement abilities menu in future update
-  const [_abilityMenuIndex, _setAbilityMenuIndex] = useState(0);
-  
-  // Gem system state (NEW - for gem effects)
-  // TODO: Implement gem effects menu in future update
+  // Ability system state (gem-granted abilities)
+  const [abilityMenuIndex, setAbilityMenuIndex] = useState(0);
+  const [selectedAbility, setSelectedAbility] = useState<Ability | null>(null);
+
+  // Gem system state (gem effects - future feature)
   const [_showGemConfirm, _setShowGemConfirm] = useState(false);
 
   // Battle mechanics
@@ -181,6 +182,20 @@ export function BattleScreen({
     },
     [players, enemies]
   );
+
+  /**
+   * Get abilities for a battle unit (uses gameController to access PlayerUnit gem data)
+   */
+  const getUnitAbilitiesForBattle = useCallback((battleUnit: BattleUnit): readonly Ability[] => {
+    if (!battleUnit.isPlayer) return []; // Only player units have abilities
+
+    const playerTeam = gameController.getTeam();
+    const playerUnit = playerTeam.find(u => u.id === battleUnit.id);
+
+    if (!playerUnit) return [];
+
+    return getUnitAbilities(playerUnit);
+  }, [gameController]);
 
   /**
    * Check if battle is over (all players or all enemies defeated)
@@ -681,13 +696,215 @@ export function BattleScreen({
     setPhase('menu');
   }, []);
 
+  /**
+   * Handle ability selection from ability menu
+   */
+  const handleAbilitySelect = useCallback(
+    (index: number) => {
+      if (!activeId) return;
+      const actor = findUnit(activeId);
+      if (!actor) return;
+
+      const abilities = getUnitAbilitiesForBattle(actor);
+      if (index < 0 || index >= abilities.length) return;
+
+      const ability = abilities[index];
+      setSelectedAbility(ability);
+      setAbilityMenuIndex(index);
+
+      // Check MP before proceeding
+      if (actor.currentMp < ability.mpCost) {
+        // Not enough MP - show error and return
+        // TODO: Add visual error feedback
+        console.warn(`Not enough MP for ${ability.name} (need ${ability.mpCost}, have ${actor.currentMp})`);
+        return;
+      }
+
+      // Determine targeting based on ability target type
+      const targetType = ability.effect.target;
+
+      if (targetType === 'single_enemy') {
+        // Target enemy
+        if (aliveEnemies.length === 0) return;
+        setTargetIndex(0);
+        setTargetedId(aliveEnemies[0].id);
+        setPhase('ability-targeting');
+      } else if (targetType === 'all_enemies') {
+        // No targeting needed - hits all enemies
+        handleConfirmAbilityUse(ability, actor);
+      } else if (targetType === 'single_ally') {
+        // Target ally
+        if (alivePlayers.length === 0) return;
+        setTargetIndex(0);
+        setTargetedId(alivePlayers[0].id);
+        setPhase('ability-targeting');
+      } else if (targetType === 'all_allies') {
+        // No targeting needed - hits all allies
+        handleConfirmAbilityUse(ability, actor);
+      } else if (targetType === 'self') {
+        // No targeting needed - self only
+        handleConfirmAbilityUse(ability, actor);
+      }
+    },
+    [activeId, findUnit, getUnitAbilitiesForBattle, aliveEnemies, alivePlayers]
+  );
+
+  /**
+   * Confirm ability usage on target (or immediate cast for AoE/self)
+   */
+  const handleConfirmAbilityUse = useCallback(
+    (ability?: Ability, actor?: BattleUnit) => {
+      const abilityToUse = ability || selectedAbility;
+      const actorUnit = actor || (activeId ? findUnit(activeId) : null);
+
+      if (!abilityToUse || !actorUnit || !activeId) return;
+
+      // Check MP one more time
+      if (actorUnit.currentMp < abilityToUse.mpCost) {
+        console.error('Not enough MP!');
+        return;
+      }
+
+      // Deduct MP
+      setPlayers(prev =>
+        prev.map(u =>
+          u.id === actorUnit.id ? { ...u, currentMp: Math.max(0, u.currentMp - abilityToUse.mpCost) } : u
+        )
+      );
+
+      setPhase('animating');
+
+      // Determine targets based on ability
+      const targetType = abilityToUse.effect.target;
+      let targets: BattleUnit[] = [];
+
+      if (targetType === 'single_enemy') {
+        const target = phase === 'ability-targeting' ? aliveEnemies[targetIndex] : null;
+        if (target) targets = [target];
+      } else if (targetType === 'all_enemies') {
+        targets = aliveEnemies;
+      } else if (targetType === 'single_ally') {
+        const target = phase === 'ability-targeting' ? alivePlayers[targetIndex] : null;
+        if (target) targets = [target];
+      } else if (targetType === 'all_allies') {
+        targets = alivePlayers;
+      } else if (targetType === 'self') {
+        targets = [actorUnit];
+      }
+
+      // Execute ability effect on each target
+      targets.forEach((target, i) => {
+        const effectType = abilityToUse.effect.type;
+
+        if (effectType === 'damage') {
+          // Calculate and apply damage
+          const damage = calculateAbilityDamage(abilityToUse, actorUnit.atk);
+
+          // Show animation at target position
+          if (i === 0 || targets.length === 1) {
+            setTargetedId(target.id);
+            setAttackAnimRole(actorUnit.role);
+            setAttackAnimPos(getTargetCenter(target.id));
+            setShowAttackAnim(true);
+          }
+
+          // Apply damage after delay
+          const damageTimeout = setTimeout(() => {
+            applyDamage(target.id, damage);
+          }, ANIMATION_TIMING.DAMAGE_APPLY_DELAY);
+          registerTimeout(damageTimeout);
+
+          // Log action
+          pushAction({
+            type: 'attack', // TODO: Add 'ability' type to CombatAction
+            actorId: actorUnit.id,
+            targetId: target.id,
+            damage,
+          });
+        } else if (effectType === 'heal') {
+          // Calculate and apply healing
+          const healing = calculateAbilityHealing(abilityToUse);
+          const actualHeal = Math.min(healing, target.maxHp - target.currentHp);
+
+          // Show heal animation
+          if (i === 0 || targets.length === 1) {
+            setTargetedId(target.id);
+            setHealAmount(actualHeal);
+            setHealPos(getTargetCenter(target.id));
+            setShowHealAnim(true);
+          }
+
+          // Apply healing after short delay
+          const healTimeout = setTimeout(() => {
+            setPlayers(prev =>
+              prev.map(u =>
+                u.id === target.id ? { ...u, currentHp: Math.min(u.maxHp, u.currentHp + actualHeal) } : u
+              )
+            );
+          }, 200);
+          registerTimeout(healTimeout);
+
+          // Log action
+          pushAction({
+            type: 'item-used', // TODO: Add 'ability' type to CombatAction
+            actorId: actorUnit.id,
+            targetId: target.id,
+            itemId: abilityToUse.id,
+            itemName: abilityToUse.name,
+            hpRestored: actualHeal,
+          });
+        }
+        // TODO: Implement buff/debuff effects in future update
+      });
+
+      // Clean up and advance turn
+      const cleanupTimeout = setTimeout(() => {
+        setShowAttackAnim(false);
+        setShowHealAnim(false);
+        setTargetedId(null);
+        setSelectedAbility(null);
+        setPhase('resolving');
+        advanceTurnPointer();
+      }, targets.length > 1 ? 1500 : 1000); // Longer for AoE
+      registerTimeout(cleanupTimeout);
+    },
+    [
+      selectedAbility,
+      activeId,
+      findUnit,
+      phase,
+      aliveEnemies,
+      alivePlayers,
+      targetIndex,
+      calculateAbilityDamage,
+      calculateAbilityHealing,
+      getTargetCenter,
+      applyDamage,
+      pushAction,
+      advanceTurnPointer,
+      registerTimeout,
+    ]
+  );
+
+  /**
+   * Cancel ability menu and return to main menu
+   */
+  const handleCancelAbilityMenu = useCallback(() => {
+    setSelectedAbility(null);
+    setPhase('menu');
+  }, []);
+
   // ==================== Keyboard Input ====================
 
-  const keyboardEnabled = phase === 'menu' || phase === 'targeting' || phase === 'item-menu' || phase === 'item-targeting';
+  const keyboardEnabled = phase === 'menu' || phase === 'targeting' || phase === 'item-menu' || phase === 'item-targeting' || phase === 'ability-menu' || phase === 'ability-targeting';
 
   // Get consumables fresh each time to ensure inventory changes are reflected
   // Note: gameController state is mutable, so useMemo wouldn't catch changes
   const consumables = gameController.getConsumables();
+
+  // Get abilities for active unit
+  const activeUnit = activeId ? findUnit(activeId) : null;
+  const unitAbilities = activeUnit ? getUnitAbilitiesForBattle(activeUnit) : [];
 
   useKeyboard({
     enabled: keyboardEnabled,
@@ -696,6 +913,8 @@ export function BattleScreen({
         setMenuIndex(i => (i - 1 + ACTIONS.length) % ACTIONS.length);
       } else if (phase === 'item-menu') {
         setItemMenuIndex(i => (i - 1 + Math.max(1, consumables.length)) % Math.max(1, consumables.length));
+      } else if (phase === 'ability-menu') {
+        setAbilityMenuIndex(i => (i - 1 + Math.max(1, unitAbilities.length)) % Math.max(1, unitAbilities.length));
       }
     },
     onDown: () => {
@@ -703,6 +922,8 @@ export function BattleScreen({
         setMenuIndex(i => (i + 1) % ACTIONS.length);
       } else if (phase === 'item-menu') {
         setItemMenuIndex(i => (i + 1) % Math.max(1, consumables.length));
+      } else if (phase === 'ability-menu') {
+        setAbilityMenuIndex(i => (i + 1) % Math.max(1, unitAbilities.length));
       }
     },
     onLeft: () => {
@@ -718,6 +939,22 @@ export function BattleScreen({
           setTargetedId(alivePlayers[next]?.id ?? null);
           return next;
         });
+      } else if (phase === 'ability-targeting') {
+        // Ability targeting depends on ability target type
+        const targetType = selectedAbility?.effect.target;
+        if (targetType === 'single_enemy') {
+          setTargetIndex(i => {
+            const next = (i - 1 + aliveEnemies.length) % Math.max(1, aliveEnemies.length);
+            setTargetedId(aliveEnemies[next]?.id ?? null);
+            return next;
+          });
+        } else if (targetType === 'single_ally') {
+          setTargetIndex(i => {
+            const next = (i - 1 + alivePlayers.length) % Math.max(1, alivePlayers.length);
+            setTargetedId(alivePlayers[next]?.id ?? null);
+            return next;
+          });
+        }
       }
     },
     onRight: () => {
@@ -733,6 +970,22 @@ export function BattleScreen({
           setTargetedId(alivePlayers[next]?.id ?? null);
           return next;
         });
+      } else if (phase === 'ability-targeting') {
+        // Ability targeting depends on ability target type
+        const targetType = selectedAbility?.effect.target;
+        if (targetType === 'single_enemy') {
+          setTargetIndex(i => {
+            const next = (i + 1) % Math.max(1, aliveEnemies.length);
+            setTargetedId(aliveEnemies[next]?.id ?? null);
+            return next;
+          });
+        } else if (targetType === 'single_ally') {
+          setTargetIndex(i => {
+            const next = (i + 1) % Math.max(1, alivePlayers.length);
+            setTargetedId(alivePlayers[next]?.id ?? null);
+            return next;
+          });
+        }
       }
     },
     onEnter: () => {
@@ -740,12 +993,16 @@ export function BattleScreen({
       else if (phase === 'targeting') handleConfirmTarget();
       else if (phase === 'item-menu') handleItemSelect(itemMenuIndex);
       else if (phase === 'item-targeting') handleConfirmItemUse();
+      else if (phase === 'ability-menu') handleAbilitySelect(abilityMenuIndex);
+      else if (phase === 'ability-targeting') handleConfirmAbilityUse();
     },
     onSpace: () => {
       if (phase === 'menu') handleConfirmAction();
       else if (phase === 'targeting') handleConfirmTarget();
       else if (phase === 'item-menu') handleItemSelect(itemMenuIndex);
       else if (phase === 'item-targeting') handleConfirmItemUse();
+      else if (phase === 'ability-menu') handleAbilitySelect(abilityMenuIndex);
+      else if (phase === 'ability-targeting') handleConfirmAbilityUse();
     },
     onEscape: () => {
       if (phase === 'targeting') {
@@ -756,6 +1013,11 @@ export function BattleScreen({
         setTargetedId(null);
       } else if (phase === 'item-menu') {
         handleCancelItemMenu();
+      } else if (phase === 'ability-targeting') {
+        setPhase('ability-menu');
+        setTargetedId(null);
+      } else if (phase === 'ability-menu') {
+        handleCancelAbilityMenu();
       } else if (phase === 'menu') {
         confirmFlee();
       }
@@ -865,7 +1127,7 @@ export function BattleScreen({
             defending={defending.current.has(activeId ?? '')}
           />
           <div className="mt-3">
-            {/* Main action menu or item submenu */}
+            {/* Main action menu, item submenu, or ability submenu */}
             {phase === 'item-menu' ? (
               <>
                 <ActionMenu
@@ -882,19 +1144,50 @@ export function BattleScreen({
                   Press Escape to cancel
                 </div>
               </>
+            ) : phase === 'ability-menu' ? (
+              <>
+                <ActionMenu
+                  items={unitAbilities.length > 0 ? unitAbilities.map(ability => {
+                    const mpCost = ability.mpCost;
+                    const canAfford = activeUnit && activeUnit.currentMp >= mpCost;
+                    const color = !canAfford ? ' [low MP]' : '';
+                    return `${ability.name} (${mpCost} MP)${color}`;
+                  }) : ['No abilities available']}
+                  selectedIndex={unitAbilities.length > 0 ? abilityMenuIndex : 0}
+                  disabled={unitAbilities.length === 0}
+                  title="Abilities"
+                  onSelect={unitAbilities.length > 0 ? handleAbilitySelect : undefined}
+                />
+                <div className="mt-2 text-center text-sm text-gray-400">
+                  {activeUnit && <div className="text-blue-400 font-semibold">MP: {activeUnit.currentMp}/50</div>}
+                  Press Escape to cancel
+                </div>
+              </>
             ) : (
               <>
                 <ActionMenu
                   items={ACTIONS as unknown as string[]}
                   selectedIndex={menuIndex}
                   disabled={phase !== 'menu'}
-                  title={phase === 'targeting' ? 'Choose Target' : phase === 'item-targeting' ? 'Choose Ally' : 'Actions'}
+                  title={
+                    phase === 'targeting' ? 'Choose Target' :
+                    phase === 'item-targeting' ? 'Choose Ally' :
+                    phase === 'ability-targeting' ? (
+                      selectedAbility?.effect.target === 'single_enemy' ? 'Choose Enemy' : 'Choose Ally'
+                    ) :
+                    'Actions'
+                  }
                   onSelect={handleActionSelect}
                 />
                 {phase === 'targeting' && <TargetHelp />}
                 {phase === 'item-targeting' && (
                   <div className="mt-2 text-center text-sm text-yellow-300">
                     ← → to select ally, Enter to confirm
+                  </div>
+                )}
+                {phase === 'ability-targeting' && (
+                  <div className="mt-2 text-center text-sm text-yellow-300">
+                    ← → to select target, Enter to confirm
                   </div>
                 )}
               </>
@@ -934,6 +1227,8 @@ export function BattleScreen({
         {phase === 'targeting' && ' - Choose a target'}
         {phase === 'item-menu' && ' - Select an item'}
         {phase === 'item-targeting' && ' - Choose an ally to heal'}
+        {phase === 'ability-menu' && ' - Select an ability'}
+        {phase === 'ability-targeting' && ' - Choose a target for ability'}
       </div>
     </div>
   );

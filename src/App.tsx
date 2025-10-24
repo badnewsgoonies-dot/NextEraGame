@@ -15,6 +15,7 @@ import { TeamManager } from './systems/TeamManager.js';
 import { RosterManager } from './systems/RosterManager.js';
 import { SettingsManager } from './systems/SettingsManager.js';
 import { equipItem, unequipItem } from './systems/EquipmentSystem.js';
+import { restoreAllMp } from './systems/AbilitySystem.js';
 import { MainMenuScreen } from './screens/MainMenuScreen.js';
 import { StarterSelectScreen } from './screens/StarterSelectScreen.js';
 import { OpponentSelectScreen } from './screens/OpponentSelectScreen.js';
@@ -317,7 +318,8 @@ export function App(): React.ReactElement {
     // NO executeBattle call - manual battle screen handles combat
     const selectedPreview = previews.find(p => p.spec.id === opponentId);
     if (selectedPreview) {
-      const currentTeam = playerTeam;
+      // Restore MP to full at battle start
+      const currentTeam = restoreAllMp(playerTeam);
       
       const playerBattleUnits: BattleUnit[] = currentTeam.map((unit, index) => ({
         id: unit.id,
@@ -326,6 +328,7 @@ export function App(): React.ReactElement {
         tags: unit.tags,
         currentHp: unit.hp,
         maxHp: unit.maxHp,
+        currentMp: unit.currentMp, // PRESERVE MP for ability system
         atk: unit.atk,
         def: unit.def,
         speed: unit.speed,
@@ -342,6 +345,7 @@ export function App(): React.ReactElement {
         tags: template.tags,
         currentHp: template.baseStats.hp,
         maxHp: template.baseStats.hp,
+        currentMp: 50, // Enemies start with full MP
         atk: template.baseStats.atk,
         def: template.baseStats.def,
         speed: template.baseStats.speed,

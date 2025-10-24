@@ -243,6 +243,7 @@ export interface BattleUnit {
   readonly tags: readonly Tag[];
   currentHp: number; // MUTABLE during battle
   readonly maxHp: number;
+  currentMp: number; // MUTABLE during battle (for abilities)
   readonly atk: number;
   readonly def: number;
   readonly speed: number;
