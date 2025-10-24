@@ -8,7 +8,7 @@ import { HPBar } from './HPBar.js';
 
 export interface PlayerStatusPanelProps {
   unit?: BattleUnit;
-  phase: 'menu' | 'targeting' | 'item-menu' | 'item-targeting' | 'animating' | 'resolving';
+  phase: 'menu' | 'targeting' | 'item-menu' | 'item-targeting' | 'ability-menu' | 'ability-targeting' | 'gem-menu' | 'animating' | 'resolving';
   defending: boolean;
 }
 

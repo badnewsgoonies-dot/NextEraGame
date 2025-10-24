@@ -11,11 +11,14 @@
 
 import React, { useState } from 'react';
 import type { EnemyUnitTemplate, PlayerUnit, Role } from '../types/game.js';
+import { TeamManager } from '../systems/TeamManager.js';
+import { getRankDisplay, canUpgradeRank, getRankBonusDescription, getNextRank } from '../systems/RankSystem.js';
 
 export interface RecruitScreenProps {
   defeatedEnemies: readonly EnemyUnitTemplate[];
   currentTeam: readonly PlayerUnit[];
   onRecruit: (enemyId: string, replaceUnitId?: string) => void;
+  onMerge?: (enemyTemplateId: string, targetUnitId: string) => void;
   onSkip: () => void;
 }
 
@@ -30,19 +33,31 @@ export function RecruitScreen({
   defeatedEnemies,
   currentTeam,
   onRecruit,
+  onMerge,
   onSkip,
 }: RecruitScreenProps): React.ReactElement {
   const [selectedEnemyId, setSelectedEnemyId] = useState<string | null>(null);
   const [showReplacementModal, setShowReplacementModal] = useState(false);
+  const [showMergeModal, setShowMergeModal] = useState(false);
+  const [duplicateUnit, setDuplicateUnit] = useState<PlayerUnit | null>(null);
 
+  const teamManager = new TeamManager();
   const teamIsFull = currentTeam.length >= 4;
 
-  const handleRecruitClick = (enemyId: string) => {
-    if (teamIsFull) {
-      setSelectedEnemyId(enemyId);
+  const handleRecruitClick = (enemy: EnemyUnitTemplate) => {
+    // Check if team has a duplicate (same templateId)
+    const duplicate = teamManager.findDuplicate(currentTeam, enemy.id);
+    
+    if (duplicate && canUpgradeRank(duplicate.rank) && onMerge) {
+      // Show merge option!
+      setSelectedEnemyId(enemy.id);
+      setDuplicateUnit(duplicate);
+      setShowMergeModal(true);
+    } else if (teamIsFull) {
+      setSelectedEnemyId(enemy.id);
       setShowReplacementModal(true);
     } else {
-      onRecruit(enemyId);
+      onRecruit(enemy.id);
     }
   };
 
@@ -50,6 +65,13 @@ export function RecruitScreen({
     if (selectedEnemyId) {
       onRecruit(selectedEnemyId, replaceUnitId);
       setShowReplacementModal(false);
+    }
+  };
+
+  const handleMerge = () => {
+    if (selectedEnemyId && duplicateUnit && onMerge) {
+      onMerge(selectedEnemyId, duplicateUnit.id);
+      setShowMergeModal(false);
     }
   };
 
@@ -141,7 +163,7 @@ export function RecruitScreen({
 
                 {/* Recruit Button */}
                 <button
-                  onClick={() => handleRecruitClick(enemy.id)}
+                  onClick={() => handleRecruitClick(enemy)}
                   className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-colors"
                 >
                   Recruit
@@ -213,6 +235,81 @@ export function RecruitScreen({
             >
               Cancel
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Merge Modal (NEW - Rank System Integration) */}
+      {showMergeModal && duplicateUnit && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-yellow-100 to-purple-100 dark:from-yellow-900 dark:to-purple-900 rounded-xl p-8 max-w-lg w-full shadow-2xl border-4 border-yellow-400">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 text-center">
+              ✨ Duplicate Found! ✨
+            </h2>
+            
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6">
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                You already have <span className="font-bold text-purple-600 dark:text-purple-400">{duplicateUnit.name}</span> in your team!
+              </p>
+              
+              {/* Current Rank Info */}
+              <div className="mb-4">
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Current Rank:</div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-2xl font-bold ${getRankDisplay(duplicateUnit.rank).color}`}>
+                    {getRankDisplay(duplicateUnit.rank).badge} {getRankDisplay(duplicateUnit.rank).stars}
+                  </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {getRankBonusDescription(duplicateUnit.rank)}
+                  </span>
+                </div>
+              </div>
+              
+              {/* Merge Arrow */}
+              <div className="text-center text-4xl text-yellow-500 my-4">
+                ⬇️
+              </div>
+              
+              {/* Next Rank Info */}
+              <div className="mb-4">
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">After Merge:</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-bold text-yellow-400">
+                    {(() => {
+                      const nextRank = getNextRank(duplicateUnit.rank);
+                      if (!nextRank) return '[MAX]';
+                      const display = getRankDisplay(nextRank);
+                      return `${display.badge} ${display.stars}`;
+                    })()}
+                  </span>
+                  <span className="text-sm text-green-600 dark:text-green-400 font-semibold">
+                    {getNextRank(duplicateUnit.rank) ? getRankBonusDescription(getNextRank(duplicateUnit.rank)!) : 'Max Rank!'}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="bg-yellow-50 dark:bg-yellow-900/30 border-2 border-yellow-400 rounded p-3 mb-4">
+                <p className="text-sm text-yellow-900 dark:text-yellow-100 font-semibold">
+                  💡 Merging will permanently increase {duplicateUnit.name}'s rank and base stats!
+                </p>
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex gap-4">
+              <button
+                onClick={handleMerge}
+                className="flex-1 py-3 bg-gradient-to-r from-yellow-500 to-purple-500 hover:from-yellow-600 hover:to-purple-600 text-white font-bold rounded-lg transition-all shadow-lg"
+              >
+                ⭐ Merge Units
+              </button>
+              <button
+                onClick={() => setShowMergeModal(false)}
+                className="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-bold rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

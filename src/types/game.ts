@@ -390,6 +390,7 @@ export interface BattleReward {
   readonly defeatedEnemies: readonly EnemyUnitTemplate[]; // Available for recruitment
   readonly experience: number;
   readonly equipment: readonly Equipment[]; // Equipment drops
+  readonly gems: readonly string[]; // Gem IDs (NEW - Progression System)
 }
 
 /**

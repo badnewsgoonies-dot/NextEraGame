@@ -99,11 +99,27 @@ export const UnitCard = React.memo(function UnitCard({
         ${focused || selected ? 'shadow-lg scale-105' : 'shadow-md'}
       `}
     >
-      {/* Header: Name + Role */}
+      {/* Header: Name + Role + Rank */}
       <div className="flex items-start justify-between mb-3">
-        <h3 id={`unit-${unit.id}-title`} className="text-lg font-bold text-gray-900 dark:text-white">
-          {unit.name}
-        </h3>
+        <div>
+          <h3 id={`unit-${unit.id}-title`} className="text-lg font-bold text-gray-900 dark:text-white">
+            {unit.name}
+            {unit.rank && unit.rank !== 'C' && (
+              <span className={`ml-2 text-sm ${
+                unit.rank === 'S' ? 'text-yellow-400' :
+                unit.rank === 'A' ? 'text-purple-400' :
+                'text-blue-400'
+              }`}>
+                [{unit.rank}]
+              </span>
+            )}
+          </h3>
+          {unit.subclass && (
+            <p className="text-xs text-purple-600 dark:text-purple-400 italic">
+              {unit.subclass}
+            </p>
+          )}
+        </div>
         <span className={`text-sm font-semibold ${getRoleColor(unit.role)}`}>
           {unit.role}
         </span>
@@ -141,12 +157,19 @@ export const UnitCard = React.memo(function UnitCard({
         </div>
       </div>
 
-      {/* Level (if > 1) */}
-      {unit.level > 1 && (
-        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          Level {unit.level} • EXP: {unit.experience}
-        </div>
-      )}
+      {/* Level + MP */}
+      <div className="mt-2 flex justify-between items-center">
+        {unit.level > 1 && (
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            Level {unit.level} • EXP: {unit.experience}
+          </div>
+        )}
+        {unit.currentMp !== undefined && (
+          <div className="text-xs font-semibold text-blue-500 dark:text-blue-400">
+            MP: {unit.currentMp}/50
+          </div>
+        )}
+      </div>
 
       {/* Selected indicator */}
       {selected && (

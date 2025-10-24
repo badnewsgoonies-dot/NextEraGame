@@ -10,12 +10,15 @@
 
 import { useState } from 'react';
 import type { PlayerUnit, Equipment, InventoryData } from '../types/game.js';
+import { getGemById } from '../data/gems.js';
 
 export interface EquipmentScreenProps {
   readonly team: readonly PlayerUnit[];
   readonly inventory: InventoryData;
   readonly onEquip: (unitId: string, equipment: Equipment) => void;
   readonly onUnequip: (unitId: string, slot: 'weapon' | 'armor' | 'accessory') => void;
+  readonly onEquipGem?: (unitId: string, gemId: string) => void;
+  readonly onUnequipGem?: (unitId: string) => void;
   readonly onContinue: () => void;
 }
 
@@ -24,6 +27,8 @@ export function EquipmentScreen({
   inventory,
   onEquip,
   onUnequip,
+  onEquipGem: _onEquipGem, // TODO: Wire up in future update
+  onUnequipGem,
   onContinue
 }: EquipmentScreenProps) {
   const [selectedItem, setSelectedItem] = useState<Equipment | null>(null);
@@ -142,6 +147,40 @@ export function EquipmentScreen({
                         </div>
                       ) : (
                         <span className="text-sm text-gray-500 italic">None</span>
+                      )}
+                    </div>
+                    
+                    {/* Gem Slot (NEW - Progression System) */}
+                    <div className="flex items-center gap-4">
+                      <span className="w-24 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        💎 Gem:
+                      </span>
+                      {unit.equippedGem ? (
+                        <div className="flex-1 flex items-center justify-between bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 rounded p-2 border border-purple-300 dark:border-purple-600">
+                          <div className="text-sm">
+                            <span className="font-semibold text-purple-900 dark:text-purple-100">
+                              {getGemById(unit.equippedGem.gemId)?.name || 'Unknown Gem'}
+                            </span>
+                            {unit.subclass && (
+                              <span className="ml-2 text-xs text-purple-700 dark:text-purple-300">
+                                ({unit.subclass})
+                              </span>
+                            )}
+                            <span className={`ml-2 text-xs ${unit.equippedGem.state === 'active' ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}`}>
+                              [{unit.equippedGem.state.toUpperCase()}]
+                            </span>
+                          </div>
+                          {onUnequipGem && (
+                            <button
+                              onClick={() => onUnequipGem(unit.id)}
+                              className="text-xs text-red-600 hover:text-red-800 dark:text-red-400"
+                            >
+                              Unequip
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-500 italic">None (gems grant abilities)</span>
                       )}
                     </div>
                   </div>
