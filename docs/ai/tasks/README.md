@@ -12,8 +12,15 @@
 **File:** `SPRITE_INTEGRATION_CHARACTERS.md`  
 **Time:** 2-4 hours  
 **Impact:** 500% visual improvement  
-**Status:** Ready to execute  
+**Status:** ✅ COMPLETE  
 **Description:** Replace all 12 starter placeholders with Golden Sun character sprites.
+
+**GRAPHICS-002: Enemy Sprites + Opponent Screen Polish** ⭐⭐⭐ HIGH PRIORITY  
+**File:** `SPRITE_INTEGRATION_ENEMIES_AND_OPPONENT_SCREEN.md`  
+**Time:** 3-5 hours  
+**Impact:** Completes visual transformation, makes battles epic  
+**Status:** Ready to execute  
+**Description:** Integrate 19 enemy sprites + redesign opponent selection screen with Golden Sun theme.
 
 ---
 
