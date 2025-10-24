@@ -244,6 +244,7 @@ export interface BattleUnit {
   currentHp: number; // MUTABLE during battle
   readonly maxHp: number;
   currentMp: number; // MUTABLE during battle (for abilities)
+  readonly maxMp: number; // Maximum MP (typically 50)
   readonly atk: number;
   readonly def: number;
   readonly speed: number;
