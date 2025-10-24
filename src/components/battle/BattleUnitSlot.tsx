@@ -18,6 +18,7 @@ import type { BattleUnit } from '../../types/game.js';
 import { AnimatedUnitSprite } from './AnimatedUnitSprite.js';
 import { AnimatedEnemySprite } from './AnimatedEnemySprite.js';
 import { GoldenSunHPBar } from './GoldenSunHPBar.js';
+import { getActiveBuffs, hasActiveBuffs } from '../../systems/BuffSystem.js';
 import {
   calculateEnemyPosition,
   calculatePlayerPosition,
@@ -164,6 +165,25 @@ export const BattleUnitSlot = forwardRef<HTMLDivElement, BattleUnitSlotProps>(
           <div className="mt-3 w-36 md:w-40" aria-hidden="true">
             <GoldenSunHPBar unit={unit} showName={true} />
           </div>
+
+          {/* Buff Indicators */}
+          {hasActiveBuffs(unit) && (
+            <div className="mt-2 flex gap-1 justify-center">
+              {getActiveBuffs(unit).map(buff => {
+                const icon = buff.stat === 'attack' ? '⚔️' : buff.stat === 'defense' ? '🛡️' : '⚡';
+                const bgColor = buff.amount > 0 ? 'bg-blue-500' : 'bg-red-500';
+                return (
+                  <div
+                    key={buff.id}
+                    className={`w-7 h-7 rounded-full ${bgColor} border-2 border-yellow-400 flex items-center justify-center text-xs font-bold shadow-lg`}
+                    title={`${buff.sourceName}: ${buff.amount > 0 ? '+' : ''}${buff.amount} ${buff.stat.toUpperCase()} (${buff.duration} turns)`}
+                  >
+                    {icon}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     );
