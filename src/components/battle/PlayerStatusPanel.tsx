@@ -36,8 +36,18 @@ export function PlayerStatusPanel({
         </div>
       </div>
 
-      <div className="mt-3">
+      <div className="mt-3 space-y-2">
         <HPBar currentHp={unit.currentHp} maxHp={unit.maxHp} />
+        {/* MP Bar */}
+        <div className="text-xs font-semibold text-blue-300">
+          MP: {unit.currentMp}/50
+        </div>
+        <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden border border-blue-500/50">
+          <div
+            className="h-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-300"
+            style={{ width: `${Math.max(0, Math.min(100, (unit.currentMp / 50) * 100))}%` }}
+          />
+        </div>
       </div>
 
       <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
