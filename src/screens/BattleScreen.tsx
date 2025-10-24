@@ -104,7 +104,12 @@ export function BattleScreen({
 
   // Clone units to avoid mutating props
   const [players, setPlayers] = useState<BattleUnit[]>(
-    playerUnits.map(u => ({ ...u, currentHp: Math.max(0, u.currentHp), maxMp: 50 }))
+    playerUnits.map(u => ({
+      ...u,
+      currentHp: Math.max(0, u.currentHp),
+      maxMp: 50,
+      buffState: { buffs: [] }
+    }))
   );
   const [enemies, setEnemies] = useState<BattleUnit[]>(
     enemyUnits.map(u => ({ ...u, currentHp: Math.max(0, u.currentHp), maxMp: 0, buffState: { buffs: [] } }))
