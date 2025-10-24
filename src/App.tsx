@@ -80,15 +80,69 @@ export function App(): React.ReactElement {
 
   // Dev shortcuts for rapid testing (Shift+D for help)
   useDevShortcuts({
+    // Shift+S: Show current state
     onShowState: () => {
       console.log('[DEV STATE]', {
         screen,
         teamSize: playerTeam.length,
         battleIndex: controller.getState().battleIndex,
         hasRewards: !!rewards,
+        roster: { active: roster.activeParty.length, bench: roster.bench.length },
       });
     },
-    // Other shortcuts can be wired up as needed
+    
+    // Shift+W: Win battle instantly
+    onWinBattle: () => {
+      if (screen === 'battle') {
+        console.log('[DEV] Winning battle instantly!');
+        const fakeResult: BattleResult = {
+          winner: 'player',
+          actions: [],
+          unitsDefeated: enemyUnits.map(e => e.id),
+          turnsTaken: 1,
+        };
+        handleBattleComplete(fakeResult);
+      } else {
+        console.warn('[DEV] Not in battle - Shift+W only works during battle');
+      }
+    },
+    
+    // Shift+N: Skip to next screen
+    onNextScreen: () => {
+      console.log(`[DEV] Next screen from: ${screen}`);
+      
+      if (screen === 'rewards' && rewards) {
+        setScreen('equipment');
+      } else if (screen === 'equipment') {
+        handleEquipmentContinue();
+      } else if (screen === 'recruit') {
+        handleSkipRecruit();
+      } else if (screen === 'roster_management') {
+        handleRosterContinue();
+      } else {
+        console.warn(`[DEV] Cannot skip from ${screen} screen`);
+      }
+    },
+    
+    // Shift+B: Go to previous screen
+    onPrevScreen: () => {
+      console.log(`[DEV] Previous screen from: ${screen}`);
+      
+      if (screen === 'equipment' && rewards) {
+        setScreen('rewards');
+      } else if (screen === 'recruit') {
+        setScreen('equipment');
+      } else {
+        console.warn(`[DEV] Cannot go back from ${screen} screen`);
+      }
+    },
+    
+    // Shift+G: Add random gem (placeholder)
+    onAddGem: () => {
+      console.log('[DEV] Add gem requested');
+      console.warn('[DEV] Gem inventory system not yet implemented - coming in future update!');
+      // TODO: When inventory supports gems, add random gem here
+    },
   });
 
   const checkForSaves = async () => {
