@@ -54,6 +54,7 @@ export class TeamManager {
     this.recruitCounter++;
     return {
       id: `recruited_${enemyTemplate.id}_${this.recruitCounter}`,
+      templateId: enemyTemplate.id, // Use template ID for duplicate detection
       name: enemyTemplate.name,
       role: enemyTemplate.role,
       tags: enemyTemplate.tags,
@@ -64,6 +65,9 @@ export class TeamManager {
       speed: enemyTemplate.baseStats.speed,
       level: 1,
       experience: 0,
+      rank: 'C', // Recruited units start at C rank
+      baseClass: enemyTemplate.role as any, // Map Role to BaseClass (they overlap for now)
+      currentMp: 50, // Start with full MP
       portraitUrl: enemyTemplate.portraitUrl,
       spriteUrl: enemyTemplate.spriteUrl,
     };
@@ -94,5 +98,40 @@ export class TeamManager {
    */
   getAvailableSlots(team: readonly PlayerUnit[]): number {
     return Math.max(0, this.maxTeamSize - team.length);
+  }
+
+  /**
+   * Check if team has a duplicate of the given unit template
+   * Returns the duplicate unit if found, null otherwise
+   * Used for rank merge system
+   */
+  findDuplicate(
+    team: readonly PlayerUnit[],
+    templateId: string
+  ): PlayerUnit | null {
+    return team.find(unit => unit.templateId === templateId) || null;
+  }
+
+  /**
+   * Replace a unit in the team with an upgraded version (after merge)
+   * Used for rank system when merging duplicates
+   */
+  replaceUnit(
+    team: readonly PlayerUnit[],
+    oldUnitId: string,
+    newUnit: PlayerUnit
+  ): readonly PlayerUnit[] {
+    return team.map(unit => unit.id === oldUnitId ? newUnit : unit);
+  }
+
+  /**
+   * Remove a unit from the team (e.g., consumed in merge)
+   * Returns new team without the specified unit
+   */
+  removeUnit(
+    team: readonly PlayerUnit[],
+    unitId: string
+  ): readonly PlayerUnit[] {
+    return team.filter(unit => unit.id !== unitId);
   }
 }

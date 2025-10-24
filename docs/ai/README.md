@@ -6,19 +6,21 @@ This directory contains comprehensive onboarding documentation for AI assistants
 
 ---
 
-## 🎭 Two-Tier Workflow Explained
+## 🎭 Three-Tier Workflow Explained
 
-**NextEraGame uses a DUAL AI approach:**
+**NextEraGame uses a TRIPLE AI approach:**
 
 1. **🏛️ Architect AI** (Strategic) - Plans features, makes decisions, reviews work
 2. **🛠️ Coder AI** (Tactical) - Executes tasks, writes code, runs tests
+3. **🎨 Graphics AI** (Visual) - Integrates sprites, polishes UI, creates beauty
 
-**Why two AIs?**
-- ✅ Clear separation of concerns
-- ✅ Strategic thinking separated from tactical execution
-- ✅ Better quality control (architect reviews coder's work)
-- ✅ Prevents scope creep (coder can't deviate from plan)
-- ✅ Scales well (architect can manage multiple tasks)
+**Why three AIs?**
+- ✅ Clear separation of concerns (strategy, implementation, visuals)
+- ✅ Each AI specializes in their domain
+- ✅ Better quality control (architect reviews, graphics AI focuses on beauty)
+- ✅ Prevents scope creep and role confusion
+- ✅ Scales well (architect coordinates multiple specialists)
+- ✅ Visual polish doesn't slow down feature development
 
 ---
 
@@ -58,7 +60,25 @@ This directory contains comprehensive onboarding documentation for AI assistants
 
 ---
 
-### **3. ROLE_IDENTIFICATION.md** 🎯
+### **3. GRAPHICS_ONBOARDING.md** 🎨
+**For:** Graphics & visual polish AI (Chat #3)
+
+**Contents:**
+- Role definition and boundaries
+- Golden Sun sprite library guide (2,500+ sprites)
+- Visual style direction and color palettes
+- Sprite integration workflows
+- UI/UX polish responsibilities
+- Animation and effects creation
+- Asset management and organization
+- Visual task templates
+- Quality standards for visual work
+
+**Read this if:** You are the AI responsible for sprite integration, visual polish, UI beauty, and aesthetic excellence.
+
+---
+
+### **4. ROLE_IDENTIFICATION.md** 🎯
 **For:** Both AIs + Human coordinator
 
 **Contents:**
@@ -76,13 +96,13 @@ This directory contains comprehensive onboarding documentation for AI assistants
 
 ---
 
-### **4. CHAT_TEMPLATES.md** 💬
+### **5. CHAT_TEMPLATES.md** 💬
 **For:** Human coordinator
 
 **Contents:**
-- Copy-paste initialization messages for both AIs
-- Task handoff templates (architect → coder)
-- Completion report templates (coder → architect)
+- Copy-paste initialization messages for all three AIs
+- Task handoff templates (architect → coder/graphics)
+- Completion report templates (coder/graphics → architect)
 - Feedback loop templates
 - Full workflow example (leveling system)
 - Visual role reminders
@@ -98,7 +118,7 @@ This directory contains comprehensive onboarding documentation for AI assistants
 
 ### **For Human Developers:**
 
-1. **Open TWO separate AI chat sessions**
+1. **Open TWO or THREE separate AI chat sessions**
 2. **Initialize Architect (Chat #1):**
    ```
    You are the ARCHITECT AI for NextEraGame.
@@ -109,11 +129,16 @@ This directory contains comprehensive onboarding documentation for AI assistants
    You are the IMPLEMENTATION CODER AI for NextEraGame.
    Read: docs/ai/IMPLEMENTATION_CODER_ONBOARDING.md
    ```
-4. **Label your chats clearly:** 🏛️ ARCHITECT | 🛠️ CODER
-5. **Follow the workflow:**
-   - Ask architect to create task
-   - Give task to coder
-   - Coder executes and reports
+4. **Initialize Graphics (Chat #3 - Optional):**
+   ```
+   You are the GRAPHICS AI for NextEraGame.
+   Read: docs/ai/GRAPHICS_ONBOARDING.md
+   ```
+5. **Label your chats clearly:** 🏛️ ARCHITECT | 🛠️ CODER | 🎨 GRAPHICS
+6. **Follow the workflow:**
+   - Ask architect to create task (feature or visual)
+   - Give task to coder (logic) or graphics AI (visuals)
+   - Specialist executes and reports
    - Give report to architect
    - Architect reviews and approves
 
@@ -139,27 +164,28 @@ This directory contains comprehensive onboarding documentation for AI assistants
 ### **Architect (🏛️) DOES:**
 - ✅ Decide what features to build
 - ✅ Set priorities and timelines
-- ✅ Create detailed task prompts
+- ✅ Create detailed task prompts (for coder AND graphics)
 - ✅ Review completed work
 - ✅ Approve or request changes
 - ✅ Decide when to ship
+- ✅ Define visual direction and style
 
 ### **Architect (🏛️) DOES NOT:**
 - ❌ Write implementation code
-- ❌ Create/modify source files
-- ❌ Run tests or type-check
+- ❌ Integrate sprites themselves
+- ❌ Create CSS styling directly
 - ❌ Execute terminal commands
 - ❌ Make file edits
 
 ---
 
 ### **Coder (🛠️) DOES:**
-- ✅ Execute tasks from architect
+- ✅ Execute logic/system tasks from architect
 - ✅ Write clean, tested code
 - ✅ Follow architectural patterns
 - ✅ Run tests and verification
 - ✅ Provide detailed completion reports
-- ✅ Ask clarifying questions about tasks
+- ✅ Build functional systems (stats, battle, progression)
 
 ### **Coder (🛠️) DOES NOT:**
 - ❌ Choose what features to build
@@ -167,34 +193,58 @@ This directory contains comprehensive onboarding documentation for AI assistants
 - ❌ Decide priorities
 - ❌ Determine architecture
 - ❌ Decide when to ship
+- ❌ Focus on visual polish (graphics AI does this)
+
+---
+
+### **Graphics (🎨) DOES:**
+- ✅ Execute visual tasks from architect
+- ✅ Integrate Golden Sun sprites
+- ✅ Create beautiful UI layouts and polish
+- ✅ Design animations and visual effects
+- ✅ Manage sprite assets and registry
+- ✅ Provide screenshots/videos as evidence
+- ✅ Suggest visual improvements
+
+### **Graphics (🎨) DOES NOT:**
+- ❌ Choose what features to build
+- ❌ Write game logic or systems
+- ❌ Modify TypeScript game mechanics
+- ❌ Change data structures or types
+- ❌ Make strategic decisions
+- ❌ Run test suites or type-check
 
 ---
 
 ## 🔄 Workflow Diagram
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                      HUMAN DEVELOPER                         │
-│                   (Coordinates Both AIs)                     │
-└──────────┬────────────────────────────────┬──────────────────┘
-           │                                │
-           │                                │
-    ┌──────▼──────┐                  ┌──────▼──────┐
-    │ ARCHITECT   │                  │    CODER    │
-    │   (🏛️)      │                  │    (🛠️)     │
-    │             │                  │             │
-    │ • Plan      │   Task Prompt    │ • Execute   │
-    │ • Decide    ├─────────────────►│ • Test      │
-    │ • Review    │                  │ • Report    │
-    │             │◄─────────────────┤             │
-    └─────────────┘ Completion Report└─────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+│                        HUMAN DEVELOPER                             │
+│                   (Coordinates All Three AIs)                      │
+└───────┬──────────────────────┬──────────────────────┬─────────────┘
+        │                      │                      │
+        │                      │                      │
+  ┌─────▼─────┐         ┌──────▼──────┐       ┌──────▼──────┐
+  │ ARCHITECT │         │    CODER    │       │  GRAPHICS   │
+  │   (🏛️)    │         │    (🛠️)     │       │    (🎨)     │
+  │           │         │             │       │             │
+  │ • Plan    │  Logic  │ • Systems   │       │ • Sprites   │
+  │ • Decide  ├────────►│ • Code      │       │ • Polish    │
+  │ • Review  │  Task   │ • Test      │       │ • Beauty    │
+  │           │         │ • Report    │       │ • Assets    │
+  │           │  Visual │             │       │             │
+  │           ├─────────┼─────────────┼──────►│             │
+  │           │  Task   │             │       │             │
+  │           │◄────────┴─────────────┴───────┤             │
+  └───────────┘      Completion Reports       └─────────────┘
 ```
 
 **Flow:**
-1. Architect creates task prompt
-2. Human relays to coder
-3. Coder executes task
-4. Coder provides completion report
+1. Architect creates task prompt (logic OR visual)
+2. Human relays to coder (logic tasks) or graphics AI (visual tasks)
+3. Specialist executes task
+4. Specialist provides completion report
 5. Human relays to architect
 6. Architect reviews and approves (or requests changes)
 7. Repeat until approved
@@ -208,17 +258,22 @@ This directory contains comprehensive onboarding documentation for AI assistants
 - **Status:** Production deployed ✅
 - **URL:** https://dist-next-era.vercel.app
 - **Health:** 10/10 score
-- **Tests:** 625 tests, 100% passing
-- **Coverage:** ~45-50%
+- **Tests:** 905+ tests, ~99% passing
+- **Coverage:** ~50%+
 - **TypeScript Errors:** 0
 - **Circular Dependencies:** 0
+- **Sprites:** 25+ Golden Sun sprites (100% coverage)
+- **Visual Quality:** 9.8/10 (professional AAA retro)
 - **Features Implemented:**
-  - ✅ Battle system (turn-based combat)
-  - ✅ Recruitment system
-  - ✅ Rewards system
-  - ✅ Equipment system (weapon/armor/accessory)
+  - ✅ Battle system (turn-based combat, manual player control)
+  - ✅ Recruitment system (with rank merging)
+  - ✅ Rewards system (items, equipment, gems)
+  - ✅ Equipment system (weapon/armor/accessory/gems)
   - ✅ Save/load system (3 slots + auto-save)
-  - ✅ Opponent selection
+  - ✅ Opponent selection (Golden Sun themed)
+  - ✅ **Progression systems** (ranks, gems, abilities, subclasses)
+  - ✅ **Golden Sun sprites** (characters, enemies, backgrounds)
+  - ✅ **Developer tools** (shortcuts for rapid testing)
   - ✅ Starter unit selection
 
 **Tech Stack:**
@@ -274,12 +329,16 @@ This directory contains comprehensive onboarding documentation for AI assistants
 | Plan a feature | ARCHITECT_ONBOARDING.md | 🏛️ Architect |
 | Create a task prompt | ARCHITECT_ONBOARDING.md | 🏛️ Architect |
 | Review completed work | ARCHITECT_ONBOARDING.md | 🏛️ Architect |
-| Execute a task | IMPLEMENTATION_CODER_ONBOARDING.md | 🛠️ Coder |
+| Execute a logic task | IMPLEMENTATION_CODER_ONBOARDING.md | 🛠️ Coder |
 | Write code/tests | IMPLEMENTATION_CODER_ONBOARDING.md | 🛠️ Coder |
 | Verify quality | IMPLEMENTATION_CODER_ONBOARDING.md | 🛠️ Coder |
-| Understand workflow | ROLE_IDENTIFICATION.md | Both |
+| Integrate sprites | GRAPHICS_ONBOARDING.md | 🎨 Graphics |
+| Polish UI/UX | GRAPHICS_ONBOARDING.md | 🎨 Graphics |
+| Add animations | GRAPHICS_ONBOARDING.md | 🎨 Graphics |
+| Manage assets | GRAPHICS_ONBOARDING.md | 🎨 Graphics |
+| Understand workflow | ROLE_IDENTIFICATION.md | All Three |
 | Initialize sessions | CHAT_TEMPLATES.md | Human |
-| Handle confusion | ROLE_IDENTIFICATION.md | Both |
+| Handle confusion | ROLE_IDENTIFICATION.md | All Three |
 
 ---
 
@@ -331,6 +390,13 @@ This directory contains comprehensive onboarding documentation for AI assistants
   - ROLE_IDENTIFICATION.md
   - CHAT_TEMPLATES.md
   - README.md (this file)
+
+- **v2.0** (2025-10-24): Three-tier workflow expansion
+  - GRAPHICS_ONBOARDING.md (NEW!)
+  - Updated all docs for three-tier workflow
+  - Added Graphics AI role boundaries
+  - Updated workflow diagrams
+  - Added sprite integration guidance
 
 ---
 

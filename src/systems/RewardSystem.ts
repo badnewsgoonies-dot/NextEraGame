@@ -18,6 +18,7 @@ import type {
   Difficulty 
 } from '../types/game.js';
 import { ITEM_CATALOG } from '../data/items.js';
+import { GEM_CATALOG } from '../data/gems.js';
 import type { ILogger } from './Logger.js';
 
 export class RewardSystem {
@@ -51,6 +52,9 @@ export class RewardSystem {
       opponentSpec.units.length
     );
 
+    // Roll for gem drops (NEW - Progression System)
+    const gems = this.rollGems(rng, opponentSpec.difficulty);
+
     // Only return actually defeated enemies (not all opponent units)
     const defeatedEnemies = opponentSpec.units.filter(unit =>
       battleResult.unitsDefeated.includes(unit.id)
@@ -62,6 +66,7 @@ export class RewardSystem {
       experience,
       itemCount: items.length,
       equipmentCount: equipment.length,
+      gemCount: gems.length,
       defeatedCount: defeatedEnemies.length,
     });
 
@@ -70,6 +75,7 @@ export class RewardSystem {
       defeatedEnemies,
       experience,
       equipment,
+      gems, // NEW!
     };
   }
 
@@ -189,6 +195,29 @@ export class RewardSystem {
     }
     
     return equipment;
+  }
+
+  /**
+   * Roll for gem drops (NEW - Progression System)
+   * Gems are rare but powerful
+   * Drop rate: Standard 10%, Normal 15%, Hard 20%
+   */
+  private rollGems(rng: IRng, difficulty: Difficulty): string[] {
+    const gems: string[] = [];
+    
+    // Drop rate by difficulty
+    const dropRate = difficulty === 'Hard' ? 0.20 
+                   : difficulty === 'Normal' ? 0.15 
+                   : 0.10;
+    
+    // Only one gem per battle (rare and valuable)
+    if (rng.float() < dropRate) {
+      // Random gem from catalog
+      const randomIndex = Math.floor(rng.float() * GEM_CATALOG.length);
+      gems.push(GEM_CATALOG[randomIndex].id);
+    }
+    
+    return gems;
   }
 
   /**

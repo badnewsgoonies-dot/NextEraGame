@@ -27,6 +27,7 @@ import { SettingsScreen } from './screens/SettingsScreen.js';
 import { LoadGameModal } from './components/LoadGameModal.js';
 import { makeRng } from './utils/rng.js';
 import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit, InventoryData, RosterData } from './types/game.js';
+import { useDevShortcuts, DevShortcutsBadge } from './hooks/useDevShortcuts';
 
 type AppScreen =
   | 'menu'
@@ -76,6 +77,73 @@ export function App(): React.ReactElement {
   useEffect(() => {
     checkForSaves();
   }, []);
+
+  // Dev shortcuts for rapid testing (Shift+D for help)
+  useDevShortcuts({
+    // Shift+S: Show current state
+    onShowState: () => {
+      console.log('[DEV STATE]', {
+        screen,
+        teamSize: playerTeam.length,
+        battleIndex: controller.getState().battleIndex,
+        hasRewards: !!rewards,
+        roster: { active: roster.activeParty.length, bench: roster.bench.length },
+      });
+    },
+    
+    // Shift+W: Win battle instantly
+    onWinBattle: () => {
+      if (screen === 'battle') {
+        console.log('[DEV] Winning battle instantly!');
+        const fakeResult: BattleResult = {
+          winner: 'player',
+          actions: [],
+          unitsDefeated: enemyUnits.map(e => e.id),
+          turnsTaken: 1,
+        };
+        handleBattleComplete(fakeResult);
+      } else {
+        console.warn('[DEV] Not in battle - Shift+W only works during battle');
+      }
+    },
+    
+    // Shift+N: Skip to next screen
+    onNextScreen: () => {
+      console.log(`[DEV] Next screen from: ${screen}`);
+      
+      if (screen === 'rewards' && rewards) {
+        setScreen('equipment');
+      } else if (screen === 'equipment') {
+        handleEquipmentContinue();
+      } else if (screen === 'recruit') {
+        handleSkipRecruit();
+      } else if (screen === 'roster_management') {
+        handleRosterContinue();
+      } else {
+        console.warn(`[DEV] Cannot skip from ${screen} screen`);
+      }
+    },
+    
+    // Shift+B: Go to previous screen
+    onPrevScreen: () => {
+      console.log(`[DEV] Previous screen from: ${screen}`);
+      
+      if (screen === 'equipment' && rewards) {
+        setScreen('rewards');
+      } else if (screen === 'recruit') {
+        setScreen('equipment');
+      } else {
+        console.warn(`[DEV] Cannot go back from ${screen} screen`);
+      }
+    },
+    
+    // Shift+G: Add random gem (placeholder)
+    onAddGem: () => {
+      console.log('[DEV] Add gem requested');
+      console.warn('[DEV] Gem inventory system not yet implemented - coming in future update!');
+      // TODO: When inventory supports gems, add random gem here
+    },
+  });
 
   const checkForSaves = async () => {
     try {
@@ -263,6 +331,8 @@ export function App(): React.ReactElement {
         speed: unit.speed,
         isPlayer: true,
         originalIndex: index,
+        spriteUrl: unit.spriteUrl, // PRESERVE sprite URL for recruited enemies!
+        portraitUrl: unit.portraitUrl,
       }));
 
       const enemyBattleUnits: BattleUnit[] = selectedPreview.spec.units.map((template, index) => ({
@@ -277,6 +347,8 @@ export function App(): React.ReactElement {
         speed: template.baseStats.speed,
         isPlayer: false,
         originalIndex: index,
+        spriteUrl: template.spriteUrl, // PRESERVE enemy sprite URLs!
+        portraitUrl: template.portraitUrl,
       }));
 
       setPlayerUnits(playerBattleUnits);
@@ -296,12 +368,43 @@ export function App(): React.ReactElement {
       const selectedPreview = previews.find(p => p.spec.id === controller.getState().selectedOpponentId);
       if (selectedPreview) {
         const rewardRng = makeRng(controller.getState().runSeed).fork('rewards').fork(String(controller.getState().battleIndex));
+        
+        // FIX: Get actual defeated enemy units (not just IDs)
+        // The battle returns indexed IDs like "cleric_healer_0", but we have the full units
+        const defeatedEnemyUnits = enemyUnits.filter(enemy => 
+          result.unitsDefeated.includes(enemy.id)
+        );
+        
         const generatedRewards = rewardSystem.generateRewards(
           selectedPreview.spec,
           result,
           rewardRng
         );
-        setRewards(generatedRewards);
+        
+        // Override defeated enemies with actual defeated units (not template matching)
+        const fixedRewards = {
+          ...generatedRewards,
+          defeatedEnemies: defeatedEnemyUnits.map(enemy => {
+            // Find the template this enemy was created from
+            // Strip the "_${index}" suffix to match back to template
+            const templateId = enemy.id.replace(/_\d+$/, '');
+            const template = selectedPreview.spec.units.find(t => t.id === templateId);
+            return template || {
+              id: enemy.id,
+              name: enemy.name,
+              role: enemy.role,
+              tags: enemy.tags,
+              baseStats: {
+                hp: enemy.maxHp,
+                atk: enemy.atk,
+                def: enemy.def,
+                speed: enemy.speed,
+              },
+              spriteKey: `enemy-${enemy.name.toLowerCase().replace(/\s+/g, '-')}`,
+            };
+          }),
+        };
+        setRewards(fixedRewards);  // Use the fixed rewards!
       }
     }
 
@@ -617,6 +720,7 @@ export function App(): React.ReactElement {
 
   return (
     <>
+      <DevShortcutsBadge />
       {renderScreen()}
       {showLoadModal && (
         <LoadGameModal

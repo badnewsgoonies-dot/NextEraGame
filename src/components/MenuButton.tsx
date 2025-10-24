@@ -44,7 +44,7 @@ export const MenuButton = React.memo(function MenuButton({
   // Base styles with Golden Sun aesthetic
   const baseStyles = `
     px-6 py-3 rounded-lg text-lg font-bold
-    transition-all duration-150 ease-out
+    transition-[colors,shadow,transform] duration-150 ease-out
     focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 
     focus-visible:ring-offset-2 focus-visible:ring-offset-blue-900/50
     border-2

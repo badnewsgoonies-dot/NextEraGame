@@ -97,7 +97,7 @@ export function LoadGameModal({
                   flex items-center justify-between p-4 rounded-lg
                   bg-gray-100 dark:bg-gray-700
                   hover:bg-gray-200 dark:hover:bg-gray-600
-                  transition-all duration-200
+                  transition-[colors,opacity] duration-200
                   ${deletingSlot === save.slot ? 'opacity-50' : ''}
                 `}
               >

@@ -24,7 +24,7 @@ After reading, confirm your role and give me a brief project status summary.
 ```
 
 **Expected Response:**
-> Architect confirms role, reads onboarding, provides status summary of NextEraGame (625 tests, 10/10 health, etc.)
+> Architect confirms role, reads onboarding, provides status summary of NextEraGame (905 tests, 10/10 health, etc.)
 
 ---
 
@@ -52,7 +52,58 @@ After reading, confirm your role and tell me you're ready to receive tasks.
 
 ---
 
-## 🎯 Task Handoff Template
+## 🎨 Starting a Graphics Chat
+
+**Copy this message into a THIRD NEW chat:**
+
+```
+You are the GRAPHICS & VISUAL POLISH AI for the NextEraGame project.
+
+Your role:
+- Integrate Golden Sun sprites into the game
+- Create beautiful, polished UI layouts
+- Design visual feedback and animations
+- Improve aesthetic quality across all screens
+- Manage sprite assets and visual consistency
+- DO NOT write game logic or make strategic decisions
+
+Read your onboarding document: docs/ai/GRAPHICS_ONBOARDING.md
+
+After reading, confirm your role and tell me you're ready to make the game beautiful.
+```
+
+**Expected Response:**
+> Graphics AI confirms role, reads onboarding, explores sprite library, indicates readiness to create visual excellence
+
+---
+
+---
+
+## 🎨 Graphics AI Quick Example
+
+**When to use Graphics AI:**
+- Replacing placeholder circles with Golden Sun sprites
+- Polishing screen layouts and beauty
+- Adding visual effects and animations
+- Integrating psynergy effect animations
+- Creating rank-up celebration effects
+- Making any screen look more beautiful
+
+**Quick task:**
+```
+Graphics AI: Replace all character placeholders with Golden Sun sprites from the library.
+```
+
+**Graphics AI will:**
+- Browse the 2,500+ sprites
+- Map characters to appropriate sprites
+- Update sprite registry
+- Screenshot results
+- Report completion
+
+---
+
+## 🎯 Task Handoff Templates
 
 ### **Step 1: Architect Creates Task** (in Architect chat)
 

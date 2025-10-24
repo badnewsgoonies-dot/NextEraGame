@@ -62,9 +62,18 @@ export interface ManualBattleScreenProps {
   gameController: GameController;
 }
 
-type Phase = 'menu' | 'targeting' | 'item-menu' | 'item-targeting' | 'animating' | 'resolving';
+type Phase = 
+  | 'menu' 
+  | 'targeting' 
+  | 'item-menu' 
+  | 'item-targeting' 
+  | 'ability-menu'
+  | 'ability-targeting'
+  | 'gem-menu'
+  | 'animating' 
+  | 'resolving';
 
-const ACTIONS = ['Attack', 'Defend', 'Items', 'Flee'] as const;
+const ACTIONS = ['Attack', 'Defend', 'Abilities', 'Gems', 'Items', 'Flee'] as const;
 
 // ============================================
 // Main Component
@@ -121,6 +130,14 @@ export function BattleScreen({
   const [showHealAnim, setShowHealAnim] = useState(false);
   const [healAmount, setHealAmount] = useState(0);
   const [healPos, setHealPos] = useState({ x: 0, y: 0 });
+
+  // Ability system state (NEW - for gem-granted abilities)
+  // TODO: Implement abilities menu in future update
+  const [_abilityMenuIndex, _setAbilityMenuIndex] = useState(0);
+  
+  // Gem system state (NEW - for gem effects)
+  // TODO: Implement gem effects menu in future update
+  const [_showGemConfirm, _setShowGemConfirm] = useState(false);
 
   // Battle mechanics
   const defending = useRef<Set<string>>(new Set());
@@ -482,6 +499,12 @@ export function BattleScreen({
           pushAction({ type: 'defend', actorId: actor.id });
           setPhase('resolving');
           advanceTurnPointer();
+        } else if (label === 'Abilities') {
+          // Show abilities menu
+          setPhase('ability-menu');
+        } else if (label === 'Gems') {
+          // Show gem menu
+          setPhase('gem-menu');
         } else if (label === 'Items') {
           // Show item menu (always, even if empty - will show "No items available")
           setItemMenuIndex(0);

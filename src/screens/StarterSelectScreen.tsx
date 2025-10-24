@@ -197,7 +197,7 @@ export function StarterSelectScreen({
           type="button"
           onClick={handleStart}
           disabled={!canStart}
-          className={`px-8 py-4 rounded-lg font-bold text-xl transition-all ${
+          className={`px-8 py-4 rounded-lg font-bold text-xl transition-[colors,shadow,transform] duration-200 ${
             canStart
               ? 'bg-primary text-white shadow-lg hover:shadow-xl hover:scale-105 cursor-pointer'
               : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-600 cursor-not-allowed opacity-50'
