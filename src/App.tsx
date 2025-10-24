@@ -330,6 +330,7 @@ export function App(): React.ReactElement {
         maxHp: unit.maxHp,
         currentMp: unit.currentMp, // PRESERVE MP for ability system
         maxMp: 50,
+        buffState: { buffs: [] },
         atk: unit.atk,
         def: unit.def,
         speed: unit.speed,
@@ -348,6 +349,7 @@ export function App(): React.ReactElement {
         maxHp: template.baseStats.hp,
         currentMp: 50, // Enemies start with full MP
         maxMp: 50,
+        buffState: { buffs: [] },
         atk: template.baseStats.atk,
         def: template.baseStats.def,
         speed: template.baseStats.speed,

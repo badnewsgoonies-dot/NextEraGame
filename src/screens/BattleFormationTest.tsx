@@ -32,6 +32,7 @@ function createTestUnit(
     maxHp: 100,
     currentMp: isPlayer ? 50 : 0,
     maxMp: isPlayer ? 50 : 0,
+    buffState: { buffs: [] },
     atk: 20,
     def: 15,
     speed: 40 + index * 5,
