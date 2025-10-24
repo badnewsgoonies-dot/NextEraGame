@@ -107,7 +107,7 @@ export function BattleScreen({
     playerUnits.map(u => ({ ...u, currentHp: Math.max(0, u.currentHp), maxMp: 50 }))
   );
   const [enemies, setEnemies] = useState<BattleUnit[]>(
-    enemyUnits.map(u => ({ ...u, currentHp: Math.max(0, u.currentHp), maxMp: 0 }))
+    enemyUnits.map(u => ({ ...u, currentHp: Math.max(0, u.currentHp), maxMp: 0, buffState: { buffs: [] } }))
   );
 
   // Turn order and active unit tracking
