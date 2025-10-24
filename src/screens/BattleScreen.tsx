@@ -31,10 +31,10 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import type { BattleUnit, BattleResult, Role, Item, CombatAction, Ability, PlayerUnit } from '../types/game.js';
+import type { BattleUnit, BattleResult, Role, Item, CombatAction, Ability } from '../types/game.js';
 import type { GameController } from '../core/GameController.js';
 import { getUnitAbilities } from '../systems/GemSystem.js';
-import { canUseAbility, useAbility, calculateAbilityDamage, calculateAbilityHealing } from '../systems/AbilitySystem.js';
+import { calculateAbilityDamage, calculateAbilityHealing } from '../systems/AbilitySystem.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
 import { BattleUnitSlot } from '../components/battle/BattleUnitSlot.js';
 import { AttackAnimation } from '../components/battle/AttackAnimation.js';
@@ -103,10 +103,10 @@ export function BattleScreen({
 
   // Clone units to avoid mutating props
   const [players, setPlayers] = useState<BattleUnit[]>(
-    playerUnits.map(u => ({ ...u, currentHp: Math.max(0, u.currentHp) }))
+    playerUnits.map(u => ({ ...u, currentHp: Math.max(0, u.currentHp), maxMp: 50 }))
   );
   const [enemies, setEnemies] = useState<BattleUnit[]>(
-    enemyUnits.map(u => ({ ...u, currentHp: Math.max(0, u.currentHp) }))
+    enemyUnits.map(u => ({ ...u, currentHp: Math.max(0, u.currentHp), maxMp: 0 }))
   );
 
   // Turn order and active unit tracking

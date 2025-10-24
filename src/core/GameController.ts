@@ -384,6 +384,14 @@ export class GameController {
   }
 
   /**
+   * Get current player team
+   * Used by BattleScreen to look up abilities from equipped gems
+   */
+  getTeam(): readonly PlayerUnit[] {
+    return this.state.playerTeam;
+  }
+
+  /**
    * Add items to inventory (from battle rewards)
    */
   addItems(items: readonly Item[]): void {
