@@ -27,6 +27,7 @@ import { SettingsScreen } from './screens/SettingsScreen.js';
 import { LoadGameModal } from './components/LoadGameModal.js';
 import { makeRng } from './utils/rng.js';
 import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit, InventoryData, RosterData } from './types/game.js';
+import { useDevShortcuts, DevShortcutsBadge } from './hooks/useDevShortcuts';
 
 type AppScreen =
   | 'menu'
@@ -76,6 +77,19 @@ export function App(): React.ReactElement {
   useEffect(() => {
     checkForSaves();
   }, []);
+
+  // Dev shortcuts for rapid testing (Shift+D for help)
+  useDevShortcuts({
+    onShowState: () => {
+      console.log('[DEV STATE]', {
+        screen,
+        teamSize: playerTeam.length,
+        battleIndex: controller.getState().battleIndex,
+        hasRewards: !!rewards,
+      });
+    },
+    // Other shortcuts can be wired up as needed
+  });
 
   const checkForSaves = async () => {
     try {
@@ -652,6 +666,7 @@ export function App(): React.ReactElement {
 
   return (
     <>
+      <DevShortcutsBadge />
       {renderScreen()}
       {showLoadModal && (
         <LoadGameModal

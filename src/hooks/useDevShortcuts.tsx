@@ -13,7 +13,7 @@
  * Uses Shift instead of Ctrl to avoid browser conflicts.
  */
 
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 export interface DevShortcutsConfig {
   onNextScreen?: () => void;
@@ -113,7 +113,7 @@ export function DevShortcutsBadge(): React.ReactElement | null {
 
   return (
     <div className="fixed top-4 right-4 bg-yellow-500 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg z-50">
-      🛠️ DEV MODE (Shift+D for shortcuts)
+      DEV MODE (Shift-D for help)
     </div>
   );
 }
