@@ -56,11 +56,20 @@ export function AnimatedUnitSprite({
   // Get weapon for this unit
   const unitWeapon = weapon || getUnitWeapon(unit.name);
 
-  // Get sprite set
+  // Get sprite set (or use unit's spriteUrl if available - for recruited enemies)
   const spriteSet = getPartySpriteSet(unit.name, unitWeapon);
 
   // Update current sprite based on animator state
   const updateSprite = useCallback(() => {
+    // Priority 1: If unit has spriteUrl (recruited enemy), use it directly
+    if (unit.spriteUrl) {
+      setCurrentSprite(unit.spriteUrl);
+      setSpriteLoadFailed(false);
+      setSpriteLoading(false);
+      return;
+    }
+    
+    // Priority 2: Use animated sprite set from registry (starter units)
     if (!spriteSet) {
       setSpriteLoadFailed(true);
       return;
@@ -68,7 +77,7 @@ export function AnimatedUnitSprite({
 
     const sprite = animator.getCurrentSprite(spriteSet);
     setCurrentSprite(sprite);
-  }, [spriteSet, animator]);
+  }, [spriteSet, animator, unit.spriteUrl]);
 
   // Subscribe to animation state changes
   useEffect(() => {

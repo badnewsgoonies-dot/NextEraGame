@@ -248,6 +248,8 @@ export interface BattleUnit {
   readonly speed: number;
   readonly isPlayer: boolean;
   readonly originalIndex: number; // For deterministic tie-breaking
+  readonly spriteUrl?: string; // For displaying unit sprites (especially recruited enemies)
+  readonly portraitUrl?: string; // For unit portraits
 }
 
 // ============================================
