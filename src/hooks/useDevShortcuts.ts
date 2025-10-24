@@ -40,50 +40,50 @@ export function useDevShortcuts(handlers: DevShortcutHandlers) {
         return;
       }
       
-      // Ctrl+N = Next screen
-      if (e.ctrlKey && e.key === 'n') {
+      // Shift+N = Next screen
+      if (e.shiftKey && e.key === 'N') {
         e.preventDefault();
         handlers.onNextScreen?.();
         console.log('[DEV] ⏭️ Next screen');
       }
       
-      // Ctrl+B = Previous screen  
-      else if (e.ctrlKey && e.key === 'b') {
+      // Shift+B = Previous screen  
+      else if (e.shiftKey && e.key === 'B') {
         e.preventDefault();
         handlers.onPrevScreen?.();
         console.log('[DEV] ⏮️ Previous screen');
       }
       
-      // Ctrl+W = Win current battle instantly
-      else if (e.ctrlKey && e.key === 'w') {
+      // Shift+W = Win current battle instantly
+      else if (e.shiftKey && e.key === 'W') {
         e.preventDefault();
         handlers.onWinBattle?.();
         console.log('[DEV] 🏆 Battle won instantly');
       }
       
-      // Ctrl+G = Add random gem
-      else if (e.ctrlKey && e.key === 'g') {
+      // Shift+G = Add random gem
+      else if (e.shiftKey && e.key === 'G') {
         e.preventDefault();
         handlers.onAddGems?.();
         console.log('[DEV] 💎 Random gem added');
       }
       
-      // Ctrl+M = Add gold (Money)
-      else if (e.ctrlKey && e.key === 'm') {
+      // Shift+M = Add gold (Money)
+      else if (e.shiftKey && e.key === 'M') {
         e.preventDefault();
         handlers.onAddGold?.();
         console.log('[DEV] 💰 Gold added');
       }
       
-      // Ctrl+S = Show current state
-      else if (e.ctrlKey && e.key === 's') {
+      // Shift+S = Show current state
+      else if (e.shiftKey && e.key === 'S') {
         e.preventDefault();
         handlers.onShowState?.();
         console.log('[DEV] 📊 State logged to console');
       }
       
-      // Ctrl+D = Show dev mode help
-      else if (e.ctrlKey && e.key === 'd') {
+      // Shift+D = Show dev mode help
+      else if (e.shiftKey && e.key === 'D') {
         e.preventDefault();
         console.log(`
 %c╔════════════════════════════════════════╗
@@ -93,19 +93,19 @@ export function useDevShortcuts(handlers: DevShortcutHandlers) {
         );
         console.log(`
 %cNAVIGATION:
-  Ctrl+N  ⏭️  Next Screen (skip current)
-  Ctrl+B  ⏮️  Previous Screen
+  Shift+N  ⏭️  Next Screen (skip current)
+  Shift+B  ⏮️  Previous Screen
 
 BATTLE:
-  Ctrl+W  🏆  Win Battle Instantly
+  Shift+W  🏆  Win Battle Instantly
 
 REWARDS:
-  Ctrl+G  💎  Add Random Gem
-  Ctrl+M  💰  Add Gold (future)
+  Shift+G  💎  Add Random Gem
+  Shift+M  💰  Add Gold (future)
 
 DEBUG:
-  Ctrl+S  📊  Show Current State
-  Ctrl+D  ❓  Show This Help
+  Shift+S  📊  Show Current State
+  Shift+D  ❓  Show This Help
 
 %cDev mode is ONLY active in development build.
 Production builds have dev mode disabled.`,
@@ -122,7 +122,7 @@ Production builds have dev mode disabled.`,
       '%c🛠️ DEV MODE ACTIVE',
       'background: #f59e0b; color: black; padding: 4px 8px; border-radius: 4px; font-weight: bold'
     );
-    console.log('%cPress Ctrl+D for dev shortcuts', 'color: #f59e0b');
+    console.log('%cPress Shift+D for dev shortcuts', 'color: #f59e0b');
     
     return () => {
       window.removeEventListener('keydown', handleKeyDown);

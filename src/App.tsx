@@ -729,7 +729,7 @@ export function App(): React.ReactElement {
                         text-xs font-bold shadow-lg border-2 border-yellow-600
                         pointer-events-none">
           🛠️ DEV MODE
-          <div className="text-[10px] font-normal">Press Ctrl+D for shortcuts</div>
+          <div className="text-[10px] font-normal">Press Shift+D for shortcuts</div>
         </div>
       )}
     </>
