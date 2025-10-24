@@ -149,6 +149,25 @@ export interface Ability {
 }
 
 /**
+ * Active buff/debuff on a unit
+ */
+export interface ActiveBuff {
+  readonly id: string;              // Unique ID for this buff instance
+  readonly stat: 'attack' | 'defense' | 'speed';  // Which stat is affected
+  readonly amount: number;          // Modifier amount (can be negative for debuffs)
+  readonly duration: number;        // Remaining turns
+  readonly source: string;          // Ability ID that created this buff
+  readonly sourceName: string;      // Ability name (for display)
+}
+
+/**
+ * Buff manager for tracking multiple buffs on a unit
+ */
+export interface BuffState {
+  readonly buffs: readonly ActiveBuff[];  // All active buffs
+}
+
+/**
  * Gem System - Djinn-inspired equipment
  */
 export type GemState = 'active' | 'inactive';
@@ -245,6 +264,7 @@ export interface BattleUnit {
   readonly maxHp: number;
   currentMp: number; // MUTABLE during battle (for abilities)
   readonly maxMp: number; // Maximum MP (typically 50)
+  readonly buffState: BuffState; // Active buffs/debuffs
   readonly atk: number;
   readonly def: number;
   readonly speed: number;

@@ -35,6 +35,7 @@ import type { BattleUnit, BattleResult, Role, Item, CombatAction, Ability } from
 import type { GameController } from '../core/GameController.js';
 import { getUnitAbilities } from '../systems/GemSystem.js';
 import { calculateAbilityDamage, calculateAbilityHealing } from '../systems/AbilitySystem.js';
+import { applyBuff, decayAllBuffs, getBuffModifier, removeAllBuffs } from '../systems/BuffSystem.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
 import { BattleUnitSlot } from '../components/battle/BattleUnitSlot.js';
 import { AttackAnimation } from '../components/battle/AttackAnimation.js';
@@ -144,6 +145,10 @@ export function BattleScreen({
   const defending = useRef<Set<string>>(new Set());
   const rngRef = useRef(makeRng(seed ?? Date.now()));
 
+  // Click debouncing to prevent spam clicking race conditions
+  const [isProcessing, setIsProcessing] = useState(false);
+  const processingTimeout = useRef<NodeJS.Timeout | null>(null);
+
   // Action log for BattleResult
   const [seq, setSeq] = useState(1);
   const [actions, setActions] = useState<BattleResult['actions']>([]);
@@ -166,7 +171,11 @@ export function BattleScreen({
   const computeRoundOrder = useCallback((): string[] => {
     const alive = [...alivePlayers, ...aliveEnemies];
     alive.sort((a, b) => {
-      if (b.speed !== a.speed) return b.speed - a.speed;
+      // Apply speed buff modifiers
+      const aSpeed = a.speed + getBuffModifier(a, 'speed');
+      const bSpeed = b.speed + getBuffModifier(b, 'speed');
+
+      if (bSpeed !== aSpeed) return bSpeed - aSpeed;
       if (a.isPlayer !== b.isPlayer) return a.isPlayer ? -1 : 1;
       return a.originalIndex - b.originalIndex;
     });
@@ -189,12 +198,27 @@ export function BattleScreen({
   const getUnitAbilitiesForBattle = useCallback((battleUnit: BattleUnit): readonly Ability[] => {
     if (!battleUnit.isPlayer) return []; // Only player units have abilities
 
-    const playerTeam = gameController.getTeam();
-    const playerUnit = playerTeam.find(u => u.id === battleUnit.id);
+    try {
+      const playerTeam = gameController.getTeam();
 
-    if (!playerUnit) return [];
+      if (!playerTeam || playerTeam.length === 0) {
+        console.warn('⚠️ No player team found');
+        return [];
+      }
 
-    return getUnitAbilities(playerUnit);
+      const playerUnit = playerTeam.find(u => u.id === battleUnit.id);
+
+      if (!playerUnit) {
+        console.warn(`⚠️ Unit ${battleUnit.name} not found in team`);
+        return [];
+      }
+
+      const abilities = getUnitAbilities(playerUnit);
+      return abilities || [];
+    } catch (error) {
+      console.error('❌ Error getting abilities:', error);
+      return [];
+    }
   }, [gameController]);
 
   /**
@@ -207,6 +231,19 @@ export function BattleScreen({
   }, [alivePlayers, aliveEnemies]);
 
   // ==================== Battle Actions ====================
+
+  /**
+   * Start processing cooldown to prevent spam clicking
+   */
+  const startProcessing = useCallback(() => {
+    setIsProcessing(true);
+    if (processingTimeout.current) {
+      clearTimeout(processingTimeout.current);
+    }
+    processingTimeout.current = setTimeout(() => {
+      setIsProcessing(false);
+    }, 300); // 300ms cooldown between actions
+  }, []);
 
   /**
    * Complete the battle and report results
@@ -235,7 +272,16 @@ export function BattleScreen({
    * Defend status reduces damage by 50%
    */
   const computeDamage = useCallback((attacker: BattleUnit, defender: BattleUnit): number => {
-    const base = Math.floor(attacker.atk - defender.def / 2);
+    // Get buff modifiers
+    const attackBonus = getBuffModifier(attacker, 'attack');
+    const defenseBonus = getBuffModifier(defender, 'defense');
+
+    // Apply buffs to stats
+    const effectiveAttack = attacker.atk + attackBonus;
+    const effectiveDefense = defender.def + defenseBonus;
+
+    // Calculate damage with buffed stats
+    const base = Math.floor(effectiveAttack - effectiveDefense / 2);
     const variance = rngRef.current.int(-2, 2);
     let dmg = Math.max(1, base + variance);
 
@@ -283,7 +329,10 @@ export function BattleScreen({
   const advanceTurnPointer = useCallback(() => {
     const nextIndex = roundIdx + 1;
     if (nextIndex >= roundOrder.length) {
-      // New round starts
+      // New round starts - decay buffs!
+      setPlayers(prev => decayAllBuffs(prev) as BattleUnit[]);
+      setEnemies(prev => decayAllBuffs(prev) as BattleUnit[]);
+
       setTurnsTaken(t => t + 1);
       const nextOrder = computeRoundOrder();
       setRoundOrder(nextOrder);
@@ -494,7 +543,18 @@ export function BattleScreen({
    */
   const handleActionSelect = useCallback(
     (index: number) => {
-      if (phase !== 'menu') return;
+      // Strict guards to prevent freezes
+      if (phase !== 'menu') {
+        console.warn('⚠️ Blocked action - wrong phase:', phase);
+        return;
+      }
+
+      if (isProcessing) {
+        console.warn('⚠️ Blocked action - already processing');
+        return;
+      }
+
+      startProcessing();
       setMenuIndex(index);
 
       // Immediately execute selected action
@@ -518,8 +578,11 @@ export function BattleScreen({
           // Show abilities menu
           setPhase('ability-menu');
         } else if (label === 'Gems') {
-          // Show gem menu
-          setPhase('gem-menu');
+          // Gem effects not yet implemented - show message in console
+          console.warn('💎 Gem effects UI not yet implemented');
+          // For now, just stay in menu phase (don't freeze!)
+          // TODO: Implement gem effect selection UI
+          // setPhase('gem-menu'); // Commented out - no UI exists for this phase!
         } else if (label === 'Items') {
           // Show item menu (always, even if empty - will show "No items available")
           setItemMenuIndex(0);
@@ -538,9 +601,11 @@ export function BattleScreen({
       confirmFlee,
       findUnit,
       gameController,
+      isProcessing,
       phase,
       pushAction,
       registerTimeout,
+      startProcessing,
     ]
   );
 
@@ -853,8 +918,67 @@ export function BattleScreen({
             itemName: abilityToUse.name,
             hpRestored: actualHeal,
           });
+        } else if (effectType === 'buff') {
+          // Apply buff to target
+          const buffDuration = abilityToUse.effect.buffDuration || 3;
+          const buffedUnit = applyBuff(target, abilityToUse, buffDuration);
+
+          // Update state with buffed unit
+          if (target.isPlayer) {
+            setPlayers(prev =>
+              prev.map(u => u.id === target.id ? buffedUnit : u)
+            );
+          } else {
+            setEnemies(prev =>
+              prev.map(u => u.id === target.id ? buffedUnit : u)
+            );
+          }
+
+          // Show visual feedback (reuse heal animation for now)
+          if (i === 0 || targets.length === 1) {
+            setTargetedId(target.id);
+            setHealAmount(abilityToUse.effect.buffAmount || 0); // Show buff amount
+            setHealPos(getTargetCenter(target.id));
+            setShowHealAnim(true);
+          }
+
+          // Log action
+          pushAction({
+            type: 'item-used', // TODO: Add 'buff' type to CombatAction
+            actorId: actorUnit.id,
+            targetId: target.id,
+            itemId: abilityToUse.id,
+            itemName: abilityToUse.name,
+            hpRestored: 0, // Not healing, just buff
+          });
+        } else if (effectType === 'debuff_remove') {
+          // Cleanse: Remove all buffs
+          const cleansedUnit = removeAllBuffs(target);
+
+          if (target.isPlayer) {
+            setPlayers(prev =>
+              prev.map(u => u.id === target.id ? cleansedUnit : u)
+            );
+          }
+
+          // Show visual feedback
+          if (i === 0 || targets.length === 1) {
+            setTargetedId(target.id);
+            setHealAmount(20); // Cleanse heals 20 HP
+            setHealPos(getTargetCenter(target.id));
+            setShowHealAnim(true);
+          }
+
+          // Log action
+          pushAction({
+            type: 'item-used', // TODO: Add 'cleanse' type to CombatAction
+            actorId: actorUnit.id,
+            targetId: target.id,
+            itemId: abilityToUse.id,
+            itemName: abilityToUse.name,
+            hpRestored: 20,
+          });
         }
-        // TODO: Implement buff/debuff effects in future update
       });
 
       // Clean up and advance turn
