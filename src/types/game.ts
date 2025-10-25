@@ -370,6 +370,13 @@ export interface SaveEnvelope {
    * Default: [] if undefined
    */
   readonly activeBoosters?: readonly PowerBooster[];
+  
+  /**
+   * Gem inventory (NEW - Progression System)
+   * List of gem IDs that the player owns
+   * Default: [] if undefined
+   */
+  readonly gemInventory?: readonly string[];
 }
 
 // ============================================
@@ -414,7 +421,8 @@ export interface BattleReward {
   readonly defeatedEnemies: readonly EnemyUnitTemplate[]; // Available for recruitment
   readonly experience: number;
   readonly equipment: readonly Equipment[]; // Equipment drops
-  readonly gems: readonly string[]; // Gem IDs (NEW - Progression System)
+  readonly gems: readonly string[]; // Gem IDs (DEPRECATED - use gemChoices)
+  readonly gemChoices?: readonly string[]; // NEW: Gem choices (player picks one)
 }
 
 /**

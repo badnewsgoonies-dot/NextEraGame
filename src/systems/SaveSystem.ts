@@ -22,6 +22,7 @@ export interface GameStateSnapshot {
   readonly playerTeam: readonly PlayerUnit[];
   readonly inventory: readonly Item[];
   readonly inventoryData?: InventoryData; // NEW: Equipment inventory
+  readonly gemInventory?: readonly string[]; // NEW: Gem inventory
   readonly progression: ProgressionCounters;
   readonly choice: SaveSliceChoice;
   readonly runSeed: number;
@@ -58,6 +59,7 @@ export class SaveSystem {
         choice: state.choice,
         runSeed: state.runSeed,
         inventoryData: state.inventoryData, // Include equipment inventory
+        gemInventory: state.gemInventory, // Include gem inventory
       };
 
       // Custom serializer to handle Map objects
@@ -114,6 +116,11 @@ export class SaveSystem {
           maxItemSlots: 50,
           maxEquipmentSlots: 50
         };
+      }
+
+      // Ensure backward compatibility: provide default empty gem inventory if not present
+      if (!envelope.gemInventory) {
+        (envelope as { gemInventory?: readonly string[] }).gemInventory = [];
       }
 
       this.logger.info('save:loaded', { slot, timestamp: envelope.timestamp });

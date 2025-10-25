@@ -22,6 +22,7 @@ import { OpponentSelectScreen } from './screens/OpponentSelectScreen.js';
 import { BattleScreen } from './screens/BattleScreen.js';
 import { RewardsScreen } from './screens/RewardsScreen.js';
 import { EquipmentScreen } from './screens/EquipmentScreen.js';
+import { GemSelectScreen } from './screens/GemSelectScreen.js'; // NEW
 import { RecruitScreen } from './screens/RecruitScreen.js';
 import { RosterManagementScreen } from './screens/RosterManagementScreen.js';
 import { InventoryScreen } from './screens/InventoryScreen.js';
@@ -38,6 +39,7 @@ type AppScreen =
   | 'battle'
   | 'rewards'
   | 'equipment'
+  | 'gem_select' // NEW: Gem selection screen
   | 'recruit'
   | 'roster_management'
   | 'defeat'
@@ -118,6 +120,8 @@ export function App(): React.ReactElement {
         setScreen('equipment');
       } else if (screen === 'equipment') {
         handleEquipmentContinue();
+      } else if (screen === 'gem_select') {
+        handleSkipGemSelection();
       } else if (screen === 'recruit') {
         handleSkipRecruit();
       } else if (screen === 'roster_management') {
@@ -489,6 +493,18 @@ export function App(): React.ReactElement {
   };
 
   const handleEquipmentContinue = () => {
+    // Check if gems were offered
+    if (rewards && rewards.gemChoices && rewards.gemChoices.length > 0) {
+      // Go to gem selection
+      setScreen('gem_select');
+      return;
+    }
+    
+    // No gems offered, skip to recruitment
+    proceedToRecruit();
+  };
+
+  const proceedToRecruit = () => {
     // Transition FSM from equipment → recruit
     const transition = controller.handleEquipmentContinue();
     if (!transition.ok) {
@@ -504,6 +520,27 @@ export function App(): React.ReactElement {
     }
     
     setScreen('recruit');
+  };
+
+  // Gem selection handlers
+  const handleGemSelected = (gemId: string) => {
+    console.log('Player selected gem:', gemId);
+    
+    // Add gem to controller's gem inventory
+    const addResult = controller.addGem(gemId);
+    if (!addResult.ok) {
+      console.error('Failed to add gem:', addResult.error);
+      alert(`Failed to add gem: ${addResult.error}`);
+      return;
+    }
+    
+    // Proceed to recruitment
+    proceedToRecruit();
+  };
+
+  const handleSkipGemSelection = () => {
+    // No gems offered or player skipped
+    proceedToRecruit();
   };
 
   // Recruit handlers
@@ -661,6 +698,20 @@ export function App(): React.ReactElement {
             onEquip={handleEquip}
             onUnequip={handleUnequip}
             onContinue={handleEquipmentContinue}
+          />
+        );
+
+      case 'gem_select':
+        if (!rewards || !rewards.gemChoices || rewards.gemChoices.length === 0) {
+          // No gems to select, skip to recruitment
+          proceedToRecruit();
+          return <div>Loading...</div>;
+        }
+        return (
+          <GemSelectScreen
+            gemChoices={rewards.gemChoices}
+            onSelect={handleGemSelected}
+            onSkip={handleSkipGemSelection}
           />
         );
 

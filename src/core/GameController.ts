@@ -35,12 +35,14 @@ import { SaveSystem, type GameStateSnapshot } from '../systems/SaveSystem.js';
 import { EventLogger } from '../systems/EventLogger.js';
 import { makeRng } from '../utils/rng.js';
 import { ITEM_CATALOG } from '../data/items.js';
+import { getGemById } from '../data/gems.js'; // NEW: Import gem validation
 
 export interface GameControllerState {
   runSeed: number;
   battleIndex: number;
   playerTeam: PlayerUnit[];
   inventory: Item[];
+  gemInventory: string[]; // NEW: Gem IDs owned by player
   progression: ProgressionCounters;
   currentChoices: OpponentPreview[] | null;
   selectedOpponentId: string | null;
@@ -70,6 +72,7 @@ export class GameController {
       battleIndex: 0,
       playerTeam: [],
       inventory: [],
+      gemInventory: [], // NEW: Start with no gems
       progression: {
         runsAttempted: 0,
         runsCompleted: 0,
@@ -106,6 +109,7 @@ export class GameController {
       battleIndex: 0,
       playerTeam: [...starterTeam],
       inventory: starterInventory,
+      gemInventory: [], // NEW: Start with no gems
       progression: {
         ...this.state.progression,
         runsAttempted: this.state.progression.runsAttempted + 1,
@@ -287,6 +291,7 @@ export class GameController {
     const snapshot: GameStateSnapshot = {
       playerTeam: this.state.playerTeam,
       inventory: this.state.inventory,
+      gemInventory: this.state.gemInventory, // Save gem inventory
       progression: this.state.progression,
       choice: {
         nextChoiceSeed: String(this.state.runSeed),
@@ -317,6 +322,7 @@ export class GameController {
       battleIndex: saveData.choice.battleIndex,
       playerTeam: [...saveData.playerTeam],
       inventory: [...saveData.inventory],
+      gemInventory: [...(saveData.gemInventory || [])], // Restore gem inventory (default to empty for old saves)
       progression: saveData.progression,
       currentChoices: saveData.choice.lastChoices ? [...saveData.choice.lastChoices] : null,
       selectedOpponentId: null,
@@ -423,5 +429,34 @@ export class GameController {
    */
   get rng(): IRng {
     return this.rootRng;
+  }
+
+  /**
+   * Add gem to player's inventory
+   */
+  addGem(gemId: string): Result<void, string> {
+    // Validate gem ID exists in catalog
+    const gem = getGemById(gemId);
+    if (!gem) {
+      return err(`Invalid gem ID: ${gemId}`);
+    }
+
+    // Add to inventory (allow duplicates)
+    this.state.gemInventory = [...this.state.gemInventory, gemId];
+    return ok(undefined);
+  }
+
+  /**
+   * Get player's gem inventory
+   */
+  getGemInventory(): readonly string[] {
+    return this.state.gemInventory;
+  }
+
+  /**
+   * Check if player owns a specific gem
+   */
+  hasGem(gemId: string): boolean {
+    return this.state.gemInventory.includes(gemId);
   }
 }
