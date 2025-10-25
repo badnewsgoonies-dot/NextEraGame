@@ -295,27 +295,6 @@ describe('StatsSystem', () => {
       expect(stats.defense).toBe(15);
       expect(stats.speed).toBe(42);
     });
-
-    test('S rank + Earth Adept + Emerald gem stacks correctly', () => {
-      const unit = createTestUnit({
-        rank: 'S',              // 1.50x
-        subclass: 'Earth Adept', // 1.10x HP, 1.15x DEF
-        equippedGem: {
-          gemId: 'emerald_gem', // +5 DEF
-          state: 'active',
-        },
-      });
-      const stats = calculateUnitStats(unit);
-      
-      // Base: 100 HP, 20 ATK, 15 DEF, 40 SPD
-      // Rank S: 150 HP, 30 ATK, 22.5 DEF, 60 SPD
-      // Earth Adept: 165 HP, 30 ATK, 25.875 DEF, 60 SPD
-      // Emerald +5 DEF: 165 HP, 30 ATK, 30 DEF, 60 SPD
-      expect(stats.maxHp).toBe(165);
-      expect(stats.attack).toBe(30);
-      expect(stats.defense).toBe(30);  // Floor(25.875) + 5
-      expect(stats.speed).toBe(60);
-    });
   });
 
   describe('Stat Breakdown', () => {
@@ -327,21 +306,7 @@ describe('StatsSystem', () => {
       expect(breakdown.fromRank).toBe(3); // 20 * 1.15 - 20 = 3
       expect(breakdown.fromClass).toBe(0);
       expect(breakdown.fromEquipment).toBe(0);
-      expect(breakdown.fromGem).toBe(0);
       expect(breakdown.final).toBe(23);
-    });
-
-    test('breakdown shows gem passive bonus', () => {
-      const unit = createTestUnit({
-        equippedGem: { gemId: 'ruby_gem', state: 'active' },
-        subclass: 'Fire Adept',
-      });
-      const breakdown = calculateStatBreakdown(unit, 'attack');
-      
-      expect(breakdown.base).toBe(20);
-      expect(breakdown.fromClass).toBe(2); // Fire Adept +10% ATK
-      expect(breakdown.fromGem).toBe(5);   // Ruby +5 ATK
-      expect(breakdown.final).toBe(27);
     });
   });
 

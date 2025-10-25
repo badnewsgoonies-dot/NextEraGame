@@ -29,6 +29,7 @@ import { InventoryScreen } from './screens/InventoryScreen.js';
 import { SettingsScreen } from './screens/SettingsScreen.js';
 import { LoadGameModal } from './components/LoadGameModal.js';
 import { GameContainer } from './components/GameContainer.js';
+import { ScreenTransition } from './components/ScreenTransition.js';
 import { makeRng } from './utils/rng.js';
 import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit, InventoryData, RosterData, GemChoice } from './types/game.js';
 import { useDevShortcuts, DevShortcutsBadge } from './hooks/useDevShortcuts';
@@ -796,7 +797,9 @@ export function App(): React.ReactElement {
   return (
     <GameContainer>
       <DevShortcutsBadge />
-      {renderScreen()}
+      <ScreenTransition screenKey={screen} type="fade" duration={300}>
+        {renderScreen()}
+      </ScreenTransition>
       {showLoadModal && (
         <LoadGameModal
           saves={saveSlots}

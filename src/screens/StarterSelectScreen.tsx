@@ -13,8 +13,17 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { UnitCard } from '../components/UnitCard.js';
+import { AnimatedSprite } from '../components/AnimatedSprite.js';
 import type { PlayerUnit } from '../types/game.js';
 import { STARTER_CATALOG } from '../data/starterUnits.js';
+
+// Formation positions for selected units (relative to formation container)
+const FORMATION_POSITIONS = [
+  { x: 200, y: 60 },  // Back-left
+  { x: 350, y: 60 },  // Back-right
+  { x: 200, y: 120 }, // Front-left
+  { x: 350, y: 120 }, // Front-right
+];
 
 export interface StarterSelectScreenProps {
   onSelect: (starters: PlayerUnit[]) => void;
@@ -169,19 +178,56 @@ export function StarterSelectScreen({
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
         >
           {STARTER_CATALOG.map((unit, index) => (
-            <UnitCard
+            <div
               key={unit.id}
-              unit={unit}
-              selected={selectedUnits.has(unit.id)}
-              focused={focusedIndex === index}
-              disabled={!selectedUnits.has(unit.id) && selectedUnits.size >= maxSelection}
-              onSelect={() => toggleUnit(unit.id)}
-              onFocus={() => setFocusedIndex(index)}
-              tabIndex={focusedIndex === index ? 0 : -1}
-            />
+              className="animate-card-entry"
+              style={{ animationDelay: `${index * 80}ms` }}
+            >
+              <UnitCard
+                unit={unit}
+                selected={selectedUnits.has(unit.id)}
+                focused={focusedIndex === index}
+                disabled={!selectedUnits.has(unit.id) && selectedUnits.size >= maxSelection}
+                onSelect={() => toggleUnit(unit.id)}
+                onFocus={() => setFocusedIndex(index)}
+                tabIndex={focusedIndex === index ? 0 : -1}
+              />
+            </div>
           ))}
         </div>
       </div>
+
+      {/* Formation Display - Selected Team */}
+      {selectedUnits.size > 0 && (
+        <div className="max-w-6xl mx-auto mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">
+            Your Team Formation
+          </h2>
+          <div className="relative h-48 bg-gradient-to-b from-blue-900/20 to-blue-950/30 rounded-lg border-2 border-blue-500/50">
+            {Array.from(selectedUnits).map((unitId, index) => {
+              const unit = STARTER_CATALOG.find(u => u.id === unitId);
+              if (!unit || index >= FORMATION_POSITIONS.length) return null;
+              
+              const position = FORMATION_POSITIONS[index];
+              const spriteUrl = unit.spriteUrl || '/sprites/party/default-unit.png';
+
+              return (
+                <AnimatedSprite
+                  key={unitId}
+                  src={spriteUrl}
+                  alt={unit.name}
+                  startX={-50} // Start off-screen left
+                  startY={position.y}
+                  endX={position.x}
+                  endY={position.y}
+                  duration={800}
+                  size={64}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Action buttons */}
       <div className="max-w-6xl mx-auto flex justify-between items-center">

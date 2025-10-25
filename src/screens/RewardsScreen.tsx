@@ -12,9 +12,35 @@ export interface RewardsScreenProps {
 }
 
 export function RewardsScreen({ rewards, onContinue }: RewardsScreenProps): React.ReactElement {
+  // Generate random confetti particles
+  const confettiColors = ['bg-yellow-400', 'bg-green-400', 'bg-blue-400', 'bg-purple-400', 'bg-pink-400', 'bg-red-400'];
+  const confettiParticles = Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    delay: Math.random() * 0.5,
+    duration: 1.5 + Math.random() * 1,
+    color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+  }));
+
   return (
-    <div className="h-full w-full bg-gradient-to-b from-green-800 to-green-900 p-6 flex items-center justify-center">
-      <div className="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-xl p-8 shadow-2xl">
+    <div className="h-full w-full bg-gradient-to-b from-green-800 to-green-900 p-6 flex items-center justify-center relative overflow-hidden">
+      {/* Victory Confetti */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        {confettiParticles.map((particle) => (
+          <div
+            key={particle.id}
+            className={`absolute w-3 h-3 ${particle.color} rounded-full animate-confetti`}
+            style={{
+              left: `${particle.left}%`,
+              top: '-20px',
+              animationDelay: `${particle.delay}s`,
+              animationDuration: `${particle.duration}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-xl p-8 shadow-2xl relative z-10">
         <h1 className="text-4xl font-bold text-center text-green-600 dark:text-green-400 mb-8">
           🎁 Rewards
         </h1>

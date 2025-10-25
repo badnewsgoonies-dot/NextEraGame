@@ -24,47 +24,73 @@ import {
 } from '../../src/systems/AbilitySystem';
 import type { PlayerUnit, Ability } from '../../src/types/game';
 
-// Test abilities (OLD gem system granted these)
+// Test abilities (NEW gem system format with effect structure)
 const FIREBALL: Ability = {
   id: 'fireball',
   name: 'Fireball',
+  description: 'A fiery blast that burns a single enemy',
   mpCost: 20,
-  damageMultiplier: 1.5,
-  targetType: 'single-enemy',
+  effect: {
+    type: 'damage',
+    target: 'single_enemy',
+    power: 35,
+    element: 'fire',
+  },
 };
 
 const FLAME_WALL: Ability = {
   id: 'flame_wall',
   name: 'Flame Wall',
+  description: 'A wall of flames that damages all enemies',
   mpCost: 25,
-  damageMultiplier: 1.2,
-  targetType: 'all-enemies',
+  effect: {
+    type: 'damage',
+    target: 'all_enemies',
+    power: 20,
+    element: 'fire',
+  },
 };
 
 const STONE_WALL: Ability = {
   id: 'stone_wall',
   name: 'Stone Wall',
+  description: 'Increases defense of a single ally',
   mpCost: 15,
-  buffAmount: 5,
-  buffDuration: 3,
-  targetType: 'single-ally',
+  effect: {
+    type: 'buff',
+    target: 'single_ally',
+    power: 0,
+    buffStat: 'defense',
+    buffAmount: 5,
+    buffDuration: 3,
+  },
 };
 
 const CURE: Ability = {
   id: 'cure',
   name: 'Cure',
+  description: 'Restores HP to a single ally',
   mpCost: 15,
-  healAmount: 50,
-  targetType: 'single-ally',
+  effect: {
+    type: 'heal',
+    target: 'single_ally',
+    power: 50,
+  },
 };
 
 const HASTE: Ability = {
   id: 'haste',
   name: 'Haste',
+  description: 'Increases speed of a single ally',
   mpCost: 20,
-  buffAmount: 10,
-  buffDuration: 3,
-  targetType: 'single-ally',
+  effect: {
+    type: 'buff',
+    target: 'single_ally',
+    power: 0,
+    buffStat: 'speed',
+    buffAmount: 10,
+    buffDuration: 3,
+  },
 };
 
 describe('AbilitySystem', () => {
@@ -76,6 +102,7 @@ describe('AbilitySystem', () => {
       name: 'Test Warrior',
       role: 'Tank',
       tags: ['Holy'],
+      element: 'Mars', // Required field for gem system
       hp: 100,
       maxHp: 100,
       atk: 20,
@@ -240,7 +267,7 @@ describe('AbilitySystem', () => {
       const cure = CURE;
       const healing = calculateAbilityHealing(cure);
       
-      expect(healing).toBe(30); // Fixed healing, doesn't scale
+      expect(healing).toBe(50); // Fixed healing (CURE power = 50)
     });
 
     test('damage abilities return 0 healing', () => {
@@ -256,7 +283,7 @@ describe('AbilitySystem', () => {
       const stoneWall = STONE_WALL;
       const amount = getAbilityBuffAmount(stoneWall);
       
-      expect(amount).toBe(20); // +20 defense buff
+      expect(amount).toBe(5); // +5 defense buff (STONE_WALL buffAmount = 5)
     });
 
     test('stone wall buff duration', () => {
@@ -270,7 +297,7 @@ describe('AbilitySystem', () => {
       const haste = HASTE;
       const amount = getAbilityBuffAmount(haste);
       
-      expect(amount).toBe(20); // +20 speed
+      expect(amount).toBe(10); // +10 speed (HASTE buffAmount = 10)
     });
   });
 

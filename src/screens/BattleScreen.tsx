@@ -33,8 +33,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import type { BattleUnit, BattleResult, Role, Item, CombatAction, Ability } from '../types/game.js';
 import type { GameController } from '../core/GameController.js';
-import { getUnitAbilities } from '../systems/GemSystem.js';
-import { calculateAbilityDamage, calculateAbilityHealing } from '../systems/AbilitySystem.js';
+import { getAllAbilities, calculateAbilityDamage, calculateAbilityHealing } from '../systems/AbilitySystem.js';
 import { applyBuff, decayAllBuffs, getBuffModifier, removeAllBuffs } from '../systems/BuffSystem.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
 import { BattleUnitSlot } from '../components/battle/BattleUnitSlot.js';
@@ -218,7 +217,7 @@ export function BattleScreen({
         return [];
       }
 
-      const abilities = getUnitAbilities(playerUnit);
+      const abilities = getAllAbilities(playerUnit, gameController.getGemState());
       return abilities || [];
     } catch (error) {
       console.error('❌ Error getting abilities:', error);
@@ -1170,7 +1169,7 @@ export function BattleScreen({
 
   return (
     <div
-      className="h-full w-full text-white relative overflow-hidden"
+      className="h-full w-full text-white relative overflow-hidden animate-battle-entry"
       role="application"
       aria-label="Battle screen"
     >

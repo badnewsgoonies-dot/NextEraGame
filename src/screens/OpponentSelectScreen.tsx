@@ -20,6 +20,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import type { OpponentPreview } from '../types/game.js';
 import { OpponentCard } from '../components/OpponentCard.js';
+import { AnimatedSprite } from '../components/AnimatedSprite.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
 
 export interface OpponentSelectScreenProps {
@@ -40,14 +41,36 @@ export function OpponentSelectScreen({
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState('');
 
-  // Refs for managing focus
+  // Isaac walk animation state
+  const [isaacPosition, setIsaacPosition] = useState({ x: 640, y: 650 }); // Bottom center
+  const [isaacTarget, setIsaacTarget] = useState<{ x: number; y: number } | null>(null);
+  const [isWalking, setIsWalking] = useState(false);
+
+  // Refs for managing focus and card positions
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Update announcement for screen readers
   const announce = useCallback((message: string) => {
     setAnnouncement(message);
     // Clear after 1 second to allow re-announcement
     setTimeout(() => setAnnouncement(''), 1000);
+  }, []);
+
+  // Get card center position for Isaac to walk to
+  const getCardCenter = useCallback((index: number): { x: number; y: number } | null => {
+    const card = cardRefs.current[index];
+    const container = containerRef.current;
+    if (!card || !container) return null;
+
+    const cardRect = card.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    // Calculate center position relative to container
+    return {
+      x: cardRect.left - containerRect.left + cardRect.width / 2,
+      y: cardRect.top - containerRect.top + cardRect.height / 2,
+    };
   }, []);
 
   // Navigate left (previous card)
@@ -92,21 +115,36 @@ export function OpponentSelectScreen({
     announce(`${preview.spec.name} selected. Press Enter again to confirm.`);
   }, [focusedIndex, previews, announce]);
 
-  // Confirm selection
+  // Confirm selection - trigger Isaac walk animation
   const confirmSelection = useCallback(() => {
     if (selectedIndex !== null) {
       if (selectedIndex < 0 || selectedIndex >= previews.length) return;
       const preview = previews[selectedIndex];
       if (!preview) return;
-      
-      const selectedId = preview.spec.id;
-      announce(`Confirmed ${preview.spec.name}`);
-      onSelect(selectedId);
+
+      // Get card center for Isaac to walk to
+      const target = getCardCenter(selectedIndex);
+      if (!target) {
+        // Fallback: immediate transition if position can't be calculated
+        announce(`Confirmed ${preview.spec.name}`);
+        onSelect(preview.spec.id);
+        return;
+      }
+
+      // Trigger Isaac walk animation
+      setIsWalking(true);
+      setIsaacTarget(target);
+      announce(`${preview.spec.name} - Isaac advancing!`);
+
+      // After walk completes (1 second walk + 200ms pause)
+      setTimeout(() => {
+        onSelect(preview.spec.id);
+      }, 1200);
     } else {
       // First press selects, need second press to confirm
       selectFocused();
     }
-  }, [selectedIndex, previews, onSelect, selectFocused, announce]);
+  }, [selectedIndex, previews, onSelect, selectFocused, announce, getCardCenter]);
 
   // Keyboard navigation
   useKeyboard({
@@ -137,7 +175,22 @@ export function OpponentSelectScreen({
   const selectedPreview = selectedIndex !== null ? previews[selectedIndex] : null;
 
   return (
-    <div className="h-full w-full bg-gray-50 dark:bg-gray-900 p-6">
+    <div ref={containerRef} className="h-full w-full bg-gray-50 dark:bg-gray-900 p-6 relative">
+      {/* Isaac Sprite - walks to selected opponent */}
+      {isWalking && isaacTarget && (
+        <AnimatedSprite
+          src="/sprites/golden-sun/battle/party/isaac/Isaac_lSword_Front.gif"
+          alt="Isaac"
+          startX={isaacPosition.x}
+          startY={isaacPosition.y}
+          endX={isaacTarget.x}
+          endY={isaacTarget.y}
+          duration={1000}
+          size={64}
+          className="z-50"
+        />
+      )}
+
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-2">
@@ -158,6 +211,8 @@ export function OpponentSelectScreen({
           <div 
             key={preview.spec.id} 
             ref={(el) => { cardRefs.current[index] = el; }}
+            className="animate-card-entry"
+            style={{ animationDelay: `${index * 150}ms` }}
           >
             <OpponentCard
               preview={preview}
