@@ -4,7 +4,6 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { Analytics } from '@vercel/analytics/react';
 import { App } from './App.js';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
 import './styles/index.css';
@@ -19,7 +18,6 @@ ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <ErrorBoundary>
       <App />
-      <Analytics />
     </ErrorBoundary>
   </React.StrictMode>
 );
