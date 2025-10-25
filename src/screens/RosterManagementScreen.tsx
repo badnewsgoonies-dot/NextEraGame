@@ -59,7 +59,7 @@ export function RosterManagementScreen({
   const activeSlots = Array.from({ length: 4 }, (_, i) => activeParty[i] || null);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-800 to-blue-900 p-8">
+    <div className="h-full w-full bg-gradient-to-b from-blue-800 to-blue-900 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">

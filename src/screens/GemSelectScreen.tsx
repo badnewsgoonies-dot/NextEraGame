@@ -43,7 +43,7 @@ export const GemSelectScreen: React.FC<GemSelectScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 flex flex-col items-center justify-center p-8">
+    <div className="h-full w-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 flex flex-col items-center justify-center p-6">
       <div className="max-w-6xl w-full">
         {/* Header */}
         <div className="text-center mb-12">

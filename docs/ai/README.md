@@ -61,12 +61,12 @@ This directory contains comprehensive onboarding documentation for AI assistants
 ---
 
 ### **3. GRAPHICS_ONBOARDING.md** 🎨
-**For:** Graphics & visual polish AI (Chat #3)
+**For:** Graphics & visual polish AI (Chat #3) - **Project-specific (NextEraGame)**
 
 **Contents:**
-- Role definition and boundaries
+- NextEraGame role definition and boundaries
 - Golden Sun sprite library guide (2,500+ sprites)
-- Visual style direction and color palettes
+- NextEraGame visual style direction and color palettes
 - Sprite integration workflows
 - UI/UX polish responsibilities
 - Animation and effects creation
@@ -74,11 +74,27 @@ This directory contains comprehensive onboarding documentation for AI assistants
 - Visual task templates
 - Quality standards for visual work
 
-**Read this if:** You are the AI responsible for sprite integration, visual polish, UI beauty, and aesthetic excellence.
+**Read this if:** You are the AI responsible for sprite integration, visual polish, UI beauty, and aesthetic excellence **on the NextEraGame project**.
 
 ---
 
-### **4. ROLE_IDENTIFICATION.md** 🎯
+### **4. GRAPHICS_ONBOARDING_GENERALIZED.md** 🎨
+**For:** Graphics & visual polish AI - **Generalized template for any project**
+
+**Contents:**
+- Universal graphics AI role definition
+- General asset integration workflows
+- UI/UX polish principles (any visual style)
+- Animation and effects creation patterns
+- Generic asset management
+- Universal visual task templates
+- Quality standards for visual work
+
+**Read this if:** You are the AI responsible for visual work **on any project** (not specific to NextEraGame).
+
+---
+
+### **5. ROLE_IDENTIFICATION.md** 🎯
 **For:** Both AIs + Human coordinator
 
 **Contents:**
@@ -96,7 +112,7 @@ This directory contains comprehensive onboarding documentation for AI assistants
 
 ---
 
-### **5. CHAT_TEMPLATES.md** 💬
+### **6. CHAT_TEMPLATES.md** 💬
 **For:** Human coordinator
 
 **Contents:**
@@ -114,7 +130,7 @@ This directory contains comprehensive onboarding documentation for AI assistants
 
 ---
 
-### **6. CHAT_RESET_GUIDE.md** 🔄
+### **7. CHAT_RESET_GUIDE.md** 🔄
 **For:** All roles + Human coordinator
 
 **Contents:**

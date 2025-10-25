@@ -22,8 +22,50 @@ import {
   isAbilityUsable,
   getMpDisplayInfo,
 } from '../../src/systems/AbilitySystem';
-import { GEM_CATALOG } from '../../src/data/gems';
-import type { PlayerUnit } from '../../src/types/game';
+import type { PlayerUnit, Ability } from '../../src/types/game';
+
+// Test abilities (OLD gem system granted these)
+const FIREBALL: Ability = {
+  id: 'fireball',
+  name: 'Fireball',
+  mpCost: 20,
+  damageMultiplier: 1.5,
+  targetType: 'single-enemy',
+};
+
+const FLAME_WALL: Ability = {
+  id: 'flame_wall',
+  name: 'Flame Wall',
+  mpCost: 25,
+  damageMultiplier: 1.2,
+  targetType: 'all-enemies',
+};
+
+const STONE_WALL: Ability = {
+  id: 'stone_wall',
+  name: 'Stone Wall',
+  mpCost: 15,
+  buffAmount: 5,
+  buffDuration: 3,
+  targetType: 'single-ally',
+};
+
+const CURE: Ability = {
+  id: 'cure',
+  name: 'Cure',
+  mpCost: 15,
+  healAmount: 50,
+  targetType: 'single-ally',
+};
+
+const HASTE: Ability = {
+  id: 'haste',
+  name: 'Haste',
+  mpCost: 20,
+  buffAmount: 10,
+  buffDuration: 3,
+  targetType: 'single-ally',
+};
 
 describe('AbilitySystem', () => {
   // Helper to create test unit
@@ -51,28 +93,28 @@ describe('AbilitySystem', () => {
   describe('MP Check', () => {
     test('can use ability if MP >= cost', () => {
       const unit = createTestUnit({ currentMp: 50 });
-      const ability = GEM_CATALOG[0].grantedAbility; // Fireball (20 MP)
+      const ability = FIREBALL; // Fireball (20 MP)
       
       expect(canUseAbility(unit, ability)).toBe(true);
     });
 
     test('cannot use ability if MP < cost', () => {
       const unit = createTestUnit({ currentMp: 10 });
-      const ability = GEM_CATALOG[0].grantedAbility; // Fireball (20 MP)
+      const ability = FIREBALL; // Fireball (20 MP)
       
       expect(canUseAbility(unit, ability)).toBe(false);
     });
 
     test('can use ability with exact MP', () => {
       const unit = createTestUnit({ currentMp: 20 });
-      const ability = GEM_CATALOG[0].grantedAbility; // Fireball (20 MP)
+      const ability = FIREBALL; // Fireball (20 MP)
       
       expect(canUseAbility(unit, ability)).toBe(true);
     });
 
     test('cannot use ability with 1 less MP', () => {
       const unit = createTestUnit({ currentMp: 19 });
-      const ability = GEM_CATALOG[0].grantedAbility; // Fireball (20 MP)
+      const ability = FIREBALL; // Fireball (20 MP)
       
       expect(canUseAbility(unit, ability)).toBe(false);
     });
@@ -81,7 +123,7 @@ describe('AbilitySystem', () => {
   describe('Use Ability', () => {
     test('deducts correct MP amount', () => {
       const unit = createTestUnit({ currentMp: 50 });
-      const fireball = GEM_CATALOG[0].grantedAbility; // 20 MP cost
+      const fireball = FIREBALL; // 20 MP cost
       
       const result = useAbility(unit, fireball);
       
@@ -93,7 +135,7 @@ describe('AbilitySystem', () => {
 
     test('fails if not enough MP', () => {
       const unit = createTestUnit({ currentMp: 10 });
-      const fireball = GEM_CATALOG[0].grantedAbility; // 20 MP cost
+      const fireball = FIREBALL; // 20 MP cost
       
       const result = useAbility(unit, fireball);
       
@@ -105,7 +147,7 @@ describe('AbilitySystem', () => {
 
     test('can use ability multiple times until MP runs out', () => {
       let unit = createTestUnit({ currentMp: 50 });
-      const cure = GEM_CATALOG[3].grantedAbility; // Cure (15 MP)
+      const cure = CURE; // Cure (15 MP)
       
       // Use 1: 50 → 35
       const result1 = useAbility(unit, cure);
@@ -160,7 +202,7 @@ describe('AbilitySystem', () => {
 
   describe('Damage Calculation', () => {
     test('fireball damage scales with caster attack', () => {
-      const fireball = GEM_CATALOG[0].grantedAbility;
+      const fireball = FIREBALL;
       
       // Low attack caster
       const damage1 = calculateAbilityDamage(fireball, 10);
@@ -172,21 +214,21 @@ describe('AbilitySystem', () => {
     });
 
     test('flame wall damage scales with caster attack', () => {
-      const flameWall = GEM_CATALOG[1].grantedAbility;
+      const flameWall = FLAME_WALL;
       const damage = calculateAbilityDamage(flameWall, 30);
       
       expect(damage).toBe(35); // 20 + (30 * 0.5) = 35
     });
 
     test('heal abilities return 0 damage', () => {
-      const cure = GEM_CATALOG[3].grantedAbility; // Heal ability
+      const cure = CURE; // Heal ability
       const damage = calculateAbilityDamage(cure, 100);
       
       expect(damage).toBe(0);
     });
 
     test('buff abilities return 0 damage', () => {
-      const stoneWall = GEM_CATALOG[2].grantedAbility; // Buff ability
+      const stoneWall = STONE_WALL; // Buff ability
       const damage = calculateAbilityDamage(stoneWall, 100);
       
       expect(damage).toBe(0);
@@ -195,14 +237,14 @@ describe('AbilitySystem', () => {
 
   describe('Healing Calculation', () => {
     test('cure heals fixed amount', () => {
-      const cure = GEM_CATALOG[3].grantedAbility;
+      const cure = CURE;
       const healing = calculateAbilityHealing(cure);
       
       expect(healing).toBe(30); // Fixed healing, doesn't scale
     });
 
     test('damage abilities return 0 healing', () => {
-      const fireball = GEM_CATALOG[0].grantedAbility;
+      const fireball = FIREBALL;
       const healing = calculateAbilityHealing(fireball);
       
       expect(healing).toBe(0);
@@ -211,21 +253,21 @@ describe('AbilitySystem', () => {
 
   describe('Buff/Debuff Helpers', () => {
     test('stone wall buff amount', () => {
-      const stoneWall = GEM_CATALOG[2].grantedAbility;
+      const stoneWall = STONE_WALL;
       const amount = getAbilityBuffAmount(stoneWall);
       
       expect(amount).toBe(20); // +20 defense buff
     });
 
     test('stone wall buff duration', () => {
-      const stoneWall = GEM_CATALOG[2].grantedAbility;
+      const stoneWall = STONE_WALL;
       const duration = getAbilityBuffDuration(stoneWall);
       
       expect(duration).toBe(3); // Lasts 3 turns
     });
 
     test('haste buff affects speed', () => {
-      const haste = GEM_CATALOG[4].grantedAbility;
+      const haste = HASTE;
       const amount = getAbilityBuffAmount(haste);
       
       expect(amount).toBe(20); // +20 speed
@@ -235,7 +277,7 @@ describe('AbilitySystem', () => {
   describe('Ability Usability', () => {
     test('ability usable if MP sufficient and targets available', () => {
       const unit = createTestUnit({ currentMp: 50 });
-      const fireball = GEM_CATALOG[0].grantedAbility; // Single enemy damage
+      const fireball = FIREBALL; // Single enemy damage
       
       const check = isAbilityUsable(unit, fireball, true, true);
       expect(check.usable).toBe(true);
@@ -243,7 +285,7 @@ describe('AbilitySystem', () => {
 
     test('ability not usable if no MP', () => {
       const unit = createTestUnit({ currentMp: 0 });
-      const fireball = GEM_CATALOG[0].grantedAbility;
+      const fireball = FIREBALL;
       
       const check = isAbilityUsable(unit, fireball, true, true);
       expect(check.usable).toBe(false);
@@ -252,7 +294,7 @@ describe('AbilitySystem', () => {
 
     test('enemy-targeting ability not usable if no enemies', () => {
       const unit = createTestUnit({ currentMp: 50 });
-      const fireball = GEM_CATALOG[0].grantedAbility; // Targets enemy
+      const fireball = FIREBALL; // Targets enemy
       
       const check = isAbilityUsable(unit, fireball, true, false); // No enemies
       expect(check.usable).toBe(false);
@@ -261,7 +303,7 @@ describe('AbilitySystem', () => {
 
     test('ally-targeting ability not usable if no allies', () => {
       const unit = createTestUnit({ currentMp: 50 });
-      const cure = GEM_CATALOG[3].grantedAbility; // Targets ally
+      const cure = CURE; // Targets ally
       
       const check = isAbilityUsable(unit, cure, false, true); // No allies
       expect(check.usable).toBe(false);

@@ -137,7 +137,7 @@ export function OpponentSelectScreen({
   const selectedPreview = selectedIndex !== null ? previews[selectedIndex] : null;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+    <div className="h-full w-full bg-gray-50 dark:bg-gray-900 p-6">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-2">

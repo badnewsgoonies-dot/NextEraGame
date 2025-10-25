@@ -1,303 +1,147 @@
-/*
- * Gem Catalog: Golden Sun Djinn-inspired Progression System
+/**
+ * Elemental Gem Data
  * 
- * 6 gems with unique abilities and passive bonuses:
- * - Ruby (Fire): Attack focus
- * - Topaz (Fire AoE): Area damage
- * - Emerald (Earth): Defense focus
- * - Sapphire (Water): Healing
- * - Citrine (Air): Speed focus
- * - Amethyst (Mystic): Utility/cleanse
+ * Six elemental gems for Active Elemental Alignment system.
+ * ONE gem is selected at run start (after team building).
  * 
- * Each gem provides:
- * 1. Passive stat bonus (only when active)
- * 2. Granted ability (permanent while equipped)
- * 3. Gem effect (one-time powerful effect, deactivates gem)
- * 4. Subclass (grants class modifiers)
+ * Counter relationships:
+ * - Fire ↔ Water (Mars ↔ Mercury)
+ * - Earth ↔ Wind (Venus ↔ Jupiter)  
+ * - Light ↔ Dark (Moon ↔ Sun)
+ * 
+ * Bonuses applied at battle start:
+ * - Matching element: +15% damage/healing
+ * - Neutral element: +5% damage/healing
+ * - Counter element: -5% damage/healing
  */
 
-import type { Ability, Subclass, GemPassiveBonus } from '../types/game.js';
+import type { Element, ElementalGem } from '../types/game';
 
 /**
- * Gem effect (one-time powerful effect that deactivates the gem)
+ * Venus - Earth Element
  */
-export interface GemEffect {
-  readonly type: 'damage' | 'heal' | 'buff' | 'debuff_remove';
-  readonly target: 'single_enemy' | 'all_enemies' | 'single_ally' | 'all_allies';
-  readonly power: number;
-  readonly buffStat?: 'attack' | 'defense' | 'speed';
-  readonly buffAmount?: number;
-  readonly buffDuration?: number;
+export const VENUS_GEM: ElementalGem = {
+  id: 'venus',
+  name: 'Venus',
+  element: 'Venus',
+  description: 'Grants power over earth and nature. Strengthens defensive abilities.',
+  icon: '🌍',
+};
+
+/**
+ * Mars - Fire Element
+ */
+export const MARS_GEM: ElementalGem = {
+  id: 'mars',
+  name: 'Mars',
+  element: 'Mars',
+  description: 'Grants power over fire and heat. Strengthens offensive abilities.',
+  icon: '🔥',
+};
+
+/**
+ * Jupiter - Wind Element
+ */
+export const JUPITER_GEM: ElementalGem = {
+  id: 'jupiter',
+  name: 'Jupiter',
+  element: 'Jupiter',
+  description: 'Grants power over wind and lightning. Strengthens speed and agility.',
+  icon: '⚡',
+};
+
+/**
+ * Mercury - Water Element
+ */
+export const MERCURY_GEM: ElementalGem = {
+  id: 'mercury',
+  name: 'Mercury',
+  element: 'Mercury',
+  description: 'Grants power over water and ice. Strengthens healing and support.',
+  icon: '💧',
+};
+
+/**
+ * Moon - Light Element
+ */
+export const MOON_GEM: ElementalGem = {
+  id: 'moon',
+  name: 'Moon',
+  element: 'Moon',
+  description: 'Grants power over light and purity. Strengthens divine abilities.',
+  icon: '🌙',
+};
+
+/**
+ * Sun - Dark Element
+ */
+export const SUN_GEM: ElementalGem = {
+  id: 'sun',
+  name: 'Sun',
+  element: 'Sun',
+  description: 'Grants power over darkness and shadow. Strengthens debuff abilities.',
+  icon: '☀️',
+};
+
+/**
+ * All available gems
+ */
+export const ALL_GEMS: readonly ElementalGem[] = [
+  VENUS_GEM,
+  MARS_GEM,
+  JUPITER_GEM,
+  MERCURY_GEM,
+  MOON_GEM,
+  SUN_GEM,
+] as const;
+
+/**
+ * Element counter relationships (bidirectional)
+ * Fire ↔ Water, Earth ↔ Wind, Light ↔ Dark
+ */
+const ELEMENT_COUNTERS: Record<Element, Element> = {
+  Venus: 'Jupiter',   // Earth ↔ Wind
+  Jupiter: 'Venus',   // Wind ↔ Earth
+  Mars: 'Mercury',    // Fire ↔ Water
+  Mercury: 'Mars',    // Water ↔ Fire
+  Moon: 'Sun',        // Light ↔ Dark
+  Sun: 'Moon',        // Dark ↔ Light
+} as const;
+
+/**
+ * Get the counter element for a given element
+ * @param element - Element to find counter for
+ * @returns Counter element
+ */
+export function getCounterElement(element: Element): Element {
+  return ELEMENT_COUNTERS[element];
 }
 
 /**
- * Complete gem specification
+ * Check if two elements counter each other
+ * @param element1 - First element
+ * @param element2 - Second element
+ * @returns true if elements counter each other
  */
-export interface GemSpec {
-  readonly id: string;
-  readonly name: string;
-  readonly description: string;
-  readonly iconColor: string; // Tailwind color class for UI
-  
-  // What subclass does this gem grant?
-  readonly grantsSubclass: Subclass;
-  
-  // Passive stat bonus (only when gem is active)
-  readonly passiveBonus: GemPassiveBonus;
-  
-  // Ability granted by this gem (permanent when equipped, costs MP)
-  readonly grantedAbility: Ability;
-  
-  // One-time gem effect (powerful but deactivates gem until next battle)
-  readonly gemEffect: GemEffect;
-  
-  // Future: For combination/summon system
-  readonly combinationElement?: 'fire' | 'water' | 'earth' | 'air';
-  readonly combinationPower?: number; // 1-3
-}
-
-// ============================================
-// GEM CATALOG - 6 Gems
-// ============================================
-
-export const GEM_CATALOG: readonly GemSpec[] = [
-  // ===== FIRE GEMS (2) =====
-  
-  /**
-   * Ruby Gem - Single-target fire attack
-   * Focus: Pure damage output
-   */
-  {
-    id: 'ruby_gem',
-    name: 'Ruby Gem',
-    description: 'A fiery red gem pulsing with heat. Grants fire mastery and devastating single-target power.',
-    iconColor: 'text-red-500',
-    grantsSubclass: 'Fire Adept',
-    passiveBonus: { attack: 5 }, // +5 ATK when active
-    grantedAbility: {
-      id: 'fireball',
-      name: 'Fireball',
-      description: 'Hurl a ball of flame at one enemy',
-      mpCost: 20,
-      effect: {
-        type: 'damage',
-        target: 'single_enemy',
-        power: 35,
-        element: 'fire',
-      },
-    },
-    gemEffect: {
-      type: 'damage',
-      target: 'single_enemy',
-      power: 50, // More powerful than the ability!
-    },
-    combinationElement: 'fire',
-    combinationPower: 1,
-  },
-  
-  /**
-   * Topaz Gem - Area fire attack
-   * Focus: Multi-target damage
-   */
-  {
-    id: 'topaz_gem',
-    name: 'Topaz Gem',
-    description: 'An amber gem crackling with energy. Spreads flames wide across the battlefield.',
-    iconColor: 'text-orange-500',
-    grantsSubclass: 'Fire Adept',
-    passiveBonus: { attack: 3, speed: 2 }, // +3 ATK, +2 SPD when active
-    grantedAbility: {
-      id: 'flame_wall',
-      name: 'Flame Wall',
-      description: 'Engulf all enemies in flames',
-      mpCost: 25,
-      effect: {
-        type: 'damage',
-        target: 'all_enemies',
-        power: 20, // Lower per-target but hits everyone
-        element: 'fire',
-      },
-    },
-    gemEffect: {
-      type: 'damage',
-      target: 'all_enemies',
-      power: 30, // Strong AoE
-    },
-    combinationElement: 'fire',
-    combinationPower: 2,
-  },
-  
-  // ===== EARTH GEM (1) =====
-  
-  /**
-   * Emerald Gem - Defense buff
-   * Focus: Protection and durability
-   */
-  {
-    id: 'emerald_gem',
-    name: 'Emerald Gem',
-    description: 'A verdant gem solid as stone. Grants earthen protection and fortitude.',
-    iconColor: 'text-green-500',
-    grantsSubclass: 'Earth Adept',
-    passiveBonus: { defense: 5 }, // +5 DEF when active
-    grantedAbility: {
-      id: 'stone_wall',
-      name: 'Stone Wall',
-      description: 'Fortify yourself with earth magic',
-      mpCost: 15,
-      effect: {
-        type: 'buff',
-        target: 'self',
-        power: 0,
-        buffStat: 'defense',
-        buffAmount: 20,
-        buffDuration: 3, // Lasts 3 turns
-      },
-    },
-    gemEffect: {
-      type: 'buff',
-      target: 'all_allies',
-      power: 0,
-      buffStat: 'defense',
-      buffAmount: 20,
-      buffDuration: 3, // Party-wide defense buff!
-    },
-    combinationElement: 'earth',
-    combinationPower: 1,
-  },
-  
-  // ===== WATER GEM (1) =====
-  
-  /**
-   * Sapphire Gem - Healing
-   * Focus: HP restoration
-   */
-  {
-    id: 'sapphire_gem',
-    name: 'Sapphire Gem',
-    description: 'A deep blue gem flowing with life. Grants healing waters and restoration.',
-    iconColor: 'text-blue-500',
-    grantsSubclass: 'Water Adept',
-    passiveBonus: { defense: 3, hp: 10 }, // +3 DEF, +10 HP when active
-    grantedAbility: {
-      id: 'cure',
-      name: 'Cure',
-      description: 'Restore health with soothing water',
-      mpCost: 15,
-      effect: {
-        type: 'heal',
-        target: 'single_ally',
-        power: 30, // Restores 30 HP
-        element: 'water',
-      },
-    },
-    gemEffect: {
-      type: 'heal',
-      target: 'all_allies',
-      power: 40, // Party-wide healing!
-    },
-    combinationElement: 'water',
-    combinationPower: 1,
-  },
-  
-  // ===== AIR GEM (1) =====
-  
-  /**
-   * Citrine Gem - Speed buff
-   * Focus: Turn order manipulation
-   */
-  {
-    id: 'citrine_gem',
-    name: 'Citrine Gem',
-    description: 'A brilliant yellow gem swift as wind. Grants air mastery and incredible speed.',
-    iconColor: 'text-yellow-500',
-    grantsSubclass: 'Air Adept',
-    passiveBonus: { speed: 5 }, // +5 SPD when active
-    grantedAbility: {
-      id: 'haste',
-      name: 'Haste',
-      description: 'Accelerate an ally with wind magic',
-      mpCost: 20,
-      effect: {
-        type: 'buff',
-        target: 'single_ally',
-        power: 0,
-        buffStat: 'speed',
-        buffAmount: 20,
-        buffDuration: 3,
-      },
-    },
-    gemEffect: {
-      type: 'buff',
-      target: 'all_allies',
-      power: 0,
-      buffStat: 'speed',
-      buffAmount: 30, // Strong party-wide speed boost!
-      buffDuration: 2,
-    },
-    combinationElement: 'air',
-    combinationPower: 1,
-  },
-  
-  // ===== MYSTIC GEM (1) =====
-  
-  /**
-   * Amethyst Gem - Utility/cleanse
-   * Focus: Debuff removal and support
-   */
-  {
-    id: 'amethyst_gem',
-    name: 'Amethyst Gem',
-    description: 'A mystic purple gem humming with arcane power. Cleanses harmful effects and protects allies.',
-    iconColor: 'text-purple-500',
-    grantsSubclass: 'Mystic Adept',
-    passiveBonus: { hp: 5, attack: 3 }, // +5 HP, +3 ATK when active
-    grantedAbility: {
-      id: 'cleanse',
-      name: 'Cleanse',
-      description: 'Remove all harmful effects from an ally',
-      mpCost: 10,
-      effect: {
-        type: 'debuff_remove',
-        target: 'single_ally',
-        power: 0, // Doesn't deal damage/heal
-      },
-    },
-    gemEffect: {
-      type: 'debuff_remove',
-      target: 'all_allies',
-      power: 20, // Party cleanse + 20 HP heal!
-    },
-    combinationPower: 0, // Utility gem, doesn't count for combinations
-  },
-];
-
-/**
- * Helper: Get gem specification by ID
- */
-export function getGemById(id: string): GemSpec | undefined {
-  return GEM_CATALOG.find(gem => gem.id === id);
+export function isCounterElement(element1: Element, element2: Element): boolean {
+  return ELEMENT_COUNTERS[element1] === element2;
 }
 
 /**
- * Helper: Get all gems of a specific element
+ * Get gem by element
+ * @param element - Element to find gem for
+ * @returns Gem with matching element, or undefined if not found
  */
-export function getGemsByElement(element: 'fire' | 'water' | 'earth' | 'air'): readonly GemSpec[] {
-  return GEM_CATALOG.filter(gem => gem.combinationElement === element);
+export function getGemByElement(element: Element): ElementalGem | undefined {
+  return ALL_GEMS.find(gem => gem.element === element);
 }
 
 /**
- * Helper: Get gem icon/color for UI rendering
+ * Get gem by ID
+ * @param id - Gem ID to find
+ * @returns Gem with matching ID, or undefined if not found
  */
-export function getGemIcon(gemId: string): { emoji: string; color: string } {
-  const icons: Record<string, { emoji: string; color: string }> = {
-    ruby_gem: { emoji: '💎', color: 'text-red-500' },
-    topaz_gem: { emoji: '💎', color: 'text-orange-500' },
-    emerald_gem: { emoji: '💎', color: 'text-green-500' },
-    sapphire_gem: { emoji: '💎', color: 'text-blue-500' },
-    citrine_gem: { emoji: '💎', color: 'text-yellow-500' },
-    amethyst_gem: { emoji: '💎', color: 'text-purple-500' },
-  };
-  return icons[gemId] || { emoji: '💎', color: 'text-gray-500' };
+export function getGemById(id: string): ElementalGem | undefined {
+  return ALL_GEMS.find(gem => gem.id === id);
 }
 

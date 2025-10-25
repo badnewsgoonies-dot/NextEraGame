@@ -52,12 +52,23 @@ export class TeamManager {
    */
   private convertEnemyToPlayer(enemyTemplate: EnemyUnitTemplate): PlayerUnit {
     this.recruitCounter++;
+    
+    // Assign element based on tags (fallback to Venus if no matching tag)
+    let element: 'Venus' | 'Mars' | 'Jupiter' | 'Mercury' | 'Moon' | 'Sun' = 'Venus';
+    if (enemyTemplate.tags.includes('Holy')) element = 'Moon';
+    else if (enemyTemplate.tags.includes('Nature')) element = 'Venus';
+    else if (enemyTemplate.tags.includes('Beast')) element = 'Mars';
+    else if (enemyTemplate.tags.includes('Arcane')) element = 'Mercury';
+    else if (enemyTemplate.tags.includes('Mech')) element = 'Jupiter';
+    else if (enemyTemplate.tags.includes('Undead')) element = 'Sun';
+    
     return {
       id: `recruited_${enemyTemplate.id}_${this.recruitCounter}`,
       templateId: enemyTemplate.id, // Use template ID for duplicate detection
       name: enemyTemplate.name,
       role: enemyTemplate.role,
       tags: enemyTemplate.tags,
+      element, // Assign based on tags
       hp: enemyTemplate.baseStats.hp,
       maxHp: enemyTemplate.baseStats.hp,
       atk: enemyTemplate.baseStats.atk,

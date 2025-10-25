@@ -58,7 +58,7 @@ export function InventoryScreen({
   const equipment = inventory.unequippedItems;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-900 to-purple-950 p-8">
+    <div className="h-full w-full bg-gradient-to-b from-purple-900 to-purple-950 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">

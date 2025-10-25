@@ -13,7 +13,7 @@ export interface RewardsScreenProps {
 
 export function RewardsScreen({ rewards, onContinue }: RewardsScreenProps): React.ReactElement {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-800 to-green-900 p-8 flex items-center justify-center">
+    <div className="h-full w-full bg-gradient-to-b from-green-800 to-green-900 p-6 flex items-center justify-center">
       <div className="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-xl p-8 shadow-2xl">
         <h1 className="text-4xl font-bold text-center text-green-600 dark:text-green-400 mb-8">
           🎁 Rewards

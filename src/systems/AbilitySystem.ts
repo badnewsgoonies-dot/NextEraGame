@@ -11,8 +11,9 @@
  * Pure functions, no mutations.
  */
 
-import type { PlayerUnit, Ability } from '../types/game.js';
+import type { PlayerUnit, Ability, ActiveGemState } from '../types/game.js';
 import { Ok, Err, type Result } from '../utils/Result.js';
+import { getGrantedSpells } from './ElementSystem.js';
 
 /**
  * Check if unit has enough MP to use ability
@@ -170,3 +171,19 @@ export function getMpDisplayInfo(currentMp: number, maxMp: number = 50): {
   };
 }
 
+/**
+ * Get all abilities for a unit (base + gem-granted)
+ * @param unit - Player unit
+ * @param gemState - Current gem state
+ * @returns Combined array of abilities
+ */
+export function getAllAbilities(
+  unit: PlayerUnit,
+  gemState: ActiveGemState
+): Ability[] {
+  // TODO: Add base abilities when unit.abilities field is implemented
+  const baseAbilities: Ability[] = [];
+  const gemSpells = getGrantedSpells(unit.element, gemState);
+  
+  return [...baseAbilities, ...gemSpells];
+}

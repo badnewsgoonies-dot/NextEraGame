@@ -36,7 +36,6 @@ import type { GameController } from '../core/GameController.js';
 import { getUnitAbilities } from '../systems/GemSystem.js';
 import { calculateAbilityDamage, calculateAbilityHealing } from '../systems/AbilitySystem.js';
 import { applyBuff, decayAllBuffs, getBuffModifier, removeAllBuffs } from '../systems/BuffSystem.js';
-import { useConsumableItem } from '../systems/ItemSystem.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
 import { BattleUnitSlot } from '../components/battle/BattleUnitSlot.js';
 import { AttackAnimation } from '../components/battle/AttackAnimation.js';
@@ -696,75 +695,45 @@ export function BattleScreen({
     const actor = findUnit(activeId);
     if (!actor || phase !== 'item-targeting') return;
 
-    const battleTarget = alivePlayers[targetIndex];
-    if (!battleTarget) return;
-
-    // Get the actual PlayerUnit from team for validation and update
-    const playerTeam = gameController.getTeam();
-    const playerUnit = playerTeam.find(u => u.id === battleTarget.id);
-    
-    if (!playerUnit) {
-      console.error('Failed to find player unit in team');
-      return;
-    }
-
-    // Get current inventory and convert to InventoryData for ItemSystem
-    const items = gameController.getInventory();
-    const inventory: import('../types/game.js').InventoryData = {
-      items,
-      equippedItems: new Map(),
-      unequippedItems: [],
-      maxItemSlots: 50,
-      maxEquipmentSlots: 50
-    };
-
-    // Use ItemSystem for validation and application
-    const result = useConsumableItem(selectedItem, playerUnit, inventory);
-    
-    if (!result.ok) {
-      console.error('Failed to use item:', result.error);
-      // TODO: Show error message to user
-      setPhase('menu');
-      setSelectedItem(null);
-      return;
-    }
+    const target = alivePlayers[targetIndex];
+    if (!target) return;
 
     setPhase('animating');
 
-    // Calculate actual heal amount
-    const actualHeal = result.value.unit.hp - playerUnit.hp;
+    // Calculate heal amount
+    const hpRestore = selectedItem.stats?.hpRestore ?? 0;
+    const actualHeal = Math.min(hpRestore, target.maxHp - target.currentHp);
 
-    setTargetedId(battleTarget.id);
+    setTargetedId(target.id);
     setHealAmount(actualHeal);
-    setHealPos(getTargetCenter(battleTarget.id));
+    setHealPos(getTargetCenter(target.id));
     setShowHealAnim(true);
 
     // Log item usage action
     pushAction({
       type: 'item-used',
       actorId: actor.id,
-      targetId: battleTarget.id,
+      targetId: target.id,
       itemId: selectedItem.id,
       itemName: selectedItem.name,
       hpRestored: actualHeal,
     });
 
-    // Apply healing and inventory update after short delay
+    // Apply healing after short delay
     const healTimeout = setTimeout(() => {
-      // Update battle unit HP
       setPlayers(prev =>
         prev.map(u =>
-          u.id === battleTarget.id ? { ...u, currentHp: result.value.unit.hp } : u
+          u.id === target.id ? { ...u, currentHp: Math.min(u.maxHp, u.currentHp + actualHeal) } : u
         )
       );
-      
-      // Update inventory by removing consumed item
-      const removeResult = gameController.removeItem(selectedItem.id);
-      if (!removeResult.ok) {
-        console.error('Failed to remove item:', removeResult.error);
-      }
     }, 200);
     registerTimeout(healTimeout);
+
+    // Remove item from inventory
+    const removeResult = gameController.removeItem(selectedItem.id);
+    if (!removeResult.ok) {
+      console.error('Failed to remove item:', removeResult.error);
+    }
 
     // Clean up and advance turn
     const cleanupTimeout = setTimeout(() => {
@@ -1201,7 +1170,7 @@ export function BattleScreen({
 
   return (
     <div
-      className="min-h-screen w-full text-white relative overflow-hidden"
+      className="h-full w-full text-white relative overflow-hidden"
       role="application"
       aria-label="Battle screen"
     >

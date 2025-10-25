@@ -76,7 +76,7 @@ export function RecruitScreen({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-800 to-purple-900 p-8">
+    <div className="h-full w-full bg-gradient-to-b from-purple-800 to-purple-900 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">

@@ -256,63 +256,22 @@ describe('StatsSystem', () => {
     });
   });
 
-  describe('Gem Passive Bonuses', () => {
-    test('active gem provides passive bonus', () => {
-      // Ruby gem has +5 attack passive
-      const bonus = getGemPassiveBonus('ruby_gem', 'active');
-      expect(bonus.attack).toBe(5);
-    });
+  // OLD GEM SYSTEM TESTS REMOVED
+  // The old Djinn equipment system has been replaced with Active Elemental Alignment
+  // See tests/systems/ElementSystem.test.ts for new gem system tests
 
-    test('inactive gem provides no passive bonus', () => {
-      const bonus = getGemPassiveBonus('ruby_gem', 'inactive');
-      expect(bonus).toEqual({
-        hp: 0,
-        attack: 0,
-        defense: 0,
-        speed: 0,
-      });
-    });
-
-    test('unknown gem returns zero bonuses', () => {
-      const bonus = getGemPassiveBonus('unknown_gem', 'active');
-      expect(bonus).toEqual({
-        hp: 0,
-        attack: 0,
-        defense: 0,
-        speed: 0,
-      });
-    });
-
-    test('sapphire gem provides +3 DEF, +10 HP when active', () => {
-      const bonus = getGemPassiveBonus('sapphire_gem', 'active');
-      expect(bonus.defense).toBe(3);
-      expect(bonus.hp).toBe(10);
-    });
-
-    test('topaz gem provides +3 ATK, +2 SPD when active', () => {
-      const bonus = getGemPassiveBonus('topaz_gem', 'active');
-      expect(bonus.attack).toBe(3);
-      expect(bonus.speed).toBe(2);
-    });
-  });
-
-  describe('Full Stat Calculation with Gem', () => {
-    test('unit with active gem gets passive bonus', () => {
+  describe('Full Stat Calculation', () => {
+    test('unit with subclass gets stat bonuses', () => {
       const unit = createTestUnit({
-        equippedGem: {
-          gemId: 'ruby_gem',
-          state: 'active',
-        },
-        subclass: 'Fire Adept', // Gem grants this
+        subclass: 'Fire Adept',
       });
       const stats = calculateUnitStats(unit);
       
       // Base: 100 HP, 20 ATK, 15 DEF, 40 SPD
       // Rank C (1.0x): 100 HP, 20 ATK, 15 DEF, 40 SPD
       // Fire Adept: 100 HP, 22 ATK, 15 DEF, 42 SPD
-      // Ruby passive (+5 ATK): 100 HP, 27 ATK, 15 DEF, 42 SPD
       expect(stats.maxHp).toBe(100);
-      expect(stats.attack).toBe(27);
+      expect(stats.attack).toBe(22);
       expect(stats.defense).toBe(15);
       expect(stats.speed).toBe(42);
     });

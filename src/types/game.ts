@@ -76,6 +76,39 @@ export type Difficulty = 'Standard' | 'Normal' | 'Hard';
 // ============================================
 
 /**
+ * Element System (Active Elemental Alignment)
+ * - Six elements based on celestial bodies
+ * - Each unit has an elemental affinity
+ * - Active gem provides team-wide bonuses based on element matching
+ */
+export type Element = 'Venus' | 'Mars' | 'Jupiter' | 'Mercury' | 'Moon' | 'Sun';
+
+/**
+ * Elemental Gem
+ * - Represents the active gem chosen by player
+ * - ONE gem affects entire team differently based on element matching
+ * - Can be activated mid-battle (removes bonuses but keeps element-matching spells)
+ */
+export interface ElementalGem {
+  readonly id: string;
+  readonly element: Element;
+  readonly name: string;
+  readonly description: string;
+  readonly icon: string; // Emoji for UI display
+}
+
+/**
+ * Active Gem State (for elemental alignment system)
+ * - Tracks the ONE active gem and activation status
+ * - Resets after each battle (activation available again)
+ * - Different from EquippedGem (Djinn system)
+ */
+export interface ActiveGemState {
+  readonly activeGem: ElementalGem | null;
+  readonly isActivated: boolean; // Has gem been used this battle?
+}
+
+/**
  * Unit Rank System
  * - Units start at C rank
  * - Merge duplicate units to upgrade rank (C→B→A→S)
@@ -228,6 +261,9 @@ export interface PlayerUnit extends Unit {
   readonly role: Role;
   readonly tags: readonly Tag[];
   
+  // ===== ELEMENTAL SYSTEM =====
+  readonly element: Element; // Elemental affinity for active gem bonuses
+  
   // ===== PROGRESSION SYSTEMS =====
   readonly rank: UnitRank; // Starts at 'C', upgrades via merging duplicates
   readonly baseClass: BaseClass; // Fundamental class (inherited from template)
@@ -360,10 +396,16 @@ export interface SaveEnvelope {
   readonly inventoryData?: InventoryData;
   
   /**
-   * Gem inventory (NEW - Choice System)
+   * Gem inventory (Djinn equipment system)
    * Default: [] if undefined
    */
   readonly gems?: readonly Gem[];
+  
+  /**
+   * Active elemental gem state (Active Alignment system)
+   * Default: { activeGem: null, isActivated: false } if undefined
+   */
+  readonly activeGemState?: ActiveGemState;
   
   /**
    * Per-unit leveling data (Planned)

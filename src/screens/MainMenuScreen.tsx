@@ -100,7 +100,7 @@ export function MainMenuScreen({
   }, [selectedIndex, menuItems, onExit]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 via-purple-900 to-indigo-900 flex flex-col items-center justify-center p-8">
+    <div className="h-full w-full bg-gradient-to-b from-blue-900 via-purple-900 to-indigo-900 flex flex-col items-center justify-center p-6">
       {/* Title */}
       <div className="mb-16 text-center">
         <h1 className="text-7xl font-bold text-white mb-4 drop-shadow-2xl">

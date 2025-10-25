@@ -27,6 +27,8 @@ import type {
   GameState,
   Item,
   Gem,
+  ActiveGemState,
+  ElementalGem,
 } from '../types/game.js';
 import { ok, err, type Result } from '../utils/Result.js';
 import { GameStateMachine } from './GameStateMachine.js';
@@ -42,7 +44,8 @@ export interface GameControllerState {
   battleIndex: number;
   playerTeam: PlayerUnit[];
   inventory: Item[];
-  gems: Gem[]; // Gem inventory (NEW - Choice System)
+  gems: Gem[]; // Gem inventory (Djinn equipment system)
+  activeGemState: ActiveGemState; // Active elemental alignment gem
   progression: ProgressionCounters;
   currentChoices: OpponentPreview[] | null;
   selectedOpponentId: string | null;
@@ -73,6 +76,10 @@ export class GameController {
       playerTeam: [],
       inventory: [],
       gems: [],
+      activeGemState: {
+        activeGem: null,
+        isActivated: false,
+      },
       progression: {
         runsAttempted: 0,
         runsCompleted: 0,
@@ -110,6 +117,10 @@ export class GameController {
       playerTeam: [...starterTeam],
       inventory: starterInventory,
       gems: [],
+      activeGemState: {
+        activeGem: null,
+        isActivated: false,
+      },
       progression: {
         ...this.state.progression,
         runsAttempted: this.state.progression.runsAttempted + 1,
@@ -291,7 +302,8 @@ export class GameController {
     const snapshot: GameStateSnapshot = {
       playerTeam: this.state.playerTeam,
       inventory: this.state.inventory,
-      gems: this.state.gems, // Include gems in save
+      gems: this.state.gems, // Include gems in save (Djinn system)
+      activeGemState: this.state.activeGemState, // Include active gem state
       progression: this.state.progression,
       choice: {
         nextChoiceSeed: String(this.state.runSeed),
@@ -323,6 +335,10 @@ export class GameController {
       playerTeam: [...saveData.playerTeam],
       inventory: [...saveData.inventory],
       gems: [...(saveData.gems || [])], // Add gems from save, default to empty array
+      activeGemState: saveData.activeGemState || {
+        activeGem: null,
+        isActivated: false,
+      }, // Restore active gem state or default to null
       progression: saveData.progression,
       currentChoices: saveData.choice.lastChoices ? [...saveData.choice.lastChoices] : null,
       selectedOpponentId: null,
@@ -443,5 +459,71 @@ export class GameController {
    */
   get rng(): IRng {
     return this.rootRng;
+  }
+
+  // ============================================
+  // Active Gem System (Elemental Alignment)
+  // ============================================
+
+  /**
+   * Set the active elemental gem (selected after team building)
+   * @param gem - The gem to activate for this run
+   * @returns Success or error if gem is null
+   */
+  setActiveGem(gem: ElementalGem): Result<void, string> {
+    if (!gem) {
+      return err('Cannot set null gem as active');
+    }
+
+    this.state.activeGemState = {
+      activeGem: gem,
+      isActivated: false, // Reset activation status
+    };
+
+    return ok(undefined);
+  }
+
+  /**
+   * Get current active gem state
+   * @returns Current gem state (read-only)
+   */
+  getGemState(): Readonly<ActiveGemState> {
+    return this.state.activeGemState;
+  }
+
+  /**
+   * Activate the current gem mid-battle (removes bonuses but keeps spells)
+   * @returns Success or error if no gem active or already activated
+   */
+  activateGem(): Result<void, string> {
+    const activeGem = this.state.activeGemState.activeGem;
+    
+    if (!activeGem) {
+      return err('No active gem to activate');
+    }
+
+    if (this.state.activeGemState.isActivated) {
+      return err('Gem already activated this battle');
+    }
+
+    this.state.activeGemState = {
+      ...this.state.activeGemState,
+      isActivated: true,
+    };
+
+    return ok(undefined);
+  }
+
+  /**
+   * Reset gem activation status (called at start of each battle)
+   * Bonuses are restored, activation available again
+   */
+  resetGem(): void {
+    if (this.state.activeGemState.activeGem) {
+      this.state.activeGemState = {
+        ...this.state.activeGemState,
+        isActivated: false,
+      };
+    }
   }
 }

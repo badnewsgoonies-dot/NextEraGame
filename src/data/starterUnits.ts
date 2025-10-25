@@ -13,7 +13,7 @@
  * Tags: All 6 represented (Undead, Mech, Beast, Holy, Arcane, Nature)
  */
 
-import type { PlayerUnit } from '../types/game.js';
+import type { PlayerUnit, Element } from '../types/game.js';
 
 export const STARTER_CATALOG: readonly PlayerUnit[] = [
   // TANKS (3)
@@ -23,6 +23,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Warrior',
     role: 'Tank',
     tags: ['Holy'],
+    element: 'Moon' as Element, // Holy → Light element
     hp: 100,
     maxHp: 100,
     atk: 20,
@@ -42,6 +43,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Guardian',
     role: 'Tank',
     tags: ['Nature'],
+    element: 'Venus' as Element, // Nature → Earth element
     hp: 110,
     maxHp: 110,
     atk: 18,
@@ -61,6 +63,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Paladin',
     role: 'Tank',
     tags: ['Holy'],
+    element: 'Moon', // Holy → Light element
     hp: 95,
     maxHp: 95,
     atk: 22,
@@ -82,6 +85,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Rogue',
     role: 'DPS',
     tags: ['Beast'],
+    element: 'Mars', // Beast → Fire element
     hp: 60,
     maxHp: 60,
     atk: 35,
@@ -101,6 +105,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Mage',
     role: 'DPS',
     tags: ['Arcane'],
+    element: 'Mercury', // Arcane → Water element
     hp: 55,
     maxHp: 55,
     atk: 38,
@@ -120,6 +125,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Ranger',
     role: 'DPS',
     tags: ['Nature'],
+    element: 'Venus', // Nature → Earth element
     hp: 65,
     maxHp: 65,
     atk: 33,
@@ -141,6 +147,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Cleric',
     role: 'Support',
     tags: ['Holy'],
+    element: 'Moon', // Holy → Light element
     hp: 70,
     maxHp: 70,
     atk: 15,
@@ -160,6 +167,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Shaman',
     role: 'Support',
     tags: ['Nature'],
+    element: 'Venus', // Nature → Earth element
     hp: 75,
     maxHp: 75,
     atk: 18,
@@ -179,6 +187,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Bard',
     role: 'Support',
     tags: ['Arcane'],
+    element: 'Mercury', // Arcane → Water element
     hp: 65,
     maxHp: 65,
     atk: 20,
@@ -200,6 +209,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Necromancer',
     role: 'Specialist',
     tags: ['Undead'],
+    element: 'Sun', // Undead → Dark element
     hp: 60,
     maxHp: 60,
     atk: 30,
@@ -219,6 +229,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Engineer',
     role: 'Specialist',
     tags: ['Mech'],
+    element: 'Jupiter', // Mech → Wind element
     hp: 70,
     maxHp: 70,
     atk: 25,
@@ -238,6 +249,7 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Summoner',
     role: 'Specialist',
     tags: ['Beast'],
+    element: 'Mars', // Beast → Fire element
     hp: 65,
     maxHp: 65,
     atk: 28,
