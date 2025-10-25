@@ -8,10 +8,8 @@
 
 ### **For Players:**
 - **[README.md](./README.md)** - Project overview, play the game, features
-- **[QUICKSTART.md](./QUICKSTART.md)** - Get started in 5 minutes
 
 ### **For Developers:**
-- **[QUICKSTART.md](./QUICKSTART.md)** - Setup instructions
 - **[docs/ARCHIVE_INDEX.md](./docs/ARCHIVE_INDEX.md)** - All documentation organized
 
 ---
@@ -27,8 +25,6 @@ NextEraGame/
 ├── docs/
 │   ├── deployment/              # Deployment & hosting guides
 │   │   ├── DEPLOYMENT_GUIDE.md
-│   │   ├── DEPLOYMENT_STATUS.md
-│   │   ├── VERCEL_SETUP.md
 │   │   └── PRODUCTION_SETUP_COMPLETE.md
 │   │
 │   ├── architecture/            # Design decisions & assessments
@@ -70,13 +66,13 @@ NextEraGame/
 ### **I Want To...**
 
 #### **...Play the Game**
-→ Visit: https://dist-next-era.vercel.app
+→ Visit: <https://nexteragame.netlify.app>
 
 #### **...Set Up Development**
-→ Read: [QUICKSTART.md](./QUICKSTART.md)
+→ Read: [README.md](./README.md) - Installation section
 
 #### **...Deploy to Production**
-→ Read: [docs/deployment/VERCEL_SETUP.md](./docs/deployment/VERCEL_SETUP.md)
+→ Read: [docs/deployment/DEPLOYMENT_GUIDE.md](./docs/deployment/DEPLOYMENT_GUIDE.md)
 
 #### **...Understand Architecture**
 → Read: [docs/architecture/ARCHITECTURE_DECISIONS.md](./docs/architecture/ARCHITECTURE_DECISIONS.md)

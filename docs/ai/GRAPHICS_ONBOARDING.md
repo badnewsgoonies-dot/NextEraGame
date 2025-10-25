@@ -69,7 +69,7 @@ Turn-based tactical roguelike with **Golden Sun-inspired aesthetics** (this is y
 - **Status:** Production-ready, 10/10 health score
 - **Visual Assets:** 2,500+ Golden Sun sprites in `public/sprites/golden-sun/`
 - **Current Visuals:** Basic integration, lots of room for beauty!
-- **Deployed:** https://dist-next-era.vercel.app
+- **Deployed:** <https://nexteragame.netlify.app>
 
 ### **Visual Style Direction:**
 - **Primary Inspiration:** Golden Sun (GBA RPG, pixel art, vibrant colors)

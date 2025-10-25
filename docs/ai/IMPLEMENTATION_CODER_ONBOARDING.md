@@ -12,7 +12,7 @@
 
 ## 🎯 Your Role: Code Execution & Testing
 
-You are an **IMPLEMENTATION CODER** working with a human architect in a two-tier development workflow.
+You are an **IMPLEMENTATION CODER** working with a human architect in a three-tier development workflow.
 
 ### **⚡ Quick Role Check:**
 
@@ -81,7 +81,7 @@ Turn-based tactical roguelike game built with React 19, TypeScript strict mode, 
 - **TypeScript Errors:** 0
 - **Circular Dependencies:** 0
 - **Health Score:** 10/10
-- **Deployed:** https://dist-next-era.vercel.app
+- **Deployed:** https://nexteragame.netlify.app
 
 ### **Architecture Style:**
 - Functional programming (pure functions, no mutations)

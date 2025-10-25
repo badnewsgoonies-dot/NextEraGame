@@ -142,8 +142,8 @@ Works on desktop and mobile. No installation required!
 - **Testing:** Vitest + Testing Library (191 tests, 100% passing)
 - **RNG:** pure-rand (deterministic, forkable)
 - **Validation:** Valibot
-- **Deployment:** Vercel (auto-deploy on push)
-- **Analytics:** Vercel Analytics
+- **Deployment:** Netlify (auto-deploy on push)
+- **Analytics:** Netlify Analytics
 
 ---
 
@@ -276,23 +276,24 @@ npm run type-check       # TypeScript strict validation
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Netlify
 
 **Automatic Deployment:**
-This repo is connected to Vercel and auto-deploys on every push to `main`.
+This repo is connected to Netlify and auto-deploys on every push to `main`.
 
-**Production URL:** https://dist-next-era.vercel.app
+**Production URL:** https://nexteragame.netlify.app
 
 **Manual Deployment:**
 ```bash
 npm run build
-npx vercel --prod
+npx netlify deploy --prod
 ```
 
 ### Other Platforms
 
 Works on any static hosting:
-- Netlify
+- Netlify (primary)
+- Vercel
 - GitHub Pages
 - Cloudflare Pages
 - AWS S3 + CloudFront
@@ -301,9 +302,9 @@ Works on any static hosting:
 
 ## 💡 What Makes This Project Special
 
-### Innovation #1: Two-Tier AI Workflow
+### Innovation #1: Three-Tier AI Workflow
 
-**First documented implementation of Architect + Coder AI separation:**
+**First documented implementation of Architect + Coder + Graphics AI separation:**
 
 - Strategic planning cleanly separated from tactical execution
 - Quality control through review process (architect reviews coder's work)
@@ -371,7 +372,7 @@ Works on any static hosting:
 - ✅ Save/load (3 slots + auto-save)
 - ✅ Settings and accessibility
 - ✅ Full keyboard navigation
-- ✅ AI onboarding system (two-tier workflow documentation)
+- ✅ AI onboarding system (three-tier workflow documentation)
 
 ### 🚧 Future Enhancements
 
@@ -408,7 +409,7 @@ Works on any static hosting:
 
 ### AI Onboarding System 🤖
 
-**Complete two-tier AI workflow documentation** (first of its kind):
+**Complete three-tier AI workflow documentation** (first of its kind):
 
 - **[AI Directory README](./docs/ai/README.md)** - Workflow overview and file guide
 - **[Architect Onboarding](./docs/ai/ARCHITECT_ONBOARDING.md)** - Strategic planning AI guide
@@ -416,7 +417,7 @@ Works on any static hosting:
 - **[Role Identification](./docs/ai/ROLE_IDENTIFICATION.md)** - Boundary enforcement and confusion prevention
 - **[Chat Templates](./docs/ai/CHAT_TEMPLATES.md)** - Copy-paste session initialization scripts
 
-**Why This Matters:** These documents enable ANY developer to replicate the two-tier AI workflow on their own projects. Complete with task templates, review frameworks, and emergency protocols.
+**Why This Matters:** These documents enable ANY developer to replicate the three-tier AI workflow on their own projects. Complete with task templates, review frameworks, and emergency protocols.
 
 ### Quality Assurance
 
@@ -428,7 +429,7 @@ Works on any static hosting:
 
 ## 🤝 Contributing
 
-This project welcomes contributions! While primarily developed through two-tier AI collaboration, improvements and additions are encouraged.
+This project welcomes contributions! While primarily developed through three-tier AI collaboration, improvements and additions are encouraged.
 
 **High-Impact Contribution Areas:**
 
@@ -441,7 +442,7 @@ This project welcomes contributions! While primarily developed through two-tier 
 
 **For AI-Assisted Contributors:**
 
-See [`docs/ai/`](./docs/ai/) for the complete two-tier workflow documentation:
+See [`docs/ai/`](./docs/ai/) for the complete three-tier workflow documentation:
 
 - Use Architect AI for planning and task creation
 - Use Coder AI for implementation and testing
@@ -471,7 +472,7 @@ MIT License - feel free to use, modify, and distribute!
 - **Project Lead:** Human direction, architecture, and coordination
 - **Architect AI:** Claude Sonnet 4.5 - Strategic planning, task creation, work review
 - **Coder AI:** Claude Sonnet 4.5 - Code implementation, testing, documentation
-- **Development Method:** Two-tier AI collaboration (Architect + Coder workflow)
+- **Development Method:** Three-tier AI collaboration (Architect + Coder + Graphics workflow)
 - **Total Time:** ~20 hours from MVP to production-ready game
 
 ### Inspiration & Assets
@@ -484,7 +485,7 @@ MIT License - feel free to use, modify, and distribute!
 
 - **Original MVP:** [NextEra](https://github.com/badnewsgoonies-dot/NextEra) (4.5 hours - opponent selection system)
 - **Current Version:** NextEraGame (~20 hours total - complete game with all systems)
-- **Innovation:** First documented two-tier AI workflow with full onboarding system
+- **Innovation:** First documented three-tier AI workflow with full onboarding system
 
 ---
 
@@ -517,9 +518,9 @@ MIT License - feel free to use, modify, and distribute!
 - Complete game loop (7 screens fully functional)
 - Professional documentation (architecture, API, onboarding)
 
-✅ **Innovation: Two-Tier AI Workflow**
+✅ **Innovation: Three-Tier AI Workflow**
 
-- First documented instance of Architect + Coder AI separation
+- First documented instance of Architect + Coder + Graphics AI separation
 - Complete onboarding system (`docs/ai/`) enabling replication
 - Demonstrated 30-40x development speed improvement
 - Maintained 10/10 code health through quality enforcement
@@ -555,10 +556,10 @@ MIT License - feel free to use, modify, and distribute!
 
 **Ready to play?**
 
-👉 **[Launch NextEraGame](https://dist-next-era.vercel.app)** 👈
+👉 **[Launch NextEraGame](https://nexteragame.netlify.app)** 👈
 
 ---
 
 Built with ❤️, deterministic RNG, and Claude Sonnet 4.5
 
-*A showcase of innovative two-tier AI collaboration in game development*
+*A showcase of innovative three-tier AI collaboration in game development*

@@ -16,7 +16,7 @@
 
 ## 🎯 Your Role: Strategic Planning & Decision Making
 
-You are an **ARCHITECT** working with a human developer in a two-tier development workflow.
+You are an **ARCHITECT** working with a human developer in a three-tier development workflow.
 
 ### **⚡ Quick Role Check:**
 
@@ -89,7 +89,7 @@ Turn-based tactical roguelike game with equipment progression, recruitment mecha
 - **Tests:** 905+ tests, ~99% passing
 - **Coverage:** ~50%+ (excellent for indie game)
 - **Tech Stack:** React 19, TypeScript strict, Vite 5, Vitest
-- **Deployed:** <https://dist-next-era.vercel.app>
+- **Deployed:** <https://nexteragame.netlify.app>
 - **Sprites:** 25+ Golden Sun sprites integrated (100% coverage)
 - **Visual Quality:** 9.8/10 (AAA retro quality)
 
@@ -400,14 +400,14 @@ npm run circular        # Should be 0 circular deps
 
 #### **For-Fun Project Reality:**
 
-- 🎮 **"Ship" means:** Deploy to Vercel and share with friends (no pressure!)
+- 🎮 **"Ship" means:** Deploy to Netlify and share with friends (no pressure!)
 - 🚀 **Or don't ship:** Keep building cool features because it's fun
 - 🛠️ **Iterate forever:** Add features whenever inspiration strikes
 - 💡 **No rules:** This is YOUR project—do what makes you happy!
 
 #### **For NextEraGame Currently:**
 
-**Status:** Already deployed at <https://dist-next-era.vercel.app> ✅
+**Status:** Already deployed at <https://nexteragame.netlify.app> ✅
 
 **Options:**
 
