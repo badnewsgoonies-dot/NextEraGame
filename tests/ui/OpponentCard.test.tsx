@@ -354,7 +354,7 @@ describe('OpponentCard', () => {
       );
 
       const card = container.firstChild as HTMLElement;
-      expect(card.className).toContain('border-primary');
+      expect(card.className).toContain('border-yellow'); // Golden Sun theme
       expect(card.className).toContain('opacity-100');
     });
 
@@ -373,7 +373,7 @@ describe('OpponentCard', () => {
       );
 
       const card = container.firstChild as HTMLElement;
-      expect(card.className).toContain('border-primary');
+      expect(card.className).toContain('border-yellow'); // Golden Sun theme
       expect(card.className).toContain('border-4');
     });
 

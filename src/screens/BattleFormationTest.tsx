@@ -30,6 +30,8 @@ function createTestUnit(
     tags: ['Holy'],
     currentHp: 100,
     maxHp: 100,
+    currentMp: isPlayer ? 50 : 0,
+    maxMp: isPlayer ? 50 : 0,
     atk: 20,
     def: 15,
     speed: 40 + index * 5,

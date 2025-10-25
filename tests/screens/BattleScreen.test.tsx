@@ -321,6 +321,13 @@ describe('BattleScreen', () => {
       );
 
       // React 19: Fire keyboard events on window (useKeyboard listens there)
+      // Navigate to Flee action (now at index 5 due to Abilities and Gems)
+      await act(async () => {
+        fireEvent.keyDown(window, { key: 'ArrowDown' });
+      });
+      await act(async () => {
+        fireEvent.keyDown(window, { key: 'ArrowDown' });
+      });
       await act(async () => {
         fireEvent.keyDown(window, { key: 'ArrowDown' });
       });

@@ -17,7 +17,7 @@ export interface CardProps {
 const VARIANT_STYLES = {
   default: 'bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark shadow-card',
   elevated: 'bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark shadow-card-hover',
-  interactive: 'bg-white dark:bg-surface-dark border-2 border-border-light dark:border-border-dark shadow-card hover:shadow-card-hover hover:border-primary transition-all cursor-pointer',
+  interactive: 'bg-white dark:bg-surface-dark border-2 border-border-light dark:border-border-dark shadow-card hover:shadow-card-hover hover:border-primary transition-[colors,shadow] duration-200 cursor-pointer',
 } as const;
 
 export function Card({ 

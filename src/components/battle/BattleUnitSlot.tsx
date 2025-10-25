@@ -129,7 +129,7 @@ export const BattleUnitSlot = forwardRef<HTMLDivElement, BattleUnitSlotProps>(
               isAttacking={isAttacking}
               isHit={isHit}
               className={`
-                transition-all duration-200
+                transition-[transform,shadow,filter] duration-200
                 ${activeClasses}
                 ${targetClasses}
               `}
@@ -146,7 +146,7 @@ export const BattleUnitSlot = forwardRef<HTMLDivElement, BattleUnitSlotProps>(
               unit={unit}
               isHit={isHit}
               className={`
-                transition-all duration-200
+                transition-[transform,shadow,filter] duration-200
                 ${activeClasses}
                 ${targetClasses}
               `}

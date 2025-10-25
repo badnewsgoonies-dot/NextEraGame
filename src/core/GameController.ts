@@ -223,11 +223,12 @@ export class GameController {
   }
 
   /**
-   * Advance to next battle (from recruit screen)
+   * Advance to next battle (from recruit or roster management screen)
    */
   advanceToNextBattle(): Result<void, string> {
-    if (this.stateMachine.getState() !== 'recruit') {
-      return err('Cannot advance - not in recruit state');
+    const currentState = this.stateMachine.getState();
+    if (currentState !== 'recruit' && currentState !== 'roster_management') {
+      return err(`Cannot advance - not in recruit/roster_management state (current: ${currentState})`);
     }
 
     // Increment battle index
@@ -380,6 +381,14 @@ export class GameController {
    */
   getConsumables(): readonly Item[] {
     return this.state.inventory.filter(item => item.type === 'consumable');
+  }
+
+  /**
+   * Get current player team
+   * Used by BattleScreen to look up abilities from equipped gems
+   */
+  getTeam(): readonly PlayerUnit[] {
+    return this.state.playerTeam;
   }
 
   /**
