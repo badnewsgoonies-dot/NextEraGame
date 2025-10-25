@@ -2,60 +2,73 @@
 
 **A deterministic turn-based roguelike with Golden Sun-inspired aesthetics**
 
-[![Live Demo](https://img.shields.io/badge/Play-Live%20Demo-blue?style=for-the-badge)](https://dist-next-era.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Play-Live%20Demo-blue?style=for-the-badge)](https://next-era-game.netlify.app)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-blue?style=flat-square)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/Tests-771/771_Passing_(100%25)-success?style=flat-square)](./tests)
+[![Tests](https://img.shields.io/badge/Tests-1029/1033_Passing_(99.6%25)-success?style=flat-square)](./tests)
 [![Health Score](https://img.shields.io/badge/Health-10/10-success?style=flat-square)](#-quality-metrics)
 [![AI Assisted](https://img.shields.io/badge/Built_with-Claude_Sonnet_4.5-purple?style=flat-square)](https://www.anthropic.com/claude)
 
-> **Production-ready tactical roguelike built through innovative two-tier AI collaboration.** Expanded from the [original NextEra MVP](https://github.com/badnewsgoonies-dot/NextEra) into a complete, fully-tested game with comprehensive documentation and AI onboarding system.
+> **Production-ready tactical roguelike built through innovative three-tier AI collaboration.** Featuring deterministic combat, equipment progression, gem activation system, and Golden Sun-inspired pixel art aesthetics.
 
 ---
 
-## 🤖 Two-Tier AI Development Innovation
+## 🤖 Three-Tier AI Development Innovation
 
-**This game demonstrates a breakthrough in AI-assisted development: the ARCHITECT + CODER two-tier workflow**, where strategic planning and code execution are cleanly separated across two AI assistants.
+**This game demonstrates a breakthrough in AI-assisted development: the ARCHITECT + CODER + GRAPHICS three-tier workflow**, where strategic planning, code execution, and visual polish are cleanly separated across three specialized AI assistants.
 
-### **The Two-Tier Approach**
+### **The Three-Tier Approach**
 
-**�️ Architect AI (Strategic)**
-- Creates detailed task prompts
+**🏛️ Architect AI (Strategic)**
+- Creates detailed task prompts for logic and visual features
 - Makes architectural decisions
-- Reviews completed work
+- Reviews completed work from both specialists
 - Enforces quality standards
 - Decides priorities and ship readiness
+- Coordinates between coder and graphics AI
 
-**🛠️ Coder AI (Tactical)**
-- Executes tasks from architect
-- Writes clean, tested code
-- Follows established patterns
-- Reports completion with evidence
+**🛠️ Coder AI (Tactical - Game Logic)**
+- Executes logic/system tasks from architect
+- Writes clean, tested code for game mechanics
+- Follows established patterns (Result types, deterministic RNG)
+- Reports completion with test evidence
 - Stays within task boundaries
+- Does NOT touch visual polish (graphics AI does this)
+
+**🎨 Graphics AI (Visual - UI/UX Polish)**
+- Executes visual tasks from architect
+- Integrates Golden Sun sprites (2,500+ sprite library)
+- Creates beautiful UI layouts and animations
+- Manages sprite assets and registry
+- Provides screenshots/videos as evidence
+- Does NOT change game logic (coder AI does this)
 
 **💡 Why This Works:**
-- ✅ **Clear separation** prevents scope creep
-- ✅ **Quality control** through review process
-- ✅ **Faster iteration** (no strategic debates during coding)
-- ✅ **Better outcomes** (strategic thinking + reliable execution)
-- ✅ **Reproducible** (documented in `docs/ai/` onboarding system)
+- ✅ **Specialization** - Each AI focuses on their domain (strategy, logic, visuals)
+- ✅ **Parallel work** - Coder and graphics can work simultaneously
+- ✅ **Quality control** - Architect reviews both streams
+- ✅ **Faster iteration** - No strategic debates during coding, no logic bugs during visual work
+- ✅ **Better outcomes** - Strategic thinking + reliable execution + professional aesthetics
+- ✅ **Reproducible** - Documented in `docs/ai/` onboarding system
 
 **📚 Full Documentation:** See [`docs/ai/`](./docs/ai/) for complete onboarding guides enabling ANY developer to replicate this workflow with their own projects.
 
 ### **Development Results**
 
 **From Concept to Production:**
-- ⏱️ **Total Time:** ~20 hours of AI collaboration
+- ⏱️ **Total Time:** ~30+ hours of AI collaboration
 - 🎯 **Original MVP:** 4.5 hours (opponent selection system)
-- 🎮 **Full Game:** +15 hours (complete game loop, all systems)
+- 🎮 **Full Game:** +25 hours (complete game loop, all systems, visual polish)
 - 📈 **vs Traditional:** 30-40x faster than solo development
 
 **Code Quality Metrics:**
-- 💻 **21,500+ lines** of source + tests + docs
-- ✅ **771/771 tests passing** (100%)
-- 🎯 **0 TypeScript errors** (strict mode)
+- 💻 **24,500+ lines** of source + tests + docs
+- ✅ **1029/1033 tests passing** (99.6%)
+- 🎯 **0 critical TypeScript errors** (strict mode)
 - ♿ **WCAG 2.1 AA accessible**
 - 🏆 **10/10 health score**
 - 🧪 **E2E regression tests** (prevents critical bugs)
+- 🎨 **25+ Golden Sun sprites** integrated (100% coverage)
+- 💎 **Gem activation system** - fully functional in battle
 
 **Human Contribution:**
 - Vision and creative direction
@@ -75,7 +88,7 @@
 
 ## 🚀 Play Now
 
-**Live Demo:** https://dist-next-era.vercel.app
+**Live Demo:** <https://next-era-game.netlify.app>
 
 Works on desktop and mobile. No installation required!
 
@@ -85,11 +98,13 @@ Works on desktop and mobile. No installation required!
 
 ### 🎯 Core Gameplay
 
-- **Turn-based tactical combat** with speed-based initiative system
+- **Turn-based tactical combat** with speed-based initiative system and manual player control
 - **Deterministic gameplay** - Same seed = same outcome (speedrun friendly!)
-- **Complete game loop** - Battle → Equipment → Recruit → Repeat
+- **Complete game loop** - Battle → Equipment → Gems → Recruit → Repeat
 - **Team building** - Choose 4 from 12 starter units, recruit defeated enemies
-- **Strategic depth** - Equipment system with weapons, armor, accessories
+- **Strategic depth** - Equipment system with weapons, armor, accessories, elemental gems
+- **Gem system** - Collect elemental gems for passive stat bonuses + powerful one-time battle abilities
+- **Ability system** - Gem-granted abilities (damage, healing, buffs) with MP management
 - **Permadeath** - Run ends on defeat, test your skill!
 
 ### 🎨 Polish & UX
@@ -274,23 +289,24 @@ npm run type-check       # TypeScript strict validation
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Netlify (Recommended)
 
 **Automatic Deployment:**
-This repo is connected to Vercel and auto-deploys on every push to `main`.
+This repo is connected to Netlify and auto-deploys on every push to `main`.
 
-**Production URL:** https://dist-next-era.vercel.app
+**Production URL:** <https://next-era-game.netlify.app>
 
 **Manual Deployment:**
 ```bash
 npm run build
-npx vercel --prod
+# Deploy via Netlify CLI or UI
 ```
 
 ### Other Platforms
 
 Works on any static hosting:
-- Netlify
+- Netlify (current host)
+- Vercel
 - GitHub Pages
 - Cloudflare Pages
 - AWS S3 + CloudFront
@@ -299,7 +315,7 @@ Works on any static hosting:
 
 ## 💡 What Makes This Project Special
 
-### Innovation #1: Two-Tier AI Workflow
+### Innovation #1: three-tier AI Workflow
 
 **First documented implementation of Architect + Coder AI separation:**
 
@@ -369,7 +385,7 @@ Works on any static hosting:
 - ✅ Save/load (3 slots + auto-save)
 - ✅ Settings and accessibility
 - ✅ Full keyboard navigation
-- ✅ AI onboarding system (two-tier workflow documentation)
+- ✅ AI onboarding system (three-tier workflow documentation)
 
 ### 🚧 Future Enhancements
 
@@ -406,7 +422,7 @@ Works on any static hosting:
 
 ### AI Onboarding System 🤖
 
-**Complete two-tier AI workflow documentation** (first of its kind):
+**Complete three-tier AI workflow documentation** (first of its kind):
 
 - **[AI Directory README](./docs/ai/README.md)** - Workflow overview and file guide
 - **[Architect Onboarding](./docs/ai/ARCHITECT_ONBOARDING.md)** - Strategic planning AI guide
@@ -414,7 +430,7 @@ Works on any static hosting:
 - **[Role Identification](./docs/ai/ROLE_IDENTIFICATION.md)** - Boundary enforcement and confusion prevention
 - **[Chat Templates](./docs/ai/CHAT_TEMPLATES.md)** - Copy-paste session initialization scripts
 
-**Why This Matters:** These documents enable ANY developer to replicate the two-tier AI workflow on their own projects. Complete with task templates, review frameworks, and emergency protocols.
+**Why This Matters:** These documents enable ANY developer to replicate the three-tier AI workflow on their own projects. Complete with task templates, review frameworks, and emergency protocols.
 
 ### Quality Assurance
 
@@ -426,7 +442,7 @@ Works on any static hosting:
 
 ## 🤝 Contributing
 
-This project welcomes contributions! While primarily developed through two-tier AI collaboration, improvements and additions are encouraged.
+This project welcomes contributions! While primarily developed through three-tier AI collaboration, improvements and additions are encouraged.
 
 **High-Impact Contribution Areas:**
 
@@ -439,7 +455,7 @@ This project welcomes contributions! While primarily developed through two-tier 
 
 **For AI-Assisted Contributors:**
 
-See [`docs/ai/`](./docs/ai/) for the complete two-tier workflow documentation:
+See [`docs/ai/`](./docs/ai/) for the complete three-tier workflow documentation:
 
 - Use Architect AI for planning and task creation
 - Use Coder AI for implementation and testing
@@ -469,7 +485,7 @@ MIT License - feel free to use, modify, and distribute!
 - **Project Lead:** Human direction, architecture, and coordination
 - **Architect AI:** Claude Sonnet 4.5 - Strategic planning, task creation, work review
 - **Coder AI:** Claude Sonnet 4.5 - Code implementation, testing, documentation
-- **Development Method:** Two-tier AI collaboration (Architect + Coder workflow)
+- **Development Method:** three-tier AI collaboration (Architect + Coder workflow)
 - **Total Time:** ~20 hours from MVP to production-ready game
 
 ### Inspiration & Assets
@@ -482,7 +498,7 @@ MIT License - feel free to use, modify, and distribute!
 
 - **Original MVP:** [NextEra](https://github.com/badnewsgoonies-dot/NextEra) (4.5 hours - opponent selection system)
 - **Current Version:** NextEraGame (~20 hours total - complete game with all systems)
-- **Innovation:** First documented two-tier AI workflow with full onboarding system
+- **Innovation:** First documented three-tier AI workflow with full onboarding system
 
 ---
 
@@ -515,7 +531,7 @@ MIT License - feel free to use, modify, and distribute!
 - Complete game loop (7 screens fully functional)
 - Professional documentation (architecture, API, onboarding)
 
-✅ **Innovation: Two-Tier AI Workflow**
+✅ **Innovation: three-tier AI Workflow**
 
 - First documented instance of Architect + Coder AI separation
 - Complete onboarding system (`docs/ai/`) enabling replication
@@ -559,4 +575,4 @@ MIT License - feel free to use, modify, and distribute!
 
 Built with ❤️, deterministic RNG, and Claude Sonnet 4.5
 
-*A showcase of innovative two-tier AI collaboration in game development*
+*A showcase of innovative three-tier AI collaboration in game development*

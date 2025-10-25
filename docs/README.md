@@ -1,50 +1,53 @@
-# Documentation Archive
+# NextEraGame Documentation
 
-This folder contains historical development documentation and planning materials.
-
----
-
-## Folder Structure
-
-### `/history` - Development History
-Development artifacts from the 8-hour build session:
-- Session summaries
-- Phase completion reports
-- Progress tracking
-- Bug fix summaries
-
-### `/legacy` - Code Migration Analysis
-Analysis of the legacy codebase reuse strategy:
-- Legacy code analysis (1,500 lines)
-- Migration checklists
-- File mapping guides
-
-### `/planning` - Design & Planning
-UI design analysis and implementation plans:
-- PowerPoint mockup analysis
-- UI implementation roadmap
-- Feature planning documents
+This folder contains **active documentation** for the NextEraGame project. For historical/storytelling documentation, see `/olddocs`.
 
 ---
 
-## Active Documentation (Root Level)
+## 📁 Folder Structure
 
-For current/active documentation, see root folder:
-- `README.md` - Project overview
-- `QUICKSTART.md` - Setup instructions
-- `ARCHITECTURE_DECISIONS.md` - Core architectural choices
-- `CURRENT_STATE_ASSESSMENT.md` - Latest project status
-- `QA_CHECKLIST.md` - Quality verification
+### `/ai` - AI Assistant Onboarding
+Documentation for the three-tier AI development workflow:
+- **ARCHITECT_ONBOARDING.md** - Strategic planning AI guide
+- **IMPLEMENTATION_CODER_ONBOARDING.md** - Code execution AI guide
+- **GRAPHICS_ONBOARDING.md** - Visual polish AI guide
+- **ROLE_IDENTIFICATION.md** - Role boundaries and workflow
+- **CHAT_TEMPLATES.md** - Quick-start templates for AI sessions
+- **UPDATE_SUMMARY.md** - Recent changes and updates
+- **/tasks** - Detailed task templates for common features
+
+### `/architecture` - System Design
+Core architectural decisions and current state:
+- **ARCHITECTURE_DECISIONS.md** - Key technical decisions and rationale
+- **CURRENT_STATE_ASSESSMENT.md** - Latest project health and status
+
+### `/deployment` - Production Setup
+Deployment guides and configuration:
+- **DEPLOYMENT_GUIDE.md** - Step-by-step deployment instructions
+- **PRODUCTION_SETUP_COMPLETE.md** - Production environment checklist
 
 ---
 
-## Historical Context
+## 📄 Root Level Files
 
-These archived documents tell the story of how NextEra was built:
-- **Total development time:** 8 hours
-- **From:** Empty repository
-- **To:** Fully playable game with 191 tests
-- **Process:** Agile, test-driven, with legacy code reuse
+- **README.md** (this file) - Documentation overview
+- **QA_CHECKLIST.md** - Quality assurance verification checklist
 
-The documents are preserved for reference but are not required for ongoing development.
+---
+
+## 🗂️ Historical Documentation
+
+For historical context and development stories, see:
+- **`/olddocs`** - Historical session summaries, planning docs, and progress reports
+
+---
+
+## 🎯 Documentation Philosophy
+
+**Active docs** (here) = current, maintained, required for development
+**Historical docs** (`/olddocs`) = preserved for context, read-only
+
+---
+
+**Last Updated:** October 25, 2025
 
