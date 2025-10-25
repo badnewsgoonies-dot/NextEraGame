@@ -275,7 +275,10 @@ export interface PlayerUnit extends Unit {
   
   // ===== CURRENT BATTLE STATE =====
   readonly currentMp: number; // Current MP (for abilities), max 50
-  
+
+  // ===== ADDITIONAL STATS =====
+  readonly luck: number; // Luck stat for random events and critical hits
+
   // ===== EQUIPMENT =====
   readonly equippedWeapon?: string;
   readonly equippedArmor?: string;

@@ -22,6 +22,7 @@ describe('Consumable Items Integration', () => {
     role: 'Tank',
     tags: ['Holy'],
     templateId: 'warrior_01',
+    element: 'Moon',
     baseClass: 'Warrior',
     rank: 'C',
     level: 1,
@@ -32,6 +33,7 @@ describe('Consumable Items Integration', () => {
     atk: 20,
     def: 15,
     speed: 10,
+    luck: 5,
     ...overrides
   });
 

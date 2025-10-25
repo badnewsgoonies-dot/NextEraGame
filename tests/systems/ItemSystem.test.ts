@@ -20,6 +20,7 @@ describe('ItemSystem', () => {
     role: 'Tank',
     baseClass: 'Warrior',
     tags: [],
+    element: 'Mars',
     hp: 50,
     maxHp: 100,
     atk: 20,
@@ -28,7 +29,8 @@ describe('ItemSystem', () => {
     level: 1,
     experience: 0,
     rank: 'C',
-    currentMp: 0,
+    currentMp: 50,
+    luck: 5,
     ...overrides
   });
 

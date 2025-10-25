@@ -20,9 +20,11 @@ describe('RecruitScreen', () => {
 
   const createPlayerUnit = (id: string, name: string, level: number): PlayerUnit => ({
     id,
+    templateId: `template_${id}`,
     name,
     role: 'Tank',
     tags: ['Holy'],
+    element: 'Moon',
     hp: 150,
     maxHp: 150,
     atk: 25,
@@ -30,6 +32,10 @@ describe('RecruitScreen', () => {
     speed: 10,
     level,
     experience: 100,
+    rank: 'C',
+    baseClass: 'Tank',
+    currentMp: 50,
+    luck: 5,
   });
 
   const mockHandlers = {

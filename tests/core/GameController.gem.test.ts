@@ -29,6 +29,7 @@ const createTestUnit = (id: string): PlayerUnit => ({
   rank: 'C',
   baseClass: 'Warrior',
   currentMp: 50,
+  luck: 5,
 });
 
 describe('GameController - Gem Methods', () => {

@@ -11,47 +11,62 @@ import type { PlayerUnit, Item, Equipment, InventoryData } from '../../src/types
 describe('InventoryScreen', () => {
   const mockUnit1: PlayerUnit = {
     id: 'unit-1',
+    templateId: 'template_unit1',
     name: 'Hero',
     role: 'Tank',
     tags: ['Holy'],
+    element: 'Moon',
     level: 1,
     experience: 0,
     rank: 'C',
+    baseClass: 'Tank',
     hp: 50,
     maxHp: 100,
     atk: 20,
     def: 15,
     speed: 10,
+    currentMp: 50,
+    luck: 5,
   };
 
   const mockUnit2: PlayerUnit = {
     id: 'unit-2',
+    templateId: 'template_unit2',
     name: 'Warrior',
     role: 'DPS',
     tags: ['Arcane'],
+    element: 'Mercury',
     level: 1,
     experience: 0,
     rank: 'C',
+    baseClass: 'Warrior',
     hp: 100, // Full HP
     maxHp: 100,
     atk: 30,
     def: 10,
     speed: 12,
+    currentMp: 50,
+    luck: 5,
   };
 
   const mockUnit3KOd: PlayerUnit = {
     id: 'unit-3',
+    templateId: 'template_unit3',
     name: 'Rogue',
     role: 'DPS',
     tags: [],
+    element: 'Jupiter',
     level: 1,
     experience: 0,
     rank: 'C',
+    baseClass: 'Rogue',
     hp: 0, // KO'd
     maxHp: 80,
     atk: 25,
     def: 8,
     speed: 15,
+    currentMp: 50,
+    luck: 5,
   };
 
   const mockHealthPotion: Item = {

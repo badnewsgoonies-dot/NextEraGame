@@ -79,6 +79,7 @@ export class TeamManager {
       rank: 'C', // Recruited units start at C rank
       baseClass: enemyTemplate.role as any, // Map Role to BaseClass (they overlap for now)
       currentMp: 50, // Start with full MP
+      luck: 5, // Default luck value
       portraitUrl: enemyTemplate.portraitUrl,
       spriteUrl: enemyTemplate.spriteUrl,
     };

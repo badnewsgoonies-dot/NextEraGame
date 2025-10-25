@@ -29,6 +29,7 @@ const createTestUnit = (element: 'Venus' | 'Mars' | 'Jupiter' | 'Mercury' | 'Moo
   rank: 'C',
   baseClass: 'Warrior',
   currentMp: 50,
+  luck: 5,
 });
 
 describe('Gem System Integration', () => {
