@@ -53,7 +53,7 @@ export class RewardSystem {
     );
 
     // Roll for gem drops (NEW - Progression System)
-    const gems = this.rollGems(rng, opponentSpec.difficulty);
+    const gemChoices = this.rollGems(rng, opponentSpec.difficulty);
 
     // Only return actually defeated enemies (not all opponent units)
     const defeatedEnemies = opponentSpec.units.filter(unit =>
@@ -66,7 +66,7 @@ export class RewardSystem {
       experience,
       itemCount: items.length,
       equipmentCount: equipment.length,
-      gemCount: gems.length,
+      gemChoiceCount: gemChoices.length,
       defeatedCount: defeatedEnemies.length,
     });
 
@@ -75,7 +75,8 @@ export class RewardSystem {
       defeatedEnemies,
       experience,
       equipment,
-      gems, // NEW!
+      gems: [], // Deprecated - keeping for backward compatibility
+      gemChoices, // NEW: Player will choose from these options
     };
   }
 
@@ -201,6 +202,7 @@ export class RewardSystem {
    * Roll for gem drops (NEW - Progression System)
    * Gems are rare but powerful
    * Drop rate: Standard 10%, Normal 15%, Hard 20%
+   * Returns 2-3 gem choices for player to pick from
    */
   private rollGems(rng: IRng, difficulty: Difficulty): string[] {
     const gems: string[] = [];
@@ -210,11 +212,20 @@ export class RewardSystem {
                    : difficulty === 'Normal' ? 0.15 
                    : 0.10;
     
-    // Only one gem per battle (rare and valuable)
+    // Check if gems are offered this battle
     if (rng.float() < dropRate) {
-      // Random gem from catalog
-      const randomIndex = Math.floor(rng.float() * GEM_CATALOG.length);
-      gems.push(GEM_CATALOG[randomIndex].id);
+      // Offer 2-3 gem choices (player picks one)
+      const numChoices = difficulty === 'Hard' ? 3 : 2;
+      
+      // Create a shuffled copy of the gem catalog to pick from
+      const availableGems = [...GEM_CATALOG];
+      
+      for (let i = 0; i < numChoices && availableGems.length > 0; i++) {
+        const randomIndex = Math.floor(rng.float() * availableGems.length);
+        gems.push(availableGems[randomIndex].id);
+        // Remove selected gem to avoid duplicates in choices
+        availableGems.splice(randomIndex, 1);
+      }
     }
     
     return gems;
