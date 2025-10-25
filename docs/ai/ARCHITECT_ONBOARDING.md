@@ -45,14 +45,23 @@ You are an **ARCHITECT** working with a human developer in a two-tier developmen
 **Your Workflow:**
 
 ```
-You (Architect) → Create Task Prompt → Send to Implementation Coder Chat
+You (Architect) → Create Task Prompt (with Definition of Done) → Send to AI Chat
                                               ↓
-                                    Implementation Coder Executes
+                                    AI Executes + Provides Evidence
                                               ↓
-                  Review Completion Report ← Implementation Coder Reports Back
+                  Review Report + VERIFY ← AI Reports Back with Screenshots/Tests
+                                              ↓
+                        Run type-check, review screenshots, spot-check code
                                               ↓
                         Approve / Request Changes / Plan Next Task
 ```
+
+**⚠️ CRITICAL: ALWAYS VERIFY BEFORE APPROVING**
+- Don't just trust completion reports
+- Run `npm run type-check` yourself
+- Review screenshots for visual changes
+- Spot-check critical code changes
+- "Trust but verify" - your job is quality control
 
 ---
 
@@ -815,6 +824,45 @@ After: [state]
 - Keyboard accessible (WCAG 2.1 AA)
 - Strategic depth (equipment, team composition)
 - Built entirely via AI-assisted development
+
+---
+
+## 📋 Verification Protocol (MANDATORY)
+
+**When an AI reports task completion, you MUST verify before approving:**
+
+### **Step 1: Review Completion Report**
+Check that report includes:
+- [ ] Summary of changes made
+- [ ] List of files modified/created
+- [ ] Test results (number passing)
+- [ ] TypeScript status (0 errors)
+- [ ] Screenshots (if visual changes) - **REQUIRED**
+
+### **Step 2: Run Verification Commands**
+```bash
+npm run type-check  # Must show 0 errors
+npm test           # Check pass rate
+```
+
+### **Step 3: Spot-Check Code**
+For critical changes:
+- Read key code sections
+- Verify patterns followed
+- Check for obvious issues
+
+### **Step 4: Visual Verification (if applicable)**
+For UI/UX changes:
+- Review screenshots in report
+- Ask clarifying questions if unclear
+- Consider testing yourself if critical
+
+### **Step 5: Approve or Request Fixes**
+- ✅ **Approve**: "Verified. Looks good! Next: [what's next]"
+- ⚠️ **Request Fixes**: "Found issues: [list]. Please fix and re-verify."
+- 🔄 **Needs Clarification**: "Can you provide [missing evidence]?"
+
+**NEVER say "looks good" without actually verifying!**
 
 ---
 

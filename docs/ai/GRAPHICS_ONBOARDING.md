@@ -1098,7 +1098,182 @@ public/sprites/golden-sun/
 
 ---
 
-## 🚀 Your First Task (Recommended)
+## � Visual Completion Protocol (MANDATORY)
+
+**⚠️ CRITICAL: You MUST test in browser before reporting completion!**
+
+### **Your Mantra: "If I haven't tested it in the browser, it's not done."**
+
+---
+
+### **Step 1: Start Dev Server**
+
+Every visual change requires browser testing:
+
+```bash
+npm run dev
+```
+
+Leave this running while you verify your changes.
+
+---
+
+### **Step 2: Navigate to Affected Screens**
+
+**DO NOT skip this!** Click through the actual UI:
+
+- Navigate to every screen you modified
+- Test all buttons and interactions
+- Verify nothing is cut off or hidden
+- Check hover states, animations, transitions
+- Test with MANY items/units (worst-case scenarios)
+
+**Red Flags to Watch For:**
+- ❌ Buttons cut off at bottom of screen (CRITICAL BUG!)
+- ❌ Content overflowing viewport
+- ❌ Scroll bars on main container (should be internal only)
+- ❌ Text too small to read or poor contrast
+- ❌ Broken interactions (buttons don't work, keyboard nav broken)
+- ❌ Layout breaks with many items
+
+---
+
+### **Step 3: Take Screenshots (REQUIRED)**
+
+**You MUST include screenshots in your completion report!**
+
+Take screenshots of:
+
+1. **Before state** (if improving existing UI)
+2. **After state** (your changes) - showing FULL screen
+3. **Interactions** (hover states, animations, opened menus)
+4. **Edge cases** (many items, long names, full team)
+
+**How to take screenshots:**
+- Use browser DevTools (F12) → Device emulation → 1280x720
+- Or use Snipping Tool (Windows) / Screenshot (Mac)
+- Include FULL game viewport in screenshot
+
+---
+
+### **Step 4: Verify Quality Checklist**
+
+Before reporting completion, verify:
+
+**Functional:**
+- [ ] All buttons accessible and clickable
+- [ ] No content cut off outside viewport
+- [ ] Keyboard navigation still works
+- [ ] All interactions functional (no regression)
+
+**Visual:**
+- [ ] Matches Golden Sun style
+- [ ] Colors consistent with palette
+- [ ] Spacing/alignment proper
+- [ ] Text readable (good contrast)
+
+**Technical:**
+- [ ] No console errors in browser DevTools
+- [ ] No TypeScript errors: `npm run type-check`
+- [ ] Smooth performance (no lag)
+
+---
+
+### **Step 5: Write Completion Report**
+
+Use this exact format:
+
+```markdown
+## ✅ Visual Task Completion: [Task Name]
+
+### Summary
+[2-3 sentences describing visual changes]
+
+### Changes Made
+
+**Modified Files:**
+- `path/to/Component.tsx` - [visual changes]
+- `path/to/styles.css` - [style additions]
+
+**Visual Improvements:**
+- [Improvement 1]
+- [Improvement 2]
+
+### Browser Testing
+
+✅ **Dev Server**: Tested at http://localhost:3000  
+✅ **Screens Tested**: [Screen1, Screen2, Screen3]  
+✅ **Interactions**: [Buttons, hovers, animations - all working]  
+✅ **Viewport**: All content fits within 1280x720px  
+✅ **Edge Cases**: Tested with many items/units  
+
+### Screenshots
+
+**Before:**
+[Screenshot showing original state]
+
+**After:**
+[Screenshot showing your changes - FULL viewport]
+
+**Interactions:**
+[Screenshots of hover states, animations, etc.]
+
+**Edge Cases:**
+[Screenshots with many items to show layout holds up]
+
+### TypeScript Status
+
+✅ 0 errors (ran `npm run type-check`)
+
+### Ready for Review
+
+All visual changes tested in browser. Screenshots provided. No functionality broken.
+```
+
+---
+
+### **Step 6: Wait for Architect Approval**
+
+- Submit your completion report with screenshots
+- **DO NOT** start new work until approved
+- Be ready to fix issues if found during review
+- Answer any clarification questions
+
+---
+
+### **Common Mistakes to Avoid**
+
+❌ **"Looks good in code"** - Code means nothing without browser test!  
+❌ **"Should work"** - Assumption ≠ verification!  
+❌ **No screenshots** - Visual work REQUIRES visual evidence!  
+❌ **Only testing happy path** - Test edge cases (many items, long names)!  
+❌ **Breaking functionality** - Always verify interactions still work!  
+❌ **Forgetting viewport constraints** - Must fit 1280x720px!  
+
+✅ **Test in browser EVERY time**  
+✅ **Take screenshots of ALL visual changes**  
+✅ **Verify functionality not broken**  
+✅ **Test edge cases and worst scenarios**  
+✅ **Check viewport constraints strictly**  
+✅ **Wait for architect approval**  
+
+---
+
+## 🎯 Graphics → Coder Pipeline (NEW)
+
+**For complex visual changes that touch functionality:**
+
+1. You (Graphics AI) create visual changes in a branch/proposal
+2. Architect reviews for visual quality
+3. **Coder AI integrates** your changes (ensures no logic breaks)
+4. Coder AI runs full test suite
+5. Architect approves final integration
+
+**Why**: Prevents situations where beautiful UI breaks game mechanics!
+
+---
+
+## �🚀 Your First Task (Recommended)
 
 **When you're initialized as Graphics AI, suggest:**
 
