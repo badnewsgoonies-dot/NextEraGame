@@ -59,33 +59,37 @@ export function RosterManagementScreen({
   const activeSlots = Array.from({ length: 4 }, (_, i) => activeParty[i] || null);
 
   return (
-    <div className="h-full w-full bg-gradient-to-b from-blue-800 to-blue-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">
+    <div className="h-full w-full bg-gradient-to-b from-blue-800 to-blue-900 flex flex-col">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 p-4 border-b border-blue-700">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-white mb-1">
             Roster Management
           </h1>
-          <p className="text-blue-200 mb-4">
+          <p className="text-sm text-blue-200 mb-2">
             Select one unit from Active Party and one from Bench to swap them
           </p>
           {canSwap && (
             <button
               onClick={handleSwap}
-              className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-lg transition-colors shadow-lg"
+              className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-lg transition-colors shadow-lg text-sm"
             >
               Swap Units ⇄
             </button>
           )}
         </div>
+      </div>
 
-        {/* Active Party Section */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Active Party (4 slots)
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {activeSlots.map((unit, index) => {
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto px-4 py-3">
+        <div className="max-w-7xl mx-auto">
+          {/* Active Party Section */}
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-white mb-3">
+              Active Party (4 slots)
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              {activeSlots.map((unit, index) => {
               if (!unit) {
                 // Empty slot
                 return (
@@ -156,16 +160,16 @@ export function RosterManagementScreen({
                       </div>
                     </div>
                     <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                      <div className="text-gray-500 dark:text-gray-400">ATK</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{unit.atk}</div>
+                      <div className="text-gray-500 dark:text-gray-400 text-xs">ATK</div>
+                      <div className="font-bold text-gray-900 dark:text-white text-sm">{unit.atk}</div>
                     </div>
                     <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                      <div className="text-gray-500 dark:text-gray-400">DEF</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{unit.def}</div>
+                      <div className="text-gray-500 dark:text-gray-400 text-xs">DEF</div>
+                      <div className="font-bold text-gray-900 dark:text-white text-sm">{unit.def}</div>
                     </div>
                     <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                      <div className="text-gray-500 dark:text-gray-400">SPD</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{unit.speed}</div>
+                      <div className="text-gray-500 dark:text-gray-400 text-xs">SPD</div>
+                      <div className="font-bold text-gray-900 dark:text-white text-sm">{unit.speed}</div>
                     </div>
                   </div>
                 </button>
@@ -175,17 +179,17 @@ export function RosterManagementScreen({
         </div>
 
         {/* Bench Section */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-white mb-4">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-white mb-3">
             Bench ({bench.length} units)
           </h2>
           
           {bench.length === 0 ? (
-            <div className="bg-white/10 rounded-lg p-12 border-2 border-dashed border-blue-400 text-center">
-              <span className="text-blue-300 text-xl">No units on bench</span>
+            <div className="bg-white/10 rounded-lg p-8 border-2 border-dashed border-blue-400 text-center">
+              <span className="text-blue-300 text-lg">No units on bench</span>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {bench.map((unit) => {
                 const isSelected = selectedBenchUnit === unit.id;
                 const spriteColor = ROLE_COLORS[unit.role];
@@ -194,7 +198,7 @@ export function RosterManagementScreen({
                   <button
                     key={unit.id}
                     onClick={() => handleBenchClick(unit.id)}
-                    className={`bg-white dark:bg-gray-800 rounded-lg p-6 border-2 transition-[colors,shadow] duration-200 hover:shadow-lg text-left ${
+                    className={`bg-white dark:bg-gray-800 rounded-lg p-4 border-2 transition-[colors,shadow] duration-200 hover:shadow-lg text-left ${
                       isSelected
                         ? 'border-yellow-400 shadow-yellow-400/50 shadow-lg'
                         : 'border-gray-500 hover:border-gray-400'
@@ -202,15 +206,15 @@ export function RosterManagementScreen({
                   >
                     {/* Selected Badge */}
                     {isSelected && (
-                      <div className="text-center mb-2">
-                        <span className="inline-block px-3 py-1 bg-yellow-400 text-black text-sm font-bold rounded-full">
+                      <div className="text-center mb-1">
+                        <span className="inline-block px-2 py-0.5 bg-yellow-400 text-black text-xs font-bold rounded-full">
                           ✓ Selected
                         </span>
                       </div>
                     )}
 
                     {/* Unit Sprite */}
-                    <div className="flex justify-center mb-4">
+                    <div className="flex justify-center mb-3">
                       {(unit.portraitUrl || unit.spriteUrl) ? (
                         <img 
                           src={unit.portraitUrl || unit.spriteUrl}
@@ -237,24 +241,24 @@ export function RosterManagementScreen({
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                        <div className="text-gray-500 dark:text-gray-400">HP</div>
-                        <div className="font-bold text-gray-900 dark:text-white">
+                    <div className="grid grid-cols-2 gap-1 text-xs">
+                      <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded">
+                        <div className="text-gray-500 dark:text-gray-400 text-xs">HP</div>
+                        <div className="font-bold text-gray-900 dark:text-white text-xs">
                           {unit.hp}/{unit.maxHp}
                         </div>
                       </div>
-                      <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                        <div className="text-gray-500 dark:text-gray-400">ATK</div>
-                        <div className="font-bold text-gray-900 dark:text-white">{unit.atk}</div>
+                      <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded">
+                        <div className="text-gray-500 dark:text-gray-400 text-xs">ATK</div>
+                        <div className="font-bold text-gray-900 dark:text-white text-xs">{unit.atk}</div>
                       </div>
-                      <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                        <div className="text-gray-500 dark:text-gray-400">DEF</div>
-                        <div className="font-bold text-gray-900 dark:text-white">{unit.def}</div>
+                      <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded">
+                        <div className="text-gray-500 dark:text-gray-400 text-xs">DEF</div>
+                        <div className="font-bold text-gray-900 dark:text-white text-xs">{unit.def}</div>
                       </div>
-                      <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                        <div className="text-gray-500 dark:text-gray-400">SPD</div>
-                        <div className="font-bold text-gray-900 dark:text-white">{unit.speed}</div>
+                      <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded">
+                        <div className="text-gray-500 dark:text-gray-400 text-xs">SPD</div>
+                        <div className="font-bold text-gray-900 dark:text-white text-xs">{unit.speed}</div>
                       </div>
                     </div>
                   </button>
@@ -263,12 +267,15 @@ export function RosterManagementScreen({
             </div>
           )}
         </div>
+        </div>
+      </div>
 
-        {/* Continue Button */}
-        <div className="text-center">
+      {/* Fixed Footer */}
+      <div className="flex-shrink-0 p-4 border-t border-blue-700 bg-blue-900">
+        <div className="max-w-7xl mx-auto text-center">
           <button
             onClick={onContinue}
-            className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors text-xl shadow-lg"
+            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             Continue to Next Battle →
           </button>

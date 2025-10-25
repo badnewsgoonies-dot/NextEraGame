@@ -52,18 +52,22 @@ export function EquipmentScreen({
   };
 
   return (
-    <div className="h-full w-full bg-gradient-to-b from-purple-800 to-purple-900 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <h1 className="text-4xl font-bold text-white text-center mb-8">
+    <div className="h-full w-full bg-gradient-to-b from-purple-800 to-purple-900 flex flex-col">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 p-4 border-b border-purple-700">
+        <h1 className="text-3xl font-bold text-white text-center">
           ⚔️ Equipment Management
         </h1>
+      </div>
 
-        {/* Team Display */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-white mb-4">Your Team:</h2>
-          <div className="space-y-4">
-            {team.map(unit => {
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto px-4 py-3">
+        <div className="max-w-4xl mx-auto">
+          {/* Team Display */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-white mb-3">Your Team:</h2>
+            <div className="space-y-3">
+              {team.map(unit => {
               // Get equipped items for this unit
               const weapon = inventory.equippedItems.get(`${unit.id}-weapon`);
               const armor = inventory.equippedItems.get(`${unit.id}-armor`);
@@ -191,25 +195,25 @@ export function EquipmentScreen({
         </div>
 
         {/* Unequipped Items */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-white mb-4">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-white mb-3">
             Unequipped Items ({inventory.unequippedItems.length}):
           </h2>
           {inventory.unequippedItems.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {inventory.unequippedItems.map(item => (
                 <button
                   key={item.id}
                   onClick={() => handleItemClick(item)}
-                  className="bg-white dark:bg-gray-800 rounded-lg p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="bg-white dark:bg-gray-800 rounded-lg p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <div className="font-semibold text-gray-900 dark:text-white">
+                  <div className="font-semibold text-gray-900 dark:text-white text-sm">
                     {item.name}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                     {item.slot} • {item.rarity}
                   </div>
-                  <div className="text-sm text-gray-700 dark:text-gray-300 mt-2">
+                  <div className="text-xs text-gray-700 dark:text-gray-300 mt-1">
                     {item.stats.hp && `HP +${item.stats.hp} `}
                     {item.stats.atk && `ATK +${item.stats.atk} `}
                     {item.stats.def && `DEF +${item.stats.def} `}
@@ -219,20 +223,26 @@ export function EquipmentScreen({
               ))}
             </div>
           ) : (
-            <p className="text-gray-400 italic">No unequipped items</p>
+            <p className="text-gray-400 italic text-sm">No unequipped items</p>
           )}
         </div>
+        </div>
+      </div>
 
-        {/* Continue Button */}
-        <button
-          onClick={onContinue}
-          className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-xl rounded-lg transition-colors shadow-lg"
-        >
-          Continue to Recruitment →
-        </button>
+      {/* Fixed Footer */}
+      <div className="flex-shrink-0 p-4 border-t border-purple-700 bg-purple-900">
+        <div className="max-w-4xl mx-auto">
+          <button
+            onClick={onContinue}
+            className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            Continue to Recruitment →
+          </button>
+        </div>
+      </div>
 
-        {/* Equip Modal */}
-        {showEquipModal && selectedItem && (
+      {/* Equip Modal */}
+      {showEquipModal && selectedItem && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
@@ -269,7 +279,6 @@ export function EquipmentScreen({
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 }

@@ -76,34 +76,38 @@ export function RecruitScreen({
   };
 
   return (
-    <div className="h-full w-full bg-gradient-to-b from-purple-800 to-purple-900 p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">
+    <div className="h-full w-full bg-gradient-to-b from-purple-800 to-purple-900 flex flex-col">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 p-4 border-b border-purple-700">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-white mb-1">
             Recruit Defeated Unit
           </h1>
-          <p className="text-purple-200">
+          <p className="text-sm text-purple-200">
             You may recruit one defeated enemy. 
             {teamIsFull && ' Your roster is full - choose a unit to replace.'}
           </p>
-          <p className="text-sm text-purple-300 mt-2">
+          <p className="text-xs text-purple-300 mt-1">
             Current team: {currentTeam.length}/4 units
           </p>
         </div>
+      </div>
 
-        {/* Defeated Enemies */}
-        {defeatedEnemies.length === 0 ? (
-          <div className="text-center py-12 mb-8">
-            <div className="text-6xl mb-4">🎉</div>
-            <h2 className="text-2xl font-bold text-white mb-2">No Enemies Defeated</h2>
-            <p className="text-purple-200">
-              Your team survived without defeating any enemies, or all enemies escaped!
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {defeatedEnemies.map((enemy) => {
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto px-4 py-3">
+        <div className="max-w-6xl mx-auto">
+          {/* Defeated Enemies */}
+          {defeatedEnemies.length === 0 ? (
+            <div className="text-center py-8 mb-4">
+              <div className="text-5xl mb-3">🎉</div>
+              <h2 className="text-xl font-bold text-white mb-2">No Enemies Defeated</h2>
+              <p className="text-sm text-purple-200">
+                Your team survived without defeating any enemies, or all enemies escaped!
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+              {defeatedEnemies.map((enemy) => {
               const spriteColor = ROLE_COLORS[enemy.role];
               
               return (
@@ -159,7 +163,7 @@ export function RecruitScreen({
                 </div>
 
                 {/* Tags */}
-                <div className="flex flex-wrap gap-1 mb-4">
+                <div className="flex flex-wrap gap-1 mb-3">
                   {enemy.tags.map((tag) => (
                     <span
                       key={tag}
@@ -173,7 +177,7 @@ export function RecruitScreen({
                 {/* Recruit Button */}
                 <button
                   onClick={() => handleRecruitClick(enemy)}
-                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-colors"
+                  className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-colors text-sm"
                 >
                   Recruit
                 </button>
@@ -182,12 +186,15 @@ export function RecruitScreen({
             })}
           </div>
         )}
+        </div>
+      </div>
 
-        {/* Skip Button */}
-        <div className="text-center">
+      {/* Fixed Footer */}
+      <div className="flex-shrink-0 p-4 border-t border-purple-700 bg-purple-900">
+        <div className="max-w-6xl mx-auto text-center">
           <button
             onClick={onSkip}
-            className="px-8 py-4 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors"
+            className="px-8 py-3 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             Skip Recruitment
           </button>

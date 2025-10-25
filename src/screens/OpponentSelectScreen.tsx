@@ -20,7 +20,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import type { OpponentPreview } from '../types/game.js';
 import { OpponentCard } from '../components/OpponentCard.js';
-import { AnimatedSprite } from '../components/AnimatedSprite.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
 
 export interface OpponentSelectScreenProps {
@@ -40,11 +39,6 @@ export function OpponentSelectScreen({
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState('');
-
-  // Isaac walk animation state
-  const [isaacPosition, setIsaacPosition] = useState({ x: 640, y: 650 }); // Bottom center
-  const [isaacTarget, setIsaacTarget] = useState<{ x: number; y: number } | null>(null);
-  const [isWalking, setIsWalking] = useState(false);
 
   // Refs for managing focus and card positions
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -131,15 +125,8 @@ export function OpponentSelectScreen({
         return;
       }
 
-      // Trigger Isaac walk animation
-      setIsWalking(true);
-      setIsaacTarget(target);
-      announce(`${preview.spec.name} - Isaac advancing!`);
-
-      // After walk completes (1 second walk + 200ms pause)
-      setTimeout(() => {
-        onSelect(preview.spec.id);
-      }, 1200);
+      // Directly select the opponent
+      onSelect(preview.spec.id);
     } else {
       // First press selects, need second press to confirm
       selectFocused();
@@ -175,92 +162,73 @@ export function OpponentSelectScreen({
   const selectedPreview = selectedIndex !== null ? previews[selectedIndex] : null;
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-gray-50 dark:bg-gray-900 p-6 relative">
-      {/* Isaac Sprite - walks to selected opponent */}
-      {isWalking && isaacTarget && (
-        <AnimatedSprite
-          src="/sprites/golden-sun/battle/party/isaac/Isaac_lSword_Front.gif"
-          alt="Isaac"
-          startX={isaacPosition.x}
-          startY={isaacPosition.y}
-          endX={isaacTarget.x}
-          endY={isaacTarget.y}
-          duration={1000}
-          size={64}
-          className="z-50"
-        />
-      )}
-
-      {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-2">
+    <div ref={containerRef} className="h-full w-full bg-gray-50 dark:bg-gray-900 flex flex-col relative">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 p-4 border-b border-gray-300 dark:border-gray-700">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-1">
           Select Your Opponent
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 text-center">
+        <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
           Battle #{battleIndex + 1}
         </p>
       </div>
 
-      {/* Card Grid */}
-      <div 
-        role="radiogroup"
-        aria-label="Opponent selection"
-        className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6"
-      >
-        {previews.map((preview, index) => (
-          <div 
-            key={preview.spec.id} 
-            ref={(el) => { cardRefs.current[index] = el; }}
-            className="animate-card-entry"
-            style={{ animationDelay: `${index * 150}ms` }}
-          >
-            <OpponentCard
-              preview={preview}
-              selected={selectedIndex === index}
-              focused={focusedIndex === index}
-              expanded={expandedIndex === index}
-              onSelect={() => {
-                setSelectedIndex(index);
-                announce(`${preview.spec.name} selected`);
-              }}
-              onFocus={() => {
-                setFocusedIndex(index);
-              }}
-              onToggleExpand={() => {
-                setExpandedIndex(current => current === index ? null : index);
-              }}
-              tabIndex={focusedIndex === index ? 0 : -1}
-            />
-          </div>
-        ))}
+      {/* Scrollable Card Grid */}
+      <div className="flex-1 overflow-y-auto px-4 py-3">
+        <div 
+          role="radiogroup"
+          aria-label="Opponent selection"
+          className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-7xl mx-auto"
+        >
+          {previews.map((preview, index) => (
+            <div 
+              key={preview.spec.id} 
+              ref={(el) => { cardRefs.current[index] = el; }}
+              className="animate-card-entry"
+              style={{ animationDelay: `${index * 150}ms` }}
+            >
+              <OpponentCard
+                preview={preview}
+                selected={selectedIndex === index}
+                focused={focusedIndex === index}
+                expanded={expandedIndex === index}
+                onSelect={() => {
+                  setSelectedIndex(index);
+                  announce(`${preview.spec.name} selected`);
+                }}
+                onFocus={() => {
+                  setFocusedIndex(index);
+                }}
+                onToggleExpand={() => {
+                  setExpandedIndex(current => current === index ? null : index);
+                }}
+                tabIndex={focusedIndex === index ? 0 : -1}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Mobile Confirm Button - Shows after selection */}
-      {selectedPreview && (
-        <div className="max-w-7xl mx-auto mt-8 flex justify-center">
-          <button
-            onClick={confirmSelection}
-            className="px-8 py-4 min-h-[48px] bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 text-white font-bold text-lg rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 active:scale-95"
-            aria-label={`Confirm selection of ${selectedPreview.spec.name}`}
-          >
-            Confirm: {selectedPreview.spec.name}
-          </button>
+      {/* Fixed Footer with Confirm Button */}
+      <div className="flex-shrink-0 p-4 border-t border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800">
+        <div className="flex justify-center items-center gap-4">
+          {selectedPreview ? (
+            <button
+              onClick={confirmSelection}
+              className="px-8 py-3 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              aria-label={`Confirm selection of ${selectedPreview.spec.name}`}
+            >
+              Confirm: {selectedPreview.spec.name} →
+            </button>
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400 text-sm italic">
+              Select an opponent to continue
+            </p>
+          )}
         </div>
-      )}
-
-      {/* Instructions */}
-      <div className="max-w-7xl mx-auto mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-        <p>
-          Use <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">←</kbd>
-          {' '}and{' '}
-          <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">→</kbd>
-          {' '}to navigate
-        </p>
-        <p className="mt-1">
-          Press <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Enter</kbd>
-          {' '}to select, <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Esc</kbd>
-          {' '}to cancel
-        </p>
+        <div className="text-center text-xs text-gray-500 dark:text-gray-500 mt-2">
+          ← → to navigate • Enter to select • Esc to cancel
+        </div>
       </div>
 
       {/* Live Region for Screen Readers */}

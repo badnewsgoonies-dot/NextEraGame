@@ -58,28 +58,30 @@ export function InventoryScreen({
   const equipment = inventory.unequippedItems;
 
   return (
-    <div className="h-full w-full bg-gradient-to-b from-purple-900 to-purple-950 p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-white">📦 Inventory</h1>
-          <button
-            onClick={onClose}
-            className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg transition-colors"
-          >
-            Close
-          </button>
-        </div>
+    <div className="h-full w-full bg-gradient-to-b from-purple-900 to-purple-950 flex flex-col">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 p-4 border-b border-purple-800 flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-white">📦 Inventory</h1>
+        <button
+          onClick={onClose}
+          className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
+        >
+          Close
+        </button>
+      </div>
 
-        {/* Consumables Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Consumables ({consumables.length})
-          </h2>
-          
-          {consumables.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {consumables.map((item, index) => {
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto px-4 py-3">
+        <div className="max-w-6xl mx-auto">
+          {/* Consumables Section */}
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-white mb-3">
+              Consumables ({consumables.length})
+            </h2>
+            
+            {consumables.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {consumables.map((item, index) => {
                 const anyoneCanUse = team.some(u => canUseItem(item, u).ok);
                 
                 return (
@@ -117,35 +119,35 @@ export function InventoryScreen({
               })}
             </div>
           ) : (
-            <p className="text-gray-400 italic">No consumable items</p>
+            <p className="text-gray-400 italic text-sm">No consumable items</p>
           )}
         </div>
 
         {/* Equipment Section (Read-only for now) */}
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-4">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-white mb-3">
             Unequipped Items ({equipment.length})
           </h2>
           
           {equipment.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {equipment.map((item, index) => (
                 <div
                   key={`${item.id}-${index}`}
-                  className="bg-gray-800 rounded-lg p-4 border-2 border-gray-700"
+                  className="bg-gray-800 rounded-lg p-3 border-2 border-gray-700"
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-white">{item.name}</h3>
-                    <span className="text-xs px-2 py-1 bg-blue-700 rounded text-white">
+                    <h3 className="font-bold text-white text-sm">{item.name}</h3>
+                    <span className="text-xs px-2 py-0.5 bg-blue-700 rounded text-white">
                       {item.slot}
                     </span>
                   </div>
                   
-                  <div className="text-sm text-gray-400 mb-2">
+                  <div className="text-xs text-gray-400 mb-1">
                     {item.rarity}
                   </div>
                   
-                  <div className="text-sm text-gray-300">
+                  <div className="text-xs text-gray-300">
                     {item.stats.hp && `HP +${item.stats.hp} `}
                     {item.stats.atk && `ATK +${item.stats.atk} `}
                     {item.stats.def && `DEF +${item.stats.def} `}
@@ -155,12 +157,14 @@ export function InventoryScreen({
               ))}
             </div>
           ) : (
-            <p className="text-gray-400 italic">No unequipped items</p>
+            <p className="text-gray-400 italic text-sm">No unequipped items</p>
           )}
         </div>
+        </div>
+      </div>
 
-        {/* Use Item Modal */}
-        {showUseModal && selectedItem && (
+      {/* Use Item Modal */}
+      {showUseModal && selectedItem && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
             <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full">
               <h3 className="text-xl font-bold text-white mb-4">
@@ -206,7 +210,6 @@ export function InventoryScreen({
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 }
