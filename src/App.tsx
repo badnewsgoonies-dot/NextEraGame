@@ -24,6 +24,7 @@ import { RewardsScreen } from './screens/RewardsScreen.js';
 import { EquipmentScreen } from './screens/EquipmentScreen.js';
 import { RecruitScreen } from './screens/RecruitScreen.js';
 import { RosterManagementScreen } from './screens/RosterManagementScreen.js';
+import { InventoryScreen } from './screens/InventoryScreen.js';
 import { SettingsScreen } from './screens/SettingsScreen.js';
 import { LoadGameModal } from './components/LoadGameModal.js';
 import { makeRng } from './utils/rng.js';
@@ -40,7 +41,8 @@ type AppScreen =
   | 'recruit'
   | 'roster_management'
   | 'defeat'
-  | 'settings';
+  | 'settings'
+  | 'inventory';
 
 export function App(): React.ReactElement {
   const [logger] = useState(() => new ConsoleLogger('info'));
@@ -714,6 +716,23 @@ export function App(): React.ReactElement {
           <SettingsScreen
             onBack={handleSettingsBack}
             settingsManager={settingsManager}
+          />
+        );
+
+      case 'inventory':
+        return (
+          <InventoryScreen
+            team={playerTeam}
+            inventory={inventory}
+            onUpdateInventory={(inv) => {
+              setInventory(inv);
+            }}
+            onUpdateTeam={(team) => {
+              setPlayerTeam([...team]); // Convert readonly to mutable
+            }}
+            onClose={() => {
+              setScreen('menu');
+            }}
           />
         );
 

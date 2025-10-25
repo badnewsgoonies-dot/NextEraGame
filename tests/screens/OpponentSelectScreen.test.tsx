@@ -49,7 +49,7 @@ describe('OpponentSelectScreen', () => {
         />
       );
 
-      expect(screen.getByText('⚔️ CHOOSE YOUR BATTLE ⚔️')).toBeInTheDocument();
+      expect(screen.getByText('Select Your Opponent')).toBeInTheDocument();
     });
 
     test('displays battle number', () => {
@@ -489,7 +489,7 @@ describe('OpponentSelectScreen', () => {
         />
       );
 
-      expect(screen.getByText('⚔️ CHOOSE YOUR BATTLE ⚔️')).toBeInTheDocument();
+      expect(screen.getByText('Select Your Opponent')).toBeInTheDocument();
       // Should not crash
     });
 
