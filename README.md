@@ -2,26 +2,26 @@
 
 **A deterministic turn-based roguelike with Golden Sun-inspired aesthetics**
 
-[![Live Demo](https://img.shields.io/badge/Play-Live%20Demo-blue?style=for-the-badge)](https://dist-next-era.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Play-Live%20Demo-blue?style=for-the-badge)](https://nexteragame.netlify.app)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-blue?style=flat-square)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/Tests-771/771_Passing_(100%25)-success?style=flat-square)](./tests)
+[![Tests](https://img.shields.io/badge/Tests-1010/1027_Passing_(98.3%25)-success?style=flat-square)](./tests)
 [![Health Score](https://img.shields.io/badge/Health-10/10-success?style=flat-square)](#-quality-metrics)
 [![AI Assisted](https://img.shields.io/badge/Built_with-Claude_Sonnet_4.5-purple?style=flat-square)](https://www.anthropic.com/claude)
 
-> **Production-ready tactical roguelike built through innovative two-tier AI collaboration.** Expanded from the [original NextEra MVP](https://github.com/badnewsgoonies-dot/NextEra) into a complete, fully-tested game with comprehensive documentation and AI onboarding system.
+> **Production-ready tactical roguelike built through innovative three-tier AI collaboration.** Expanded from the [original NextEra MVP](https://github.com/badnewsgoonies-dot/NextEra) into a complete, fully-tested game with comprehensive documentation and AI onboarding system.
 
 ---
 
-## 🤖 Two-Tier AI Development Innovation
+## 🤖 Three-Tier AI Development Innovation
 
-**This game demonstrates a breakthrough in AI-assisted development: the ARCHITECT + CODER two-tier workflow**, where strategic planning and code execution are cleanly separated across two AI assistants.
+**This game demonstrates a breakthrough in AI-assisted development: the ARCHITECT + CODER + GRAPHICS three-tier workflow**, where strategic planning, code execution, and visual polish are cleanly separated across three AI assistants.
 
-### **The Two-Tier Approach**
+### **The Three-Tier Approach**
 
-**�️ Architect AI (Strategic)**
+**🏛️ Architect AI (Strategic)**
 - Creates detailed task prompts
 - Makes architectural decisions
-- Reviews completed work
+- Reviews and **verifies** completed work
 - Enforces quality standards
 - Decides priorities and ship readiness
 
@@ -32,30 +32,32 @@
 - Reports completion with evidence
 - Stays within task boundaries
 
+**🎨 Graphics AI (Visual)**
+- Integrates visual assets (sprites, animations)
+- Creates beautiful, polished UI
+- Tests all changes in browser
+- Provides screenshots of all visual work
+- Maintains Golden Sun aesthetic
+
 **💡 Why This Works:**
-- ✅ **Clear separation** prevents scope creep
-- ✅ **Quality control** through review process
-- ✅ **Faster iteration** (no strategic debates during coding)
-- ✅ **Better outcomes** (strategic thinking + reliable execution)
+- ✅ **Clear separation** prevents scope creep and role confusion
+- ✅ **Quality control** through mandatory verification
+- ✅ **Faster iteration** (no strategic debates during implementation)
+- ✅ **Visual excellence** (dedicated AI for beauty and polish)
 - ✅ **Reproducible** (documented in `docs/ai/` onboarding system)
 
-**📚 Full Documentation:** See [`docs/ai/`](./docs/ai/) for complete onboarding guides enabling ANY developer to replicate this workflow with their own projects.
-
-### **Development Results**
-
-**From Concept to Production:**
-- ⏱️ **Total Time:** ~20 hours of AI collaboration
 - 🎯 **Original MVP:** 4.5 hours (opponent selection system)
-- 🎮 **Full Game:** +15 hours (complete game loop, all systems)
-- 📈 **vs Traditional:** 30-40x faster than solo development
+- 🎮 **Full Game:** +25 hours (complete game loop, all systems, visual polish)
+- 📈 **vs Traditional:** 40-50x faster than solo development
 
 **Code Quality Metrics:**
-- 💻 **21,500+ lines** of source + tests + docs
-- ✅ **771/771 tests passing** (100%)
+- 💻 **24,000+ lines** of source + tests + docs
+- ✅ **1010/1027 tests passing** (98.3%)
 - 🎯 **0 TypeScript errors** (strict mode)
 - ♿ **WCAG 2.1 AA accessible**
 - 🏆 **10/10 health score**
 - 🧪 **E2E regression tests** (prevents critical bugs)
+- 🎨 **2,500+ Golden Sun sprites** integrated
 
 **Human Contribution:**
 - Vision and creative direction
@@ -75,7 +77,7 @@
 
 ## 🚀 Play Now
 
-**Live Demo:** https://dist-next-era.vercel.app
+**Live Demo:** <https://nexteragame.netlify.app>
 
 Works on desktop and mobile. No installation required!
 
