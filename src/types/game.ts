@@ -360,6 +360,12 @@ export interface SaveEnvelope {
   readonly inventoryData?: InventoryData;
   
   /**
+   * Gem inventory (NEW - Choice System)
+   * Default: [] if undefined
+   */
+  readonly gems?: readonly Gem[];
+  
+  /**
    * Per-unit leveling data (Planned)
    * Default: {} if undefined
    */
@@ -407,6 +413,24 @@ export interface LootDrop {
 }
 
 /**
+ * Gem for inventory (simplified from GemSpec)
+ */
+export interface Gem {
+  readonly id: string;
+  readonly name: string;
+  readonly element: 'Fire' | 'Water' | 'Earth' | 'Wind';
+  readonly tier: number; // 1-3
+  readonly boost: number; // Stat boost value
+}
+
+/**
+ * Gem choice offered to player after battle
+ */
+export interface GemChoice extends Gem {
+  // Same as Gem for now, but can be extended
+}
+
+/**
  * Battle rewards
  */
 export interface BattleReward {
@@ -414,7 +438,7 @@ export interface BattleReward {
   readonly defeatedEnemies: readonly EnemyUnitTemplate[]; // Available for recruitment
   readonly experience: number;
   readonly equipment: readonly Equipment[]; // Equipment drops
-  readonly gems: readonly string[]; // Gem IDs (NEW - Progression System)
+  readonly gemChoices: readonly GemChoice[]; // 3 gems to choose from (NEW - Choice System)
 }
 
 /**

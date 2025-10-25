@@ -114,6 +114,22 @@ This directory contains comprehensive onboarding documentation for AI assistants
 
 ---
 
+### **6. CHAT_RESET_GUIDE.md** 🔄
+**For:** All roles + Human coordinator
+
+**Contents:**
+- When to reset (warning signs for context limits)
+- Step-by-step reset process
+- Handoff summary templates (Architect/Coder/Graphics)
+- Real example from gem redesign session
+- Common mistakes to avoid
+- Pro tips for efficient resets
+- Quick reference checklist
+
+**Read this if:** Your chat context is getting full and you need to start fresh without losing progress.
+
+---
+
 ## 🚀 Quick Start Guide
 
 ### **For Human Developers:**
@@ -167,15 +183,16 @@ This directory contains comprehensive onboarding documentation for AI assistants
 - ✅ Create detailed task prompts (for coder AND graphics)
 - ✅ Review completed work
 - ✅ Approve or request changes
-- ✅ Decide when to ship
+- ✅ Decide when to ship (optional—it's a for-fun project!)
 - ✅ Define visual direction and style
+- ✅ **Simple tasks:** Edit docs, run terminals, adjust text files (use best judgment)
 
 ### **Architect (🏛️) DOES NOT:**
-- ❌ Write implementation code
-- ❌ Integrate sprites themselves
-- ❌ Create CSS styling directly
-- ❌ Execute terminal commands
-- ❌ Make file edits
+- ❌ Write implementation code (feature implementations)
+- ❌ Integrate sprites themselves (graphics AI does this)
+- ❌ Create CSS styling directly (graphics AI does this)
+- ❌ Execute complex terminal workflows (delegate to coder)
+- ❌ **Full implementations** (defeats the purpose—delegate to specialists)
 
 ---
 
@@ -254,6 +271,10 @@ This directory contains comprehensive onboarding documentation for AI assistants
 ## 📊 Project Status (Current)
 
 **NextEraGame - Turn-Based Tactical Roguelike**
+
+> **🎮 For-Fun Hobby Project:** No shipping pressure, no commercial deadlines, no player base expectations.  
+> **📐 High Standards:** Code quality, logic, and testing guidelines maintained at the highest level (easier on everyone!).  
+> **💡 Build for Joy:** Experiment, learn, and have fun—that's the whole point!
 
 - **Status:** Production deployed ✅
 - **URL:** https://dist-next-era.vercel.app

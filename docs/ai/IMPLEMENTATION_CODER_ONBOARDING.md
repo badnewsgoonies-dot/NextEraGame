@@ -54,6 +54,16 @@ Architect Creates Task → You Receive Task Prompt
 ### **What Is It?**
 Turn-based tactical roguelike game built with React 19, TypeScript strict mode, Vite 5.
 
+### **Project Philosophy:**
+> **⚠️ IMPORTANT: This is a for-fun hobby project, not a commercial product.**
+> 
+> - **No pressure:** No shipping deadlines, no player base expectations, no commercial polish requirements
+> - **High standards:** Code quality, logic, and guidelines should still be maintained at the highest level (it's easier on everyone!)
+> - **Pure enjoyment:** Build cool features because they're fun, not because of market demands
+> - **Your focus:** Write clean, tested code—but don't stress about "shipping" or "market readiness"
+> 
+> **Translation:** Keep code quality high (tests, types, patterns), but remember this is for fun!
+
 ### **Tech Stack:**
 - **Language:** TypeScript 5.3 (strict mode enabled)
 - **Framework:** React 19

@@ -21,6 +21,7 @@ import { StarterSelectScreen } from './screens/StarterSelectScreen.js';
 import { OpponentSelectScreen } from './screens/OpponentSelectScreen.js';
 import { BattleScreen } from './screens/BattleScreen.js';
 import { RewardsScreen } from './screens/RewardsScreen.js';
+import { GemSelectScreen } from './screens/GemSelectScreen.js';
 import { EquipmentScreen } from './screens/EquipmentScreen.js';
 import { RecruitScreen } from './screens/RecruitScreen.js';
 import { RosterManagementScreen } from './screens/RosterManagementScreen.js';
@@ -28,7 +29,7 @@ import { InventoryScreen } from './screens/InventoryScreen.js';
 import { SettingsScreen } from './screens/SettingsScreen.js';
 import { LoadGameModal } from './components/LoadGameModal.js';
 import { makeRng } from './utils/rng.js';
-import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit, InventoryData, RosterData } from './types/game.js';
+import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit, InventoryData, RosterData, GemChoice } from './types/game.js';
 import { useDevShortcuts, DevShortcutsBadge } from './hooks/useDevShortcuts';
 
 type AppScreen =
@@ -37,6 +38,7 @@ type AppScreen =
   | 'opponent_select'
   | 'battle'
   | 'rewards'
+  | 'gem_select'
   | 'equipment'
   | 'recruit'
   | 'roster_management'
@@ -115,6 +117,14 @@ export function App(): React.ReactElement {
       console.log(`[DEV] Next screen from: ${screen}`);
       
       if (screen === 'rewards' && rewards) {
+        if (rewards.gemChoices && rewards.gemChoices.length > 0) {
+          setScreen('gem_select');
+        } else {
+          setScreen('equipment');
+        }
+      } else if (screen === 'gem_select' && rewards?.gemChoices) {
+        // Auto-select first gem
+        controller.addGem(rewards.gemChoices[0]);
         setScreen('equipment');
       } else if (screen === 'equipment') {
         handleEquipmentContinue();
@@ -131,8 +141,14 @@ export function App(): React.ReactElement {
     onPrevScreen: () => {
       console.log(`[DEV] Previous screen from: ${screen}`);
       
-      if (screen === 'equipment' && rewards) {
+      if (screen === 'gem_select' && rewards) {
         setScreen('rewards');
+      } else if (screen === 'equipment' && rewards) {
+        if (rewards.gemChoices && rewards.gemChoices.length > 0) {
+          setScreen('gem_select');
+        } else {
+          setScreen('rewards');
+        }
       } else if (screen === 'recruit') {
         setScreen('equipment');
       } else {
@@ -460,6 +476,26 @@ export function App(): React.ReactElement {
       controller.addItems(rewards.items);
     }
 
+    // Check if there are gem choices
+    if (rewards?.gemChoices && rewards.gemChoices.length > 0) {
+      // Go to gem selection screen
+      setScreen('gem_select');
+    } else {
+      // Skip gem selection, go directly to equipment
+      const transition = controller.handleRewardsContinue();
+      if (!transition.ok) {
+        console.error('Failed to transition to equipment state:', transition.error);
+        return;
+      }
+      setScreen('equipment');
+    }
+  };
+
+  // Gem selection handler
+  const handleGemSelect = (gem: GemChoice) => {
+    // Add selected gem to controller's gem inventory
+    controller.addGem(gem);
+    
     // Transition FSM from rewards → equipment
     const transition = controller.handleRewardsContinue();
     if (!transition.ok) {
@@ -650,6 +686,17 @@ export function App(): React.ReactElement {
           <RewardsScreen
             rewards={rewards}
             onContinue={handleRewardsContinue}
+          />
+        );
+
+      case 'gem_select':
+        if (!rewards?.gemChoices) {
+          return <div>Loading gem choices...</div>;
+        }
+        return (
+          <GemSelectScreen
+            gemChoices={rewards.gemChoices}
+            onSelectGem={handleGemSelect}
           />
         );
 

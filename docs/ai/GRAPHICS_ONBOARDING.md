@@ -55,6 +55,16 @@ Architect → Defines visual requirements → Graphics AI (You)
 ### **What Is It?**
 Turn-based tactical roguelike with **Golden Sun-inspired aesthetics** (this is your primary visual direction!).
 
+### **Project Philosophy:**
+> **⚠️ IMPORTANT: This is a for-fun hobby project, not a commercial product.**
+> 
+> - **No pressure:** No shipping deadlines, no player base expectations, no commercial polish requirements
+> - **High standards:** Visual quality should still be maintained at the highest level (it's easier and more fun!)
+> - **Pure enjoyment:** Make things beautiful because it's fun, not because of market demands
+> - **Your focus:** Create stunning visuals—but don't stress about "commercial polish"
+> 
+> **Translation:** Make it gorgeous (because that's fun!), but no pressure about "market readiness"!
+
 ### **Current State:**
 - **Status:** Production-ready, 10/10 health score
 - **Visual Assets:** 2,500+ Golden Sun sprites in `public/sprites/golden-sun/`

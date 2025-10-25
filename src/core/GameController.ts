@@ -26,6 +26,7 @@ import type {
   ProgressionCounters,
   GameState,
   Item,
+  Gem,
 } from '../types/game.js';
 import { ok, err, type Result } from '../utils/Result.js';
 import { GameStateMachine } from './GameStateMachine.js';
@@ -41,6 +42,7 @@ export interface GameControllerState {
   battleIndex: number;
   playerTeam: PlayerUnit[];
   inventory: Item[];
+  gems: Gem[]; // Gem inventory (NEW - Choice System)
   progression: ProgressionCounters;
   currentChoices: OpponentPreview[] | null;
   selectedOpponentId: string | null;
@@ -70,6 +72,7 @@ export class GameController {
       battleIndex: 0,
       playerTeam: [],
       inventory: [],
+      gems: [],
       progression: {
         runsAttempted: 0,
         runsCompleted: 0,
@@ -106,6 +109,7 @@ export class GameController {
       battleIndex: 0,
       playerTeam: [...starterTeam],
       inventory: starterInventory,
+      gems: [],
       progression: {
         ...this.state.progression,
         runsAttempted: this.state.progression.runsAttempted + 1,
@@ -287,6 +291,7 @@ export class GameController {
     const snapshot: GameStateSnapshot = {
       playerTeam: this.state.playerTeam,
       inventory: this.state.inventory,
+      gems: this.state.gems, // Include gems in save
       progression: this.state.progression,
       choice: {
         nextChoiceSeed: String(this.state.runSeed),
@@ -317,6 +322,7 @@ export class GameController {
       battleIndex: saveData.choice.battleIndex,
       playerTeam: [...saveData.playerTeam],
       inventory: [...saveData.inventory],
+      gems: [...(saveData.gems || [])], // Add gems from save, default to empty array
       progression: saveData.progression,
       currentChoices: saveData.choice.lastChoices ? [...saveData.choice.lastChoices] : null,
       selectedOpponentId: null,
@@ -374,6 +380,20 @@ export class GameController {
    */
   getInventory(): readonly Item[] {
     return this.state.inventory;
+  }
+
+  /**
+   * Get gem inventory (read-only)
+   */
+  getGems(): readonly Gem[] {
+    return [...this.state.gems]; // Return a copy to prevent external modification
+  }
+
+  /**
+   * Add gem to inventory (after selection)
+   */
+  addGem(gem: Gem): void {
+    this.state.gems = [...this.state.gems, gem];
   }
 
   /**

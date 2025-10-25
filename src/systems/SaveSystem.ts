@@ -14,13 +14,14 @@
  */
 
 import type { ILogger } from './Logger.js';
-import type { ISaveStore, SaveEnvelope, PlayerUnit, Item, ProgressionCounters, SaveSliceChoice, InventoryData } from '../types/game.js';
+import type { ISaveStore, SaveEnvelope, PlayerUnit, Item, ProgressionCounters, SaveSliceChoice, InventoryData, Gem } from '../types/game.js';
 import { ok, err, type Result } from '../utils/Result.js';
 import { InMemorySaveStore } from './SaveStore.js';
 
 export interface GameStateSnapshot {
   readonly playerTeam: readonly PlayerUnit[];
   readonly inventory: readonly Item[];
+  readonly gems: readonly Gem[]; // NEW: Gem inventory
   readonly inventoryData?: InventoryData; // NEW: Equipment inventory
   readonly progression: ProgressionCounters;
   readonly choice: SaveSliceChoice;
@@ -54,6 +55,7 @@ export class SaveSystem {
         timestamp: new Date().toISOString(),
         playerTeam: state.playerTeam,
         inventory: state.inventory,
+        gems: state.gems, // Include gem inventory
         progression: state.progression,
         choice: state.choice,
         runSeed: state.runSeed,

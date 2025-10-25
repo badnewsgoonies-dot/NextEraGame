@@ -15,10 +15,10 @@ import type {
   BattleResult,
   Item,
   Equipment,
-  Difficulty 
+  Difficulty,
+  GemChoice
 } from '../types/game.js';
 import { ITEM_CATALOG } from '../data/items.js';
-import { GEM_CATALOG } from '../data/gems.js';
 import type { ILogger } from './Logger.js';
 
 export class RewardSystem {
@@ -52,8 +52,8 @@ export class RewardSystem {
       opponentSpec.units.length
     );
 
-    // Roll for gem drops (NEW - Progression System)
-    const gems = this.rollGems(rng, opponentSpec.difficulty);
+    // Generate gem choices (NEW - Choice System)
+    const gemChoices = this.generateGemChoices(rng, opponentSpec.difficulty);
 
     // Only return actually defeated enemies (not all opponent units)
     const defeatedEnemies = opponentSpec.units.filter(unit =>
@@ -66,7 +66,7 @@ export class RewardSystem {
       experience,
       itemCount: items.length,
       equipmentCount: equipment.length,
-      gemCount: gems.length,
+      gemChoiceCount: gemChoices.length,
       defeatedCount: defeatedEnemies.length,
     });
 
@@ -75,7 +75,7 @@ export class RewardSystem {
       defeatedEnemies,
       experience,
       equipment,
-      gems, // NEW!
+      gemChoices, // NEW!
     };
   }
 
@@ -198,26 +198,50 @@ export class RewardSystem {
   }
 
   /**
-   * Roll for gem drops (NEW - Progression System)
-   * Gems are rare but powerful
-   * Drop rate: Standard 10%, Normal 15%, Hard 20%
+   * Generate gem choices (NEW - Choice System)
+   * Player always gets 3 gem choices after battle
+   * Tier and element are deterministic based on difficulty and RNG
    */
-  private rollGems(rng: IRng, difficulty: Difficulty): string[] {
-    const gems: string[] = [];
+  private generateGemChoices(rng: IRng, difficulty: Difficulty): GemChoice[] {
+    const choices: GemChoice[] = [];
+    const elements = ['Fire', 'Water', 'Earth', 'Wind'] as const;
     
-    // Drop rate by difficulty
-    const dropRate = difficulty === 'Hard' ? 0.20 
-                   : difficulty === 'Normal' ? 0.15 
-                   : 0.10;
-    
-    // Only one gem per battle (rare and valuable)
-    if (rng.float() < dropRate) {
-      // Random gem from catalog
-      const randomIndex = Math.floor(rng.float() * GEM_CATALOG.length);
-      gems.push(GEM_CATALOG[randomIndex].id);
+    // Always generate 3 gem choices
+    for (let i = 0; i < 3; i++) {
+      // Select element
+      const element = rng.choose(elements);
+      
+      // Determine tier based on difficulty
+      const tierRoll = rng.float();
+      let tier: number;
+      
+      if (difficulty === 'Hard') {
+        // Hard: 30% tier 3, 50% tier 2, 20% tier 1
+        tier = tierRoll > 0.7 ? 3 : tierRoll > 0.2 ? 2 : 1;
+      } else if (difficulty === 'Normal') {
+        // Normal: 10% tier 3, 60% tier 2, 30% tier 1
+        tier = tierRoll > 0.9 ? 3 : tierRoll > 0.3 ? 2 : 1;
+      } else {
+        // Standard: 5% tier 3, 30% tier 2, 65% tier 1
+        tier = tierRoll > 0.95 ? 3 : tierRoll > 0.65 ? 2 : 1;
+      }
+      
+      // Calculate boost based on tier
+      const boost = tier === 3 ? 25 : tier === 2 ? 15 : 10;
+      
+      // Generate gem
+      const gem: GemChoice = {
+        id: `${element.toLowerCase()}_${tier}_${i}`,
+        name: `${tier === 3 ? 'Supreme' : tier === 2 ? 'Greater' : ''} ${element} Gem`.trim(),
+        element,
+        tier,
+        boost,
+      };
+      
+      choices.push(gem);
     }
     
-    return gems;
+    return choices;
   }
 
   /**

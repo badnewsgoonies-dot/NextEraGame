@@ -1,13 +1,18 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GameController } from '../../src/core/GameController';
-import type { Gem } from '../../src/types/GameTypes';
+import { GameController } from '../../src/core/GameController.js';
+import { ConsoleLogger } from '../../src/systems/Logger.js';
+import type { Gem } from '../../src/types/game.js';
+import { mockPlayerTeam } from '../fixtures/battleFixtures.js';
 
 describe('GameController Gem Inventory', () => {
   let controller: GameController;
+  let logger: ConsoleLogger;
 
   beforeEach(() => {
-    controller = new GameController();
-    controller.startRun(12345, 1);
+    logger = new ConsoleLogger('error'); // Suppress logs during tests
+    controller = new GameController(logger);
+    // Use just one player unit for simplicity
+    controller.startRun([mockPlayerTeam[0]], 12345);
   });
 
   describe('initialization', () => {
@@ -111,10 +116,14 @@ describe('GameController Gem Inventory', () => {
       const gems = controller.getGems();
       expect(Array.isArray(gems)).toBe(true);
       
-      // TypeScript prevents this, but runtime check
-      expect(() => {
-        (gems as any).push(gem);
-      }).toThrow();
+      // The gems array should be a copy, not the internal state
+      // Modifying the returned array shouldn't affect the controller's state
+      const gemsCopy = gems as any;
+      gemsCopy.push(gem);
+      
+      // Controller's gems should still be the same
+      const gemsAfterModification = controller.getGems();
+      expect(gemsAfterModification).toHaveLength(1); // Still only 1 gem
     });
   });
 
