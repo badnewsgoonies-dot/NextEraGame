@@ -58,6 +58,9 @@ describe('Integration: Multi-Battle State Flow (Regression Tests)', () => {
         tags: ['Beast'],
         currentHp: 0, // Defeated
         maxHp: 100,
+        currentMp: 0,
+        maxMp: 0,
+        buffState: { buffs: [] },
         atk: 20,
         def: 10,
         speed: 50,
@@ -71,6 +74,9 @@ describe('Integration: Multi-Battle State Flow (Regression Tests)', () => {
         tags: ['Beast'],
         currentHp: 0, // Defeated
         maxHp: 100,
+        currentMp: 0,
+        maxMp: 0,
+        buffState: { buffs: [] },
         atk: 20,
         def: 10,
         speed: 50,
