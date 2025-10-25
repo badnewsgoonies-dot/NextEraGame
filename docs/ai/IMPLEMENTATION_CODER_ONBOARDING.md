@@ -12,7 +12,7 @@
 
 ## 🎯 Your Role: Code Execution & Testing
 
-You are an **IMPLEMENTATION CODER** working with a human architect in a three-tier development workflow.
+You are an **IMPLEMENTATION CODER** working with a human architect in a two-tier development workflow.
 
 ### **⚡ Quick Role Check:**
 
@@ -54,16 +54,6 @@ Architect Creates Task → You Receive Task Prompt
 ### **What Is It?**
 Turn-based tactical roguelike game built with React 19, TypeScript strict mode, Vite 5.
 
-### **Project Philosophy:**
-> **⚠️ IMPORTANT: This is a for-fun hobby project, not a commercial product.**
-> 
-> - **No pressure:** No shipping deadlines, no player base expectations, no commercial polish requirements
-> - **High standards:** Code quality, logic, and guidelines should still be maintained at the highest level (it's easier on everyone!)
-> - **Pure enjoyment:** Build cool features because they're fun, not because of market demands
-> - **Your focus:** Write clean, tested code—but don't stress about "shipping" or "market readiness"
-> 
-> **Translation:** Keep code quality high (tests, types, patterns), but remember this is for fun!
-
 ### **Tech Stack:**
 - **Language:** TypeScript 5.3 (strict mode enabled)
 - **Framework:** React 19
@@ -81,7 +71,7 @@ Turn-based tactical roguelike game built with React 19, TypeScript strict mode, 
 - **TypeScript Errors:** 0
 - **Circular Dependencies:** 0
 - **Health Score:** 10/10
-- **Deployed:** https://nexteragame.netlify.app
+- **Deployed:** https://dist-next-era.vercel.app
 
 ### **Architecture Style:**
 - Functional programming (pure functions, no mutations)
@@ -865,109 +855,7 @@ test('function is deterministic', () => {
 
 ---
 
-## � Completion Protocol (MANDATORY)
-
-**When you complete a task, you MUST follow this protocol:**
-
-### **Step 1: Verify Quality**
-
-Run these commands and ensure they pass:
-
-```bash
-npm run type-check  # MUST show 0 errors
-npm test           # Note how many tests pass
-```
-
-If either fails, fix the issues before reporting.
-
-### **Step 2: Prepare Evidence**
-
-Gather this information:
-
-1. **Files Changed**
-   - List all files modified (with brief description)
-   - List all files created
-   - List all files deleted
-
-2. **Test Results**
-   ```
-   - X new tests added
-   - Y/Z total tests passing
-   - Test coverage: ~N%
-   ```
-
-3. **TypeScript Status**
-   ```
-   ✅ 0 TypeScript errors
-   ```
-
-4. **Code Snippets**
-   - Key functions/components created
-   - Important logic changes
-   - New patterns introduced
-
-### **Step 3: Write Completion Report**
-
-Use this exact format:
-
-```markdown
-## ✅ Task Completion: [Task Name]
-
-### Summary
-[2-3 sentences describing what was done]
-
-### Changes Made
-
-**Modified Files:**
-- `path/to/file1.ts` - [what changed]
-- `path/to/file2.tsx` - [what changed]
-
-**Created Files:**
-- `path/to/new1.ts` - [purpose]
-- `path/to/new2.test.ts` - [tests for what]
-
-**Deleted Files:**
-- `path/to/old.ts` - [why removed]
-
-### Verification
-
-✅ **TypeScript**: 0 errors  
-✅ **Tests**: X/Y passing (Z new tests added)  
-✅ **Patterns**: Followed [pattern name]  
-✅ **Code Quality**: [any notable quality measures]
-
-### Key Code
-
-[Paste 1-2 key functions or components you created]
-
-### Ready for Review
-
-All requirements met. Task complete and verified.
-```
-
-### **Step 4: Wait for Architect Approval**
-
-- Submit your completion report
-- **DO NOT** start new work until approved
-- Be ready to make fixes if architect finds issues
-- Answer any clarification questions
-
-### **Common Mistakes to Avoid**
-
-❌ Reporting complete without running type-check  
-❌ Assuming "tests pass" is enough (need 0 TS errors too)  
-❌ Incomplete reports (missing file lists, no evidence)  
-❌ Not waiting for architect approval  
-❌ Partial completion ("I did X but not Y")  
-
-✅ Run ALL verification steps  
-✅ Provide complete evidence  
-✅ Wait for explicit approval  
-✅ Complete ALL requirements before reporting  
-
----
-
-## �🚀 Ready to Code!
+## 🚀 Ready to Code!
 
 You now have everything you need to be an excellent implementation coder for NextEraGame!
 

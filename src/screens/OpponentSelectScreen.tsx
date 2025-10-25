@@ -40,31 +40,14 @@ export function OpponentSelectScreen({
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState('');
 
-  // Refs for managing focus and card positions
+  // Refs for managing focus
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Update announcement for screen readers
   const announce = useCallback((message: string) => {
     setAnnouncement(message);
     // Clear after 1 second to allow re-announcement
     setTimeout(() => setAnnouncement(''), 1000);
-  }, []);
-
-  // Get card center position for Isaac to walk to
-  const getCardCenter = useCallback((index: number): { x: number; y: number } | null => {
-    const card = cardRefs.current[index];
-    const container = containerRef.current;
-    if (!card || !container) return null;
-
-    const cardRect = card.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-
-    // Calculate center position relative to container
-    return {
-      x: cardRect.left - containerRect.left + cardRect.width / 2,
-      y: cardRect.top - containerRect.top + cardRect.height / 2,
-    };
   }, []);
 
   // Navigate left (previous card)
@@ -109,29 +92,21 @@ export function OpponentSelectScreen({
     announce(`${preview.spec.name} selected. Press Enter again to confirm.`);
   }, [focusedIndex, previews, announce]);
 
-  // Confirm selection - trigger Isaac walk animation
+  // Confirm selection
   const confirmSelection = useCallback(() => {
     if (selectedIndex !== null) {
       if (selectedIndex < 0 || selectedIndex >= previews.length) return;
       const preview = previews[selectedIndex];
       if (!preview) return;
-
-      // Get card center for Isaac to walk to
-      const target = getCardCenter(selectedIndex);
-      if (!target) {
-        // Fallback: immediate transition if position can't be calculated
-        announce(`Confirmed ${preview.spec.name}`);
-        onSelect(preview.spec.id);
-        return;
-      }
-
-      // Directly select the opponent
-      onSelect(preview.spec.id);
+      
+      const selectedId = preview.spec.id;
+      announce(`Confirmed ${preview.spec.name}`);
+      onSelect(selectedId);
     } else {
       // First press selects, need second press to confirm
       selectFocused();
     }
-  }, [selectedIndex, previews, onSelect, selectFocused, announce, getCardCenter]);
+  }, [selectedIndex, previews, onSelect, selectFocused, announce]);
 
   // Keyboard navigation
   useKeyboard({
@@ -162,73 +137,75 @@ export function OpponentSelectScreen({
   const selectedPreview = selectedIndex !== null ? previews[selectedIndex] : null;
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-gray-50 dark:bg-gray-900 flex flex-col relative">
-      {/* Fixed Header */}
-      <div className="flex-shrink-0 p-4 border-b border-gray-300 dark:border-gray-700">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-1">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+      {/* Header */}
+      <div className="max-w-7xl mx-auto mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-2">
           Select Your Opponent
         </h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+        <p className="text-gray-600 dark:text-gray-400 text-center">
           Battle #{battleIndex + 1}
         </p>
       </div>
 
-      {/* Scrollable Card Grid */}
-      <div className="flex-1 overflow-y-auto px-4 py-3">
-        <div 
-          role="radiogroup"
-          aria-label="Opponent selection"
-          className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-7xl mx-auto"
-        >
-          {previews.map((preview, index) => (
-            <div 
-              key={preview.spec.id} 
-              ref={(el) => { cardRefs.current[index] = el; }}
-              className="animate-card-entry"
-              style={{ animationDelay: `${index * 150}ms` }}
-            >
-              <OpponentCard
-                preview={preview}
-                selected={selectedIndex === index}
-                focused={focusedIndex === index}
-                expanded={expandedIndex === index}
-                onSelect={() => {
-                  setSelectedIndex(index);
-                  announce(`${preview.spec.name} selected`);
-                }}
-                onFocus={() => {
-                  setFocusedIndex(index);
-                }}
-                onToggleExpand={() => {
-                  setExpandedIndex(current => current === index ? null : index);
-                }}
-                tabIndex={focusedIndex === index ? 0 : -1}
-              />
-            </div>
-          ))}
-        </div>
+      {/* Card Grid */}
+      <div 
+        role="radiogroup"
+        aria-label="Opponent selection"
+        className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6"
+      >
+        {previews.map((preview, index) => (
+          <div 
+            key={preview.spec.id} 
+            ref={(el) => { cardRefs.current[index] = el; }}
+          >
+            <OpponentCard
+              preview={preview}
+              selected={selectedIndex === index}
+              focused={focusedIndex === index}
+              expanded={expandedIndex === index}
+              onSelect={() => {
+                setSelectedIndex(index);
+                announce(`${preview.spec.name} selected`);
+              }}
+              onFocus={() => {
+                setFocusedIndex(index);
+              }}
+              onToggleExpand={() => {
+                setExpandedIndex(current => current === index ? null : index);
+              }}
+              tabIndex={focusedIndex === index ? 0 : -1}
+            />
+          </div>
+        ))}
       </div>
 
-      {/* Fixed Footer with Confirm Button */}
-      <div className="flex-shrink-0 p-4 border-t border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800">
-        <div className="flex justify-center items-center gap-4">
-          {selectedPreview ? (
-            <button
-              onClick={confirmSelection}
-              className="px-8 py-3 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-              aria-label={`Confirm selection of ${selectedPreview.spec.name}`}
-            >
-              Confirm: {selectedPreview.spec.name} →
-            </button>
-          ) : (
-            <p className="text-gray-500 dark:text-gray-400 text-sm italic">
-              Select an opponent to continue
-            </p>
-          )}
+      {/* Mobile Confirm Button - Shows after selection */}
+      {selectedPreview && (
+        <div className="max-w-7xl mx-auto mt-8 flex justify-center">
+          <button
+            onClick={confirmSelection}
+            className="px-8 py-4 min-h-[48px] bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 text-white font-bold text-lg rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 active:scale-95"
+            aria-label={`Confirm selection of ${selectedPreview.spec.name}`}
+          >
+            Confirm: {selectedPreview.spec.name}
+          </button>
         </div>
-        <div className="text-center text-xs text-gray-500 dark:text-gray-500 mt-2">
-          ← → to navigate • Enter to select • Esc to cancel
-        </div>
+      )}
+
+      {/* Instructions */}
+      <div className="max-w-7xl mx-auto mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
+        <p>
+          Use <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">←</kbd>
+          {' '}and{' '}
+          <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">→</kbd>
+          {' '}to navigate
+        </p>
+        <p className="mt-1">
+          Press <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Enter</kbd>
+          {' '}to select, <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Esc</kbd>
+          {' '}to cancel
+        </p>
       </div>
 
       {/* Live Region for Screen Readers */}

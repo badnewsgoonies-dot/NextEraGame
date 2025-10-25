@@ -5,7 +5,7 @@
 
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, fireEvent, waitFor, act, screen } from '@testing-library/react';
 import fc from 'fast-check';
 import { BattleScreen } from '../../src/screens/BattleScreen.js';
 import type { BattleUnit, BattleResult, PlayerUnit } from '../../src/types/game.js';
@@ -848,6 +848,180 @@ describe('BattleScreen', () => {
         const result: BattleResult = onComplete.mock.calls[0][0];
         expect(result.winner).toBe('enemy');
       });
+    });
+  });
+
+  describe('Gem Activation', () => {
+    test('Gems action is available in menu', () => {
+      const { container } = render(
+        <BattleScreen
+          playerUnits={mockPlayerUnits}
+          enemyUnits={mockEnemyUnits}
+          onComplete={onComplete}
+          seed={12345}
+          gameController={gameController}
+        />
+      );
+
+      // Gems action should be visible in the rendered menu
+      const gemsText = container.textContent;
+      expect(gemsText).toContain('Gems');
+    });
+
+    test('shows warning when no gem equipped', () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn');
+      
+      const { container } = render(
+        <BattleScreen
+          playerUnits={mockPlayerUnits}
+          enemyUnits={mockEnemyUnits}
+          onComplete={onComplete}
+          seed={12345}
+          gameController={gameController}
+        />
+      );
+
+      // Navigate to Gems (down 3 times)
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      
+      // Try to activate (will fail - no gem equipped)
+      fireEvent.keyDown(container, { key: 'Enter' });
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('No gem equipped'));
+      consoleWarnSpy.mockRestore();
+    });
+
+    test('shows gem confirmation panel when gem is equipped', async () => {
+      // Spy on getGemState to return a gem
+      const getGemStateSpy = vi.spyOn(gameController, 'getGemState').mockReturnValue({
+        activeGem: {
+          id: 'mars-gem',
+          element: 'Mars' as const,
+          name: 'Mars Gem',
+          description: 'Fire element',
+          icon: '🔥',
+        },
+        isActivated: false,
+      });
+      const activateGemSpy = vi.spyOn(gameController, 'activateGem').mockReturnValue({ ok: true, value: undefined });
+
+      const { container } = render(
+        <BattleScreen
+          playerUnits={mockPlayerUnits}
+          enemyUnits={mockEnemyUnits}
+          onComplete={onComplete}
+          seed={12345}
+          gameController={gameController}
+        />
+      );
+
+      // Navigate to Gems and select
+      await act(async () => {
+        fireEvent.keyDown(container, { key: 'ArrowDown' });
+        fireEvent.keyDown(container, { key: 'ArrowDown' });
+        fireEvent.keyDown(container, { key: 'ArrowDown' });
+        fireEvent.keyDown(container, { key: 'Enter' });
+        await new Promise(resolve => setTimeout(resolve, 100));
+      });
+
+      // Should show gem confirmation panel
+      await waitFor(() => {
+        expect(container.textContent).toContain('Activate Gem');
+      }, { timeout: 2000 });
+
+      getGemStateSpy.mockRestore();
+      activateGemSpy.mockRestore();
+    });
+
+    test('can cancel gem activation with Escape', async () => {
+      const getGemStateSpy = vi.spyOn(gameController, 'getGemState').mockReturnValue({
+        activeGem: {
+          id: 'mars-gem',
+          element: 'Mars' as const,
+          name: 'Mars Gem',
+          description: 'Fire element',
+          icon: '🔥',
+        },
+        isActivated: false,
+      });
+      const activateGemSpy = vi.spyOn(gameController, 'activateGem').mockReturnValue({ ok: true, value: undefined });
+
+      const { container } = render(
+        <BattleScreen
+          playerUnits={mockPlayerUnits}
+          enemyUnits={mockEnemyUnits}
+          onComplete={onComplete}
+          seed={12345}
+          gameController={gameController}
+        />
+      );
+
+      // Navigate to Gems and select
+      await act(async () => {
+        fireEvent.keyDown(container, { key: 'ArrowDown' });
+        fireEvent.keyDown(container, { key: 'ArrowDown' });
+        fireEvent.keyDown(container, { key: 'ArrowDown' });
+        fireEvent.keyDown(container, { key: 'Enter' });
+        await new Promise(resolve => setTimeout(resolve, 100));
+      });
+
+      await waitFor(() => {
+        expect(container.textContent).toContain('Activate Gem');
+      }, { timeout: 2000 });
+
+      // Press Escape to cancel
+      await act(async () => {
+        fireEvent.keyDown(container, { key: 'Escape' });
+        await new Promise(resolve => setTimeout(resolve, 100));
+      });
+
+      // Should return to action menu
+      await waitFor(() => {
+        expect(container.textContent).toContain('Actions');
+      }, { timeout: 2000 });
+
+      getGemStateSpy.mockRestore();
+      activateGemSpy.mockRestore();
+    });
+
+    test('shows warning when gem already activated', () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn');
+      
+      const getGemStateSpy = vi.spyOn(gameController, 'getGemState').mockReturnValue({
+        activeGem: {
+          id: 'mars-gem',
+          element: 'Mars' as const,
+          name: 'Mars Gem',
+          description: 'Fire element',
+          icon: '🔥',
+        },
+        isActivated: true, // Already activated
+      });
+      const activateGemSpy = vi.spyOn(gameController, 'activateGem').mockReturnValue({ ok: false, error: 'Already activated' });
+
+      const { container } = render(
+        <BattleScreen
+          playerUnits={mockPlayerUnits}
+          enemyUnits={mockEnemyUnits}
+          onComplete={onComplete}
+          seed={12345}
+          gameController={gameController}
+        />
+      );
+
+      // Try to activate gem
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      fireEvent.keyDown(container, { key: 'Enter' });
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('already activated'));
+      
+      consoleWarnSpy.mockRestore();
+      getGemStateSpy.mockRestore();
+      activateGemSpy.mockRestore();
     });
   });
 });

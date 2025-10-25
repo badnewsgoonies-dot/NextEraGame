@@ -47,6 +47,9 @@ import { BattlefieldFloor } from '../components/battle/BattlefieldFloor.js';
 import { makeRng } from '../utils/rng.js';
 import { getBattleBackground, preloadCommonSprites } from '../data/spriteRegistry.js';
 import { ANIMATION_TIMING } from '../components/battle/battleConstants.js';
+import { getGemActivation } from '../data/gemActivations.js';
+import { executeGemActivation } from '../systems/GemActivationSystem.js';
+import { GemConfirmPanel } from '../components/battle/GemConfirmPanel.js';
 
 // ============================================
 // Types & Constants
@@ -142,8 +145,8 @@ export function BattleScreen({
   const [abilityMenuIndex, setAbilityMenuIndex] = useState(0);
   const [selectedAbility, setSelectedAbility] = useState<Ability | null>(null);
 
-  // Gem system state (gem effects - future feature)
-  const [_showGemConfirm, _setShowGemConfirm] = useState(false);
+  // Gem system state
+  const [gemActivationMessage, setGemActivationMessage] = useState<string | null>(null);
 
   // Battle mechanics
   const defending = useRef<Set<string>>(new Set());
@@ -582,11 +585,18 @@ export function BattleScreen({
           // Show abilities menu
           setPhase('ability-menu');
         } else if (label === 'Gems') {
-          // Gem effects not yet implemented - show message in console
-          console.warn('💎 Gem effects UI not yet implemented');
-          // For now, just stay in menu phase (don't freeze!)
-          // TODO: Implement gem effect selection UI
-          // setPhase('gem-menu'); // Commented out - no UI exists for this phase!
+          // Check if gem is available
+          const gemState = gameController.getGemState();
+          if (!gemState.activeGem) {
+            console.warn('💎 No gem equipped');
+            // Stay in menu phase - could add visual feedback here
+          } else if (gemState.isActivated) {
+            console.warn('💎 Gem already activated this battle');
+            // Stay in menu phase - could add visual feedback here
+          } else {
+            // Show gem confirmation panel
+            setPhase('gem-menu');
+          }
         } else if (label === 'Items') {
           // Show item menu (always, even if empty - will show "No items available")
           setItemMenuIndex(0);
@@ -1022,9 +1032,105 @@ export function BattleScreen({
     setPhase('menu');
   }, []);
 
+  /**
+   * Confirm gem activation and execute effect
+   */
+  const handleConfirmGemActivation = useCallback(() => {
+    if (!activeId) return;
+
+    // Get gem state from game controller
+    const gemState = gameController.getGemState();
+    if (!gemState.activeGem || gemState.isActivated) {
+      console.error('No gem to activate or already activated');
+      setPhase('menu');
+      return;
+    }
+
+    // Activate gem (marks as used, removes stat bonus)
+    const result = gameController.activateGem();
+    if (!result.ok) {
+      console.error('Gem activation failed:', result.error);
+      setPhase('menu');
+      return;
+    }
+
+    setPhase('animating');
+
+    // Get activation effect
+    const activation = getGemActivation(gemState.activeGem.element);
+
+    // Execute effect on battle units (convert BattleUnit to PlayerUnit format)
+    const playerUnitsForGem = players.map(u => ({
+      ...u,
+      hp: u.currentHp,
+    })) as any[];
+    const enemyUnitsForGem = enemies.map(u => ({
+      ...u,
+      hp: u.currentHp,
+    })) as any[];
+
+    const effectResult = executeGemActivation(
+      activation,
+      playerUnitsForGem as any,
+      enemyUnitsForGem as any
+    );
+
+    // Apply HP changes after short delay
+    const gemTimeout = setTimeout(() => {
+      // Map HP changes back to BattleUnit format
+      setPlayers(prev =>
+        prev.map((u, idx) => ({
+          ...u,
+          currentHp: effectResult.updatedPlayerUnits[idx]?.hp ?? u.currentHp,
+        }))
+      );
+      setEnemies(prev =>
+        prev.map((u, idx) => ({
+          ...u,
+          currentHp: effectResult.updatedEnemies[idx]?.hp ?? u.currentHp,
+        }))
+      );
+      setGemActivationMessage(effectResult.message);
+    }, 500);
+    registerTimeout(gemTimeout);
+
+    // Log action
+    pushAction({
+      type: 'item-used', // Reuse item-used type for gem activation
+      actorId: activeId,
+      targetId: activeId,
+      itemId: activation.id,
+      itemName: activation.name,
+      hpRestored: 0,
+    });
+
+    // Clean up and advance turn
+    const cleanupTimeout = setTimeout(() => {
+      setGemActivationMessage(null);
+      setPhase('resolving');
+      advanceTurnPointer();
+    }, 2000); // Show message for 2 seconds
+    registerTimeout(cleanupTimeout);
+  }, [
+    activeId,
+    gameController,
+    players,
+    enemies,
+    advanceTurnPointer,
+    pushAction,
+    registerTimeout,
+  ]);
+
+  /**
+   * Cancel gem activation and return to main menu
+   */
+  const handleCancelGemActivation = useCallback(() => {
+    setPhase('menu');
+  }, []);
+
   // ==================== Keyboard Input ====================
 
-  const keyboardEnabled = phase === 'menu' || phase === 'targeting' || phase === 'item-menu' || phase === 'item-targeting' || phase === 'ability-menu' || phase === 'ability-targeting';
+  const keyboardEnabled = phase === 'menu' || phase === 'targeting' || phase === 'item-menu' || phase === 'item-targeting' || phase === 'ability-menu' || phase === 'ability-targeting' || phase === 'gem-menu';
 
   // Get consumables fresh each time to ensure inventory changes are reflected
   // Note: gameController state is mutable, so useMemo wouldn't catch changes
@@ -1123,6 +1229,7 @@ export function BattleScreen({
       else if (phase === 'item-targeting') handleConfirmItemUse();
       else if (phase === 'ability-menu') handleAbilitySelect(abilityMenuIndex);
       else if (phase === 'ability-targeting') handleConfirmAbilityUse();
+      else if (phase === 'gem-menu') handleConfirmGemActivation();
     },
     onSpace: () => {
       if (phase === 'menu') handleConfirmAction();
@@ -1131,6 +1238,7 @@ export function BattleScreen({
       else if (phase === 'item-targeting') handleConfirmItemUse();
       else if (phase === 'ability-menu') handleAbilitySelect(abilityMenuIndex);
       else if (phase === 'ability-targeting') handleConfirmAbilityUse();
+      else if (phase === 'gem-menu') handleConfirmGemActivation();
     },
     onEscape: () => {
       if (phase === 'targeting') {
@@ -1146,6 +1254,8 @@ export function BattleScreen({
         setTargetedId(null);
       } else if (phase === 'ability-menu') {
         handleCancelAbilityMenu();
+      } else if (phase === 'gem-menu') {
+        handleCancelGemActivation();
       } else if (phase === 'menu') {
         confirmFlee();
       }
@@ -1255,8 +1365,30 @@ export function BattleScreen({
             defending={defending.current.has(activeId ?? '')}
           />
           <div className="mt-3">
-            {/* Main action menu, item submenu, or ability submenu */}
-            {phase === 'item-menu' ? (
+            {/* Main action menu, item submenu, ability submenu, or gem confirmation */}
+            {phase === 'gem-menu' ? (
+              <>
+                {(() => {
+                  const gemState = gameController.getGemState();
+                  if (!gemState.activeGem) {
+                    return (
+                      <div className="bg-gradient-to-b from-blue-900/95 to-blue-950/95 border-4 border-yellow-500/80 rounded-xl p-6 text-center text-red-300">
+                        No gem equipped!
+                        <div className="mt-2 text-sm text-gray-400">Press Escape to cancel</div>
+                      </div>
+                    );
+                  }
+                  const activation = getGemActivation(gemState.activeGem.element);
+                  return (
+                    <GemConfirmPanel
+                      gemActivation={activation}
+                      onConfirm={handleConfirmGemActivation}
+                      onCancel={handleCancelGemActivation}
+                    />
+                  );
+                })()}
+              </>
+            ) : phase === 'item-menu' ? (
               <>
                 <ActionMenu
                   items={consumables.length > 0 ? consumables.map(item => {
@@ -1347,6 +1479,20 @@ export function BattleScreen({
           y={healPos.y}
           onComplete={() => setShowHealAnim(false)}
         />
+      )}
+
+      {/* Gem activation message overlay */}
+      {gemActivationMessage && (
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none animate-pulse">
+          <div className="bg-black/90 border-4 border-yellow-400 rounded-lg px-8 py-6 shadow-2xl">
+            <div
+              className="text-3xl font-bold text-yellow-300 text-center drop-shadow-[0_0_12px_rgba(250,204,21,0.9)]"
+              style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.9)' }}
+            >
+              💎 {gemActivationMessage}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Live region for screen reader announcements */}

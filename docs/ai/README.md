@@ -2,7 +2,7 @@
 
 ## 📚 Overview
 
-This directory contains comprehensive onboarding documentation for AI assistants working on the NextEraGame project using a **three-tier development workflow**.
+This directory contains comprehensive onboarding documentation for AI assistants working on the NextEraGame project using a **two-tier development workflow**.
 
 ---
 
@@ -61,12 +61,12 @@ This directory contains comprehensive onboarding documentation for AI assistants
 ---
 
 ### **3. GRAPHICS_ONBOARDING.md** 🎨
-**For:** Graphics & visual polish AI (Chat #3) - **Project-specific (NextEraGame)**
+**For:** Graphics & visual polish AI (Chat #3)
 
 **Contents:**
-- NextEraGame role definition and boundaries
+- Role definition and boundaries
 - Golden Sun sprite library guide (2,500+ sprites)
-- NextEraGame visual style direction and color palettes
+- Visual style direction and color palettes
 - Sprite integration workflows
 - UI/UX polish responsibilities
 - Animation and effects creation
@@ -74,27 +74,11 @@ This directory contains comprehensive onboarding documentation for AI assistants
 - Visual task templates
 - Quality standards for visual work
 
-**Read this if:** You are the AI responsible for sprite integration, visual polish, UI beauty, and aesthetic excellence **on the NextEraGame project**.
+**Read this if:** You are the AI responsible for sprite integration, visual polish, UI beauty, and aesthetic excellence.
 
 ---
 
-### **4. GRAPHICS_ONBOARDING_GENERALIZED.md** 🎨
-**For:** Graphics & visual polish AI - **Generalized template for any project**
-
-**Contents:**
-- Universal graphics AI role definition
-- General asset integration workflows
-- UI/UX polish principles (any visual style)
-- Animation and effects creation patterns
-- Generic asset management
-- Universal visual task templates
-- Quality standards for visual work
-
-**Read this if:** You are the AI responsible for visual work **on any project** (not specific to NextEraGame).
-
----
-
-### **5. ROLE_IDENTIFICATION.md** 🎯
+### **4. ROLE_IDENTIFICATION.md** 🎯
 **For:** Both AIs + Human coordinator
 
 **Contents:**
@@ -112,7 +96,7 @@ This directory contains comprehensive onboarding documentation for AI assistants
 
 ---
 
-### **6. CHAT_TEMPLATES.md** 💬
+### **5. CHAT_TEMPLATES.md** 💬
 **For:** Human coordinator
 
 **Contents:**
@@ -127,22 +111,6 @@ This directory contains comprehensive onboarding documentation for AI assistants
 - Success pattern checklist
 
 **Read this if:** You're starting a new AI session and want exact messages to copy-paste.
-
----
-
-### **7. CHAT_RESET_GUIDE.md** 🔄
-**For:** All roles + Human coordinator
-
-**Contents:**
-- When to reset (warning signs for context limits)
-- Step-by-step reset process
-- Handoff summary templates (Architect/Coder/Graphics)
-- Real example from gem redesign session
-- Common mistakes to avoid
-- Pro tips for efficient resets
-- Quick reference checklist
-
-**Read this if:** Your chat context is getting full and you need to start fresh without losing progress.
 
 ---
 
@@ -199,16 +167,15 @@ This directory contains comprehensive onboarding documentation for AI assistants
 - ✅ Create detailed task prompts (for coder AND graphics)
 - ✅ Review completed work
 - ✅ Approve or request changes
-- ✅ Decide when to ship (optional—it's a for-fun project!)
+- ✅ Decide when to ship
 - ✅ Define visual direction and style
-- ✅ **Simple tasks:** Edit docs, run terminals, adjust text files (use best judgment)
 
 ### **Architect (🏛️) DOES NOT:**
-- ❌ Write implementation code (feature implementations)
-- ❌ Integrate sprites themselves (graphics AI does this)
-- ❌ Create CSS styling directly (graphics AI does this)
-- ❌ Execute complex terminal workflows (delegate to coder)
-- ❌ **Full implementations** (defeats the purpose—delegate to specialists)
+- ❌ Write implementation code
+- ❌ Integrate sprites themselves
+- ❌ Create CSS styling directly
+- ❌ Execute terminal commands
+- ❌ Make file edits
 
 ---
 
@@ -288,12 +255,8 @@ This directory contains comprehensive onboarding documentation for AI assistants
 
 **NextEraGame - Turn-Based Tactical Roguelike**
 
-> **🎮 For-Fun Hobby Project:** No shipping pressure, no commercial deadlines, no player base expectations.  
-> **📐 High Standards:** Code quality, logic, and testing guidelines maintained at the highest level (easier on everyone!).  
-> **💡 Build for Joy:** Experiment, learn, and have fun—that's the whole point!
-
 - **Status:** Production deployed ✅
-- **URL:** <https://nexteragame.netlify.app>
+- **URL:** https://dist-next-era.vercel.app
 - **Health:** 10/10 score
 - **Tests:** 905+ tests, ~99% passing
 - **Coverage:** ~50%+
