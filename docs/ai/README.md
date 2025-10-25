@@ -2,7 +2,7 @@
 
 ## 📚 Overview
 
-This directory contains comprehensive onboarding documentation for AI assistants working on the NextEraGame project using a **two-tier development workflow**.
+This directory contains comprehensive onboarding documentation for AI assistants working on the NextEraGame project using a **three-tier development workflow**.
 
 ---
 
@@ -293,7 +293,7 @@ This directory contains comprehensive onboarding documentation for AI assistants
 > **💡 Build for Joy:** Experiment, learn, and have fun—that's the whole point!
 
 - **Status:** Production deployed ✅
-- **URL:** https://dist-next-era.vercel.app
+- **URL:** <https://nexteragame.netlify.app>
 - **Health:** 10/10 score
 - **Tests:** 905+ tests, ~99% passing
 - **Coverage:** ~50%+

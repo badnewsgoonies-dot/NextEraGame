@@ -17,7 +17,7 @@ Updated AI onboarding documentation to reflect the **for-fun, hobby project** na
 - ✅ Use best judgment for small tasks
 
 **Still delegates:**
-- ❌ Full feature implementations (defeats the two-tier purpose)
+- ❌ Full feature implementations (defeats the three-tier purpose)
 - ❌ Complex system changes
 - ❌ Major code refactoring
 
@@ -107,20 +107,20 @@ Updated AI onboarding documentation to reflect the **for-fun, hobby project** na
 1. **Clarify project is for fun** → Removes pressure, focuses on enjoyment
 2. **Allow simple tasks** → Architect can handle quick edits efficiently
 3. **Maintain high standards** → Quality code is easier to work with, even for hobby projects
-4. **Keep delegation for complex work** → Maintains two-tier workflow benefits
+4. **Keep delegation for complex work** → Maintains three-tier workflow benefits
 
 **Result:**
 - ✅ More relaxed, fun-focused development
 - ✅ Less artificial workflow overhead for tiny tasks
 - ✅ Still maintains quality standards (tests, types, patterns)
-- ✅ Still uses two-tier workflow for major implementations
+- ✅ Still uses three-tier workflow for major implementations
 
 ---
 
 ## 📋 What Wasn't Changed
 
 **Still maintained:**
-- Two-tier workflow (Architect + Coder + Graphics)
+- Three-tier workflow (Architect + Coder + Graphics)
 - Three-AI specialization
 - Code quality standards (tests, types, patterns)
 - Result type pattern, deterministic RNG, pure functions
@@ -174,7 +174,7 @@ Complex Task (feature, system) → Architect → Task Prompt → Specialist
 - Removed commercial pressure language
 
 **What Stayed:**
-- Two-tier workflow for complex work
+- Three-tier workflow for complex work
 - High code quality standards
 - Testing, typing, architectural patterns
 
