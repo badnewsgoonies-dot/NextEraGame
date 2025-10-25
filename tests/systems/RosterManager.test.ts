@@ -17,9 +17,11 @@ describe('RosterManager', () => {
   // Test fixture helper
   const createUnit = (id: string, name: string): PlayerUnit => ({
     id,
+    templateId: `template_${id}`,
     name,
     role: 'Tank',
     tags: ['Holy'],
+    element: 'Moon',
     hp: 100,
     maxHp: 100,
     atk: 20,
@@ -27,6 +29,10 @@ describe('RosterManager', () => {
     speed: 10,
     level: 1,
     experience: 0,
+    rank: 'C',
+    baseClass: 'Warrior',
+    currentMp: 50,
+    luck: 5,
   });
 
   describe('createRosterFromTeam', () => {

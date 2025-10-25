@@ -28,6 +28,7 @@ const createUnit = (id: string, hp: number, maxHp: number = 100): PlayerUnit => 
   rank: 'C',
   baseClass: 'Warrior',
   currentMp: 50,
+  luck: 5,
 });
 
 describe('Gem Activation System', () => {

@@ -19,9 +19,11 @@ expect.extend(toHaveNoViolations);
 // Helper: Create mock unit with defaults
 const createMockUnit = (id: string, overrides: Partial<PlayerUnit> = {}): PlayerUnit => ({
   id,
+  templateId: `template_${id}`,
   name: `Unit ${id}`,
   role: 'Tank',
   tags: ['Holy'],
+  element: 'Moon',
   hp: 100,
   maxHp: 100,
   atk: 20,
@@ -29,6 +31,10 @@ const createMockUnit = (id: string, overrides: Partial<PlayerUnit> = {}): Player
   speed: 10,
   level: 1,
   experience: 0,
+  rank: 'C',
+  baseClass: 'Tank',
+  currentMp: 50,
+  luck: 5,
   ...overrides,
 });
 
@@ -50,9 +56,11 @@ describe('RosterManagementScreen', () => {
   // Test fixture helper (kept for backward compatibility with existing tests)
   const createUnit = (id: string, name: string, role: 'Tank' | 'DPS' | 'Support' | 'Specialist', level = 1): PlayerUnit => ({
     id,
+    templateId: `template_${id}`,
     name,
     role,
     tags: ['Holy'],
+    element: 'Moon',
     hp: 100,
     maxHp: 100,
     atk: 20,
@@ -60,6 +68,10 @@ describe('RosterManagementScreen', () => {
     speed: 10,
     level,
     experience: 0,
+    rank: 'C',
+    baseClass: role as any,
+    currentMp: 50,
+    luck: 5,
   });
 
   const mockHandlers = {

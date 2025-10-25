@@ -11,30 +11,42 @@ import type { PlayerUnit, Equipment, InventoryData } from '../../src/types/game.
 describe('EquipmentScreen', () => {
   const mockUnit1: PlayerUnit = {
     id: 'unit-1',
+    templateId: 'template_unit1',
     name: 'Hero',
     role: 'Tank',
     tags: ['Holy'],
+    element: 'Moon',
     level: 1,
     experience: 0,
+    rank: 'C',
+    baseClass: 'Tank',
     hp: 100,
     maxHp: 100,
     atk: 20,
     def: 15,
     speed: 50,
+    currentMp: 50,
+    luck: 5,
   };
 
   const mockUnit2: PlayerUnit = {
     id: 'unit-2',
+    templateId: 'template_unit2',
     name: 'Warrior',
     role: 'DPS',
     tags: ['Arcane'],
+    element: 'Mercury',
     level: 1,
     experience: 0,
+    rank: 'C',
+    baseClass: 'Warrior',
     hp: 80,
     maxHp: 80,
     atk: 30,
     def: 10,
     speed: 60,
+    currentMp: 50,
+    luck: 5,
   };
 
   const mockWeapon: Equipment = {

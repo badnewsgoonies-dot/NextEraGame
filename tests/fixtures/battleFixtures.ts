@@ -8,9 +8,11 @@ import type { PlayerUnit, EnemyUnitTemplate, Tag, Role } from '../../src/types/g
 export const mockPlayerTeam: PlayerUnit[] = [
   {
     id: 'p1',
+    templateId: 'test_warrior',
     name: 'Warrior',
     role: 'Tank' as Role,
     tags: ['Holy'] as Tag[],
+    element: 'Moon',
     hp: 100,
     maxHp: 100,
     atk: 20,
@@ -18,12 +20,18 @@ export const mockPlayerTeam: PlayerUnit[] = [
     speed: 40,
     level: 1,
     experience: 0,
+    rank: 'C',
+    baseClass: 'Warrior',
+    currentMp: 50,
+    luck: 5,
   },
   {
     id: 'p2',
+    templateId: 'test_rogue',
     name: 'Rogue',
     role: 'DPS' as Role,
     tags: ['Beast'] as Tag[],
+    element: 'Mars',
     hp: 60,
     maxHp: 60,
     atk: 35,
@@ -31,6 +39,10 @@ export const mockPlayerTeam: PlayerUnit[] = [
     speed: 75,
     level: 1,
     experience: 0,
+    rank: 'C',
+    baseClass: 'Rogue',
+    currentMp: 50,
+    luck: 5,
   },
 ];
 
@@ -92,9 +104,11 @@ export const strongEnemy: EnemyUnitTemplate = {
 // Fast unit (goes first)
 export const fastUnit: PlayerUnit = {
   id: 'p_fast',
+  templateId: 'test_assassin',
   name: 'Assassin',
   role: 'DPS' as Role,
   tags: ['Undead'] as Tag[],
+  element: 'Sun',
   hp: 50,
   maxHp: 50,
   atk: 30,
@@ -102,14 +116,20 @@ export const fastUnit: PlayerUnit = {
   speed: 100, // Fastest
   level: 1,
   experience: 0,
+  rank: 'C',
+  baseClass: 'Rogue',
+  currentMp: 50,
+  luck: 5,
 };
 
 // Slow unit (goes last)
 export const slowUnit: PlayerUnit = {
   id: 'p_slow',
+  templateId: 'test_knight',
   name: 'Heavy Knight',
   role: 'Tank' as Role,
   tags: ['Holy'] as Tag[],
+  element: 'Moon',
   hp: 150,
   maxHp: 150,
   atk: 25,
@@ -117,5 +137,9 @@ export const slowUnit: PlayerUnit = {
   speed: 20, // Slowest
   level: 1,
   experience: 0,
+  rank: 'C',
+  baseClass: 'Tank',
+  currentMp: 50,
+  luck: 5,
 };
 

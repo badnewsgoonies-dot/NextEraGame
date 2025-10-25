@@ -28,16 +28,22 @@ describe('EquipmentSystem', () => {
   // Helper: Create test unit
   const createUnit = (overrides?: Partial<PlayerUnit>): PlayerUnit => ({
     id: 'unit-1',
+    templateId: 'warrior_template',
     name: 'Test Warrior',
     role: 'Tank',
     tags: [],
+    element: 'Mars',
     level: 1,
     experience: 0,
+    rank: 'C',
+    baseClass: 'Warrior',
     hp: 100,
     maxHp: 100,
     atk: 20,
     def: 15,
     speed: 10,
+    currentMp: 50,
+    luck: 5,
     ...overrides
   });
 

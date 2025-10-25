@@ -27,9 +27,11 @@ describe('TeamManager', () => {
 
   const createPlayerUnit = (id: string, name: string): PlayerUnit => ({
     id,
+    templateId: `template_${id}`,
     name,
     role: 'Tank',
     tags: ['Holy'],
+    element: 'Moon',
     hp: 150,
     maxHp: 150,
     atk: 25,
@@ -37,6 +39,10 @@ describe('TeamManager', () => {
     speed: 10,
     level: 5,
     experience: 100,
+    rank: 'C',
+    baseClass: 'Warrior',
+    currentMp: 50,
+    luck: 5,
   });
 
   describe('Recruitment - Team Not Full', () => {
