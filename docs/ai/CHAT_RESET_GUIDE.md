@@ -5,12 +5,14 @@
 This guide covers how to handle "soft resets" when your AI chat context gets full. A soft reset means starting a fresh chat session while preserving all the important decisions and progress.
 
 **Why you need this:**
+
 - AI chats have token/context limits
 - Long design discussions fill up context
 - Complex tasks generate lots of conversation
 - Need efficient way to resume without losing progress
 
 **What this guide covers:**
+
 - When to reset (warning signs)
 - How to create handoff summaries
 - Templates for all three AI roles
@@ -93,6 +95,7 @@ Keep it under 500 words - decisions and actions only, not the full discussion.
 ### **Step 4: Initialize Fresh Chat**
 
 **For Architect:**
+
 ```
 You are the ARCHITECT AI for the NextEraGame project.
 
@@ -106,6 +109,7 @@ Confirm you understand the context and are ready to continue.
 ```
 
 **For Coder:**
+
 ```
 You are the IMPLEMENTATION CODER AI for the NextEraGame project.
 
@@ -119,6 +123,7 @@ Confirm you understand the context and are ready to continue.
 ```
 
 **For Graphics:**
+
 ```
 You are the GRAPHICS AI for the NextEraGame project.
 
@@ -339,6 +344,7 @@ Confirm you understand the context and are ready to continue.
 **This actually happened in our project! Here's how it worked:**
 
 ### **Context:**
+
 - Architect and human were designing elemental gem system
 - Long discussion about counters, elements, buffs
 - Chat context getting full
@@ -348,6 +354,7 @@ Confirm you understand the context and are ready to continue.
 ### **What We Did (The RIGHT Way):**
 
 **Step 1: Recognized the need to reset**
+
 - Human: "We're hitting context limits"
 - Decisions were made but not yet documented
 
@@ -370,12 +377,14 @@ Confirm you understand the context and are ready to continue.
 ```
 
 **Step 3: Used revert to start fresh**
+
 - Human reverted chat to initial state
 - Pasted handoff summary
 - Architect immediately understood context
 - Created comprehensive task document with full tokens available
 
 ### **Result:**
+
 ✅ No decisions lost
 ✅ Fresh context for detailed task creation
 ✅ Smooth handoff, no confusion
@@ -388,6 +397,7 @@ Confirm you understand the context and are ready to continue.
 ### **1. Resetting Without Handoff Summary**
 
 **Wrong:**
+
 ```
 [Close chat]
 [Open new chat]
@@ -397,6 +407,7 @@ Confirm you understand the context and are ready to continue.
 **Result:** Lost context, decisions forgotten, waste time reconstructing
 
 **Right:**
+
 ```
 [Create detailed handoff summary]
 [Copy summary]
@@ -409,6 +420,7 @@ Confirm you understand the context and are ready to continue.
 ### **2. Handoff Too Verbose**
 
 **Wrong:**
+
 ```
 We started by discussing how gems currently work, which is that they...
 [500 words of background]
@@ -421,6 +433,7 @@ Finally we decided...
 **Problem:** Wastes tokens on history instead of decisions
 
 **Right:**
+
 ```
 Decisions:
 1. Counter system: Fire↔Water
@@ -437,6 +450,7 @@ Next: Create task doc
 ### **3. Resetting Too Early**
 
 **Wrong:**
+
 ```
 [After 5 exchanges]
 "Let me reset the chat"
@@ -451,6 +465,7 @@ Next: Create task doc
 ### **4. Not Verifying Fresh Chat Understands**
 
 **Wrong:**
+
 ```
 [Paste handoff]
 [Immediately ask for complex task]
@@ -459,6 +474,7 @@ Next: Create task doc
 **Problem:** AI might not have fully absorbed context
 
 **Right:**
+
 ```
 [Paste handoff]
 "Confirm you understand these decisions"
@@ -471,22 +487,26 @@ Next: Create task doc
 ## 💡 Pro Tips
 
 ### **1. Keep Handoff Under 500 Words**
+
 - Focus on **decisions** and **actions**
 - Skip the **discussion** and **reasoning** (unless critical)
 - Use bullet points, not paragraphs
 
 ### **2. Include Exact File Paths**
+
 - `src/systems/GemSystem.ts` not "the gem system file"
 - `tests/systems/GemSystem.test.ts` not "gem tests"
 - Specificity prevents confusion
 
 ### **3. Lock In Technical Details**
+
 - Exact function names
 - Specific data structures
 - Concrete acceptance criteria
 - Don't say "improve the gem system" → Say "Add element field to PlayerUnit type"
 
 ### **4. Reference Existing Patterns**
+
 ```
 Follow Result type pattern (see src/utils/Result.ts)
 Use deterministic RNG (fork from root)
@@ -494,7 +514,9 @@ Pure functions (no mutations)
 ```
 
 ### **5. Test the Handoff**
+
 After resetting:
+
 - Ask AI to repeat key decisions back to you
 - Verify it knows the next actions
 - Check it has all critical context
@@ -504,18 +526,21 @@ After resetting:
 ## 🎨 Role-Specific Tips
 
 ### **Architect Resets:**
+
 - Focus on **strategic decisions**
 - Include **design rationale** (why choices were made)
 - List **tasks to delegate** to coder/graphics
 - Note **priorities** for next work
 
 ### **Coder Resets:**
+
 - Focus on **implementation status**
 - Include **phase completion** checklist
 - List **files created/modified**
 - Note **acceptance criteria** remaining
 
 ### **Graphics Resets:**
+
 - Focus on **visual decisions**
 - Include **sprite mappings** made
 - List **screens polished**
@@ -526,6 +551,7 @@ After resetting:
 ## 🚀 Quick Reference Checklist
 
 **Before Reset:**
+
 - [ ] Create handoff summary (under 500 words)
 - [ ] Include all key decisions
 - [ ] List next actions clearly
@@ -533,12 +559,14 @@ After resetting:
 - [ ] Copy summary to clipboard
 
 **During Reset:**
+
 - [ ] Open fresh chat
 - [ ] Initialize with role (read onboarding doc)
 - [ ] Paste handoff summary
 - [ ] Wait for AI to confirm understanding
 
 **After Reset:**
+
 - [ ] Verify AI understands decisions
 - [ ] Check AI knows next actions
 - [ ] Proceed with work
@@ -549,6 +577,7 @@ After resetting:
 ## 📊 Success Metrics
 
 **Good Reset When:**
+
 - ✅ No decisions lost
 - ✅ Fresh chat understands context immediately
 - ✅ Work continues smoothly
@@ -556,6 +585,7 @@ After resetting:
 - ✅ AI quality restored (fresh tokens!)
 
 **Bad Reset When:**
+
 - ❌ Decisions forgotten
 - ❌ AI confused about context
 - ❌ Waste time explaining again
@@ -570,6 +600,7 @@ After resetting:
 **The key:** Create a **concise, decision-focused handoff summary** before resetting.
 
 **Remember:**
+
 1. Reset when quality degrades or at natural breakpoints
 2. Handoff = Decisions + Actions (not full discussion)
 3. Keep it under 500 words
