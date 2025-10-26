@@ -1,6 +1,7 @@
 # 🎮 TASK: Redesign Gem System (Global Party Buff + Battle Super Spell)
 
 ## 📋 Context
+
 - **Project:** NextEraGame (C:\Dev\AiGames\NextEraGame)
 - **Branch:** main (or create new branch)
 - **Current State:** Gem system is 100% broken (wrong architecture)
@@ -13,6 +14,7 @@
 **You are the IMPLEMENTATION CODER AI.**
 
 Before starting, read:
+
 1. `docs/ai/IMPLEMENTATION_CODER_ONBOARDING.md` - Your role and patterns
 2. `docs/ai/COMPREHENSIVE_TEMPLATE_SYSTEM.md` - Use Template 3 (System Creation)
 
@@ -25,12 +27,14 @@ Before starting, read:
 ## 🎯 New Gem System Design
 
 ### **Current (Broken) Design:**
+
 - ❌ Gems equipped to individual units
 - ❌ Gem activation happens in battle only
 - ❌ No clear selection screen
 - ❌ Confusing stat bonus system
 
 ### **New (Correct) Design:**
+
 - ✅ **One gem selected at game start** (after roster selection, before first battle)
 - ✅ **Global party-wide stat bonuses** based on elemental affinity
 - ✅ **Grants spells** to units of matching element
@@ -46,6 +50,7 @@ Before starting, read:
 **Elements:** Fire, Water, Wind, Earth, Light (Sun), Dark (Moon)
 
 **Affinity Chart:**
+
 ```
 Water > Fire
 Wind > Earth
@@ -66,6 +71,7 @@ Recommendation: Use standard Pokemon-style:
 When gem selected, ALL party members get bonuses based on their elemental affinity to gem:
 
 **Same Element (Strong Affinity):**
+
 - ATK: +15
 - DEF: +10
 - MATK: +15
@@ -74,6 +80,7 @@ When gem selected, ALL party members get bonuses based on their elemental affini
 - SPD: +5
 
 **Neutral Element:**
+
 - ATK: +5
 - DEF: +3
 - MATK: +5
@@ -82,6 +89,7 @@ When gem selected, ALL party members get bonuses based on their elemental affini
 - SPD: +2
 
 **Counter Element (Weak Affinity):**
+
 - ATK: -5
 - DEF: -3
 - MATK: -5
@@ -92,21 +100,25 @@ When gem selected, ALL party members get bonuses based on their elemental affini
 ### **Spell Grants:**
 
 **Same Element Units:**
+
 - Grant 1 special offensive spell based on gem element
 - Example: Fire Gem → Fire units get "Fireball" spell
 - Spell costs MP, deals element-typed damage
 
 **Counter Element Units:**
+
 - Grant 1 special spell of THEIR element (compensation for stat penalty)
 - Example: Fire Gem → Water units get "Water Blast" spell
 - Adds strategic depth (trade-off decision)
 
 **Neutral Element Units:**
+
 - No special spells granted
 
 ### **Battle Super Spell:**
 
 **Mechanics:**
+
 - Appears as "Gem Super" button in battle action menu
 - One-time use per battle
 - After activation, button becomes "Gem (Used)" and is disabled
@@ -114,6 +126,7 @@ When gem selected, ALL party members get bonuses based on their elemental affini
 - Powerful effect based on gem element
 
 **Effects by Element:**
+
 ```
 Fire Gem: AOE damage to all enemies (high power)
 Water Gem: Full party heal + cleanse debuffs
@@ -134,6 +147,7 @@ Dark Gem: AOE damage + apply debuffs to all enemies
 **File:** `src/screens/GemSelectScreen.tsx` (NEW file)
 
 **Requirements:**
+
 - Display 6 gem options in grid (Fire, Water, Wind, Earth, Light, Dark)
 - Each gem card shows:
   - Element name
@@ -149,6 +163,7 @@ Dark Gem: AOE damage + apply debuffs to all enemies
 - Visual affinity indicators (same/neutral/counter for each unit)
 
 **Component Structure:**
+
 ```tsx
 interface GemSelectScreenProps {
   playerUnits: PlayerUnit[];
@@ -166,6 +181,7 @@ export function GemSelectScreen({
 ```
 
 **Styling:**
+
 - Golden Sun aesthetic (match existing screens)
 - Clear visual hierarchy
 - Affinity color coding:
@@ -180,6 +196,7 @@ export function GemSelectScreen({
 **File:** `src/data/gems.ts` (may already exist, update if so)
 
 **Structure:**
+
 ```typescript
 export interface Gem {
   id: string;
@@ -271,6 +288,7 @@ export const GEMS: Gem[] = [
 **File:** `src/types/game.ts`
 
 **Change:**
+
 ```typescript
 export interface PlayerUnit {
   // ... existing fields
@@ -279,9 +297,11 @@ export interface PlayerUnit {
 ```
 
 **Update all starter units in `src/data/starterUnits.ts`:**
+
 - Assign elements based on role/character theme
 - Ensure variety (not all same element)
 - Example distribution:
+
   ```
   Fighter: Fire (2 units)
   Mage: Water (2 units)
@@ -300,6 +320,7 @@ export interface PlayerUnit {
 **Changes Required:**
 
 **Add to GameState:**
+
 ```typescript
 interface GameState {
   // ... existing fields
@@ -309,6 +330,7 @@ interface GameState {
 ```
 
 **Add methods:**
+
 ```typescript
 // Select gem at game start
 selectGem(gemId: string): Result<void, string> {
@@ -399,22 +421,26 @@ resetGemSuper(): void {
 **Add new screen to flow:**
 
 **Current flow:**
+
 ```
 Menu → Starter Selection → Battle Selection → Battle → Rewards → Equipment → Recruitment → Battle Selection
 ```
 
 **New flow:**
+
 ```
 Menu → Starter Selection → GEM SELECTION → Battle Selection → Battle → Rewards → Equipment → Recruitment → Battle Selection
 ```
 
 **Changes:**
+
 - Add `'gem-selection'` screen type
 - Show GemSelectScreen after starter selection (first time only)
 - Call `gameController.selectGem(gemId)` on selection
 - Transition to battle selection after gem chosen
 
 **Pseudocode:**
+
 ```tsx
 // In App.tsx screen rendering
 if (screen === 'gem-selection') {
@@ -442,12 +468,14 @@ if (screen === 'gem-selection') {
 **Changes:**
 
 **Update ACTIONS array:**
+
 ```typescript
 // Line ~81
 const ACTIONS = ['Attack', 'Defend', 'Abilities', 'Gem Super', 'Items', 'Flee'] as const;
 ```
 
 **Add gem super handler:**
+
 ```typescript
 const handleGemSuperAction = useCallback(() => {
   if (!activeId) return;
@@ -479,6 +507,7 @@ const handleGemSuperAction = useCallback(() => {
 ```
 
 **Disable button when used:**
+
 ```typescript
 // In ActionMenu rendering
 const gemUsed = gameController.getGemState().gemSuperUsedThisBattle;
@@ -488,6 +517,7 @@ const actions = ACTIONS.map(action =>
 ```
 
 **Reset gem super at battle start:**
+
 ```typescript
 // In battle initialization useEffect
 useEffect(() => {
@@ -502,12 +532,14 @@ useEffect(() => {
 **File:** `src/systems/GemSuperSystem.ts` (NEW file)
 
 **Requirements:**
+
 - Pure function
 - Takes super spell + player units + enemy units
 - Returns updated units with effects applied
 - Follows project patterns (Result types, pure functions)
 
 **Structure:**
+
 ```typescript
 import type { BattleUnit, SuperSpell } from '../types/game.js';
 import { Result, Ok, Err } from '../utils/Result.js';
@@ -558,6 +590,7 @@ export function executeGemSuper(
 **File:** `tests/screens/GemSelectScreen.test.tsx` (NEW file)
 
 **Required tests (10+ tests):**
+
 - Renders 6 gem options
 - Can select gem with keyboard
 - Can select gem with mouse
@@ -576,9 +609,11 @@ export function executeGemSuper(
 **File:** `tests/screens/BattleScreen.test.tsx`
 
 **Remove old gem activation tests** (lines 880-1020):
+
 - Delete all 4 failing gem tests (outdated system)
 
 **Add new gem super tests:**
+
 - Gem Super button appears in action menu
 - Gem Super executes effect when selected
 - Gem Super becomes disabled after use
@@ -591,6 +626,7 @@ export function executeGemSuper(
 **File:** `tests/integration/GemSystem.test.ts` (NEW file)
 
 **Test full gem flow:**
+
 - Select gem → stat bonuses applied to party
 - Select gem → spells granted to units
 - Use gem super in battle → effect executes
@@ -602,6 +638,7 @@ export function executeGemSuper(
 ## ✅ Acceptance Criteria
 
 ### **Gem Selection Screen:**
+
 - [ ] Screen exists and renders correctly
 - [ ] Shows all 6 gems with icons, names, descriptions
 - [ ] Keyboard and mouse navigation works
@@ -610,6 +647,7 @@ export function executeGemSuper(
 - [ ] Transitions to battle selection after selection
 
 ### **Game State:**
+
 - [ ] Selected gem stored in GameController
 - [ ] Stat bonuses applied to ALL party members
 - [ ] Bonuses vary by affinity (strong/neutral/weak)
@@ -618,6 +656,7 @@ export function executeGemSuper(
 - [ ] No spells granted to neutral element units
 
 ### **Battle Integration:**
+
 - [ ] "Gem Super" appears in battle action menu
 - [ ] Gem Super executes effect when selected
 - [ ] Gem Super button shows "(Used)" after activation
@@ -625,6 +664,7 @@ export function executeGemSuper(
 - [ ] Gem Super resets to available at next battle start
 
 ### **Testing:**
+
 - [ ] GemSelectScreen has 10+ tests (all passing)
 - [ ] Battle tests updated (old gem tests removed)
 - [ ] New gem super tests added (all passing)
@@ -632,6 +672,7 @@ export function executeGemSuper(
 - [ ] All existing tests still pass (no regressions)
 
 ### **Code Quality:**
+
 - [ ] TypeScript compiles (0 errors)
 - [ ] Follows project patterns (Result types, pure functions)
 - [ ] No circular dependencies
@@ -642,6 +683,7 @@ export function executeGemSuper(
 ## 🚫 What NOT to Do
 
 ### **DO NOT:**
+
 - ❌ Keep old gem system code (delete it)
 - ❌ Allow gem selection mid-game (only at start)
 - ❌ Allow gem swapping (one gem per run)
@@ -649,6 +691,7 @@ export function executeGemSuper(
 - ❌ Apply bonuses to only some units (must be ALL)
 
 ### **DO:**
+
 - ✅ Delete old GemActivationSystem code
 - ✅ Remove old gem-related battle UI
 - ✅ Update all relevant tests

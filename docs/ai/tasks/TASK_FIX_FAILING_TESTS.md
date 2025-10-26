@@ -1,6 +1,7 @@
 # 🐛 TASK: Fix 5 Failing Tests (Gem System + Starter Screen)
 
 ## 📋 Context
+
 - **Project:** NextEraGame (C:\Dev\AiGames\NextEraGame)
 - **Branch:** main
 - **Current Test Status:** 1028/1045 passing (98.5%)
@@ -14,6 +15,7 @@
 **You are the IMPLEMENTATION CODER AI.**
 
 Before starting, read:
+
 1. `docs/ai/IMPLEMENTATION_CODER_ONBOARDING.md` - Your role and patterns
 
 **Your job:** Fix failing tests to match current code behavior
@@ -35,13 +37,15 @@ Fix 5 failing tests by updating test expectations to match actual working code. 
 **File:** `tests/screens/BattleScreen.test.tsx`
 
 **Tests:**
+
 1. ✗ `shows warning when no gem equipped` (line ~892)
 2. ✗ `shows gem confirmation panel when gem is equipped` (line ~898)
 3. ✗ `can cancel gem activation with Escape` (line ~942)
 4. ✗ `shows warning when gem already activated` (line ~985)
 
-**Problem:** 
-- Tests expect UI text "Activate Gem" 
+**Problem:**
+
+- Tests expect UI text "Activate Gem"
 - Actual UI shows "💎 Activate Gem?" (with emoji and question mark)
 - Tests expect `console.warn` calls
 - Code uses `console.warn` but timing/environment may affect capture
@@ -55,9 +59,11 @@ Fix 5 failing tests by updating test expectations to match actual working code. 
 **File:** `tests/ui/StarterSelectScreen.test.tsx`
 
 **Test:**
+
 - ✗ `Start button is disabled initially` (line ~??)
 
 **Problem:**
+
 - Test searches for "Start Journey" text
 - Actual button text is "🚀 Start Journey →" or dynamic "Select X more units"
 
@@ -76,6 +82,7 @@ Fix 5 failing tests by updating test expectations to match actual working code. 
 #### **Change 1: Line ~931 (Test: "shows gem confirmation panel when gem is equipped")**
 
 **Find:**
+
 ```typescript
 // Should show gem confirmation panel
 await waitFor(() => {
@@ -84,6 +91,7 @@ await waitFor(() => {
 ```
 
 **Replace with:**
+
 ```typescript
 // Should show gem confirmation panel
 await waitFor(() => {
@@ -96,6 +104,7 @@ await waitFor(() => {
 #### **Change 2: Line ~971 (Test: "can cancel gem activation with Escape")**
 
 **Find:**
+
 ```typescript
 await waitFor(() => {
   expect(container.textContent).toContain('Activate Gem');
@@ -103,6 +112,7 @@ await waitFor(() => {
 ```
 
 **Replace with:**
+
 ```typescript
 await waitFor(() => {
   expect(container.textContent).toContain('Activate Gem?'); // Updated: includes ? from actual UI
@@ -116,17 +126,20 @@ await waitFor(() => {
 **Context:** Tests expect `console.warn` to be called, but it may not be captured properly.
 
 **Investigation Required:**
+
 1. Check if console.warn calls exist in `src/screens/BattleScreen.tsx` lines 591, 594
 2. If present, check if test spy is set up correctly
 
 **Option A: If console.warn exists in code**
 
 **Find (line ~892):**
+
 ```typescript
 expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('No gem equipped'));
 ```
 
 **Try:**
+
 ```typescript
 // Updated: More flexible matcher for console.warn
 expect(consoleWarnSpy).toHaveBeenCalled();
@@ -142,6 +155,7 @@ if (consoleWarnSpy.mock.calls.length > 0) {
 **Solution:** Remove console.warn expectations, focus on behavior verification:
 
 **Find (line ~892):**
+
 ```typescript
 // Try to activate (will fail - no gem equipped)
 fireEvent.keyDown(container, { key: 'Enter' });
@@ -151,6 +165,7 @@ consoleWarnSpy.mockRestore();
 ```
 
 **Replace with:**
+
 ```typescript
 // Try to activate (will fail - no gem equipped)
 fireEvent.keyDown(container, { key: 'Enter' });
@@ -173,12 +188,14 @@ consoleWarnSpy.mockRestore();
 **Find the test:** `Start button is disabled initially`
 
 **Current (broken):**
+
 ```typescript
 const startButton = getByText(/Start Journey/);
 expect(startButton).toBeDisabled();
 ```
 
 **Replace with (Option A - Flexible Regex):**
+
 ```typescript
 // Updated: Handle dynamic button text with emoji
 const startButton = getByText(/Start Journey|Select \d+ more unit/);
@@ -186,6 +203,7 @@ expect(startButton).toBeDisabled();
 ```
 
 **OR Replace with (Option B - Test Actual Behavior):**
+
 ```typescript
 // Updated: Test behavior, not exact text
 const buttons = container.querySelectorAll('button');
@@ -201,6 +219,7 @@ expect(startButton).toBeDisabled();
 ## ✅ Acceptance Criteria
 
 ### **Overall:**
+
 - [ ] All 5 failing tests now pass
 - [ ] NO tests broken (still 1028+ passing)
 - [ ] TypeScript compiles (0 errors)
@@ -208,12 +227,14 @@ expect(startButton).toBeDisabled();
 - [ ] NO new features added
 
 ### **Gem Tests:**
+
 - [ ] Test "shows warning when no gem equipped" passes
 - [ ] Test "shows gem confirmation panel when gem is equipped" passes
 - [ ] Test "can cancel gem activation with Escape" passes
 - [ ] Test "shows warning when gem already activated" passes
 
 ### **Starter Screen Test:**
+
 - [ ] Test "Start button is disabled initially" passes
 
 ---
@@ -221,6 +242,7 @@ expect(startButton).toBeDisabled();
 ## 🧪 Verification Steps
 
 ### **Step 1: Run Failing Tests First**
+
 ```bash
 # Run just the failing test files
 npm test -- tests/screens/BattleScreen.test.tsx
@@ -230,9 +252,11 @@ npm test -- tests/ui/StarterSelectScreen.test.tsx
 **Expected:** Should see 5 failures initially
 
 ### **Step 2: Make Changes**
+
 Apply all changes from Task 1 and Task 2
 
 ### **Step 3: Run Tests Again**
+
 ```bash
 # Run same test files
 npm test -- tests/screens/BattleScreen.test.tsx
@@ -242,6 +266,7 @@ npm test -- tests/ui/StarterSelectScreen.test.tsx
 **Expected:** All tests pass
 
 ### **Step 4: Run Full Suite**
+
 ```bash
 npm test
 ```
@@ -249,6 +274,7 @@ npm test
 **Expected:** 1045/1045 tests passing (100%)
 
 ### **Step 5: TypeScript Check**
+
 ```bash
 npm run type-check
 ```
@@ -260,6 +286,7 @@ npm run type-check
 ## 🚫 What NOT to Change
 
 ### **DO NOT Modify:**
+
 - ❌ `src/screens/BattleScreen.tsx` (game logic is correct)
 - ❌ `src/components/battle/GemConfirmPanel.tsx` (UI is correct)
 - ❌ `src/screens/StarterSelectScreen.tsx` (button text is correct)
@@ -267,6 +294,7 @@ npm run type-check
 - ❌ Any component rendering
 
 ### **ONLY Modify:**
+
 - ✅ `tests/screens/BattleScreen.test.tsx` (test expectations)
 - ✅ `tests/ui/StarterSelectScreen.test.tsx` (test expectations)
 
@@ -275,12 +303,14 @@ npm run type-check
 ## 🎯 Success Definition
 
 **Before:**
+
 ```
 Test Files  2 failed | 45 passed (47)
 Tests       5 failed | 1028 passed | 12 skipped (1045)
 ```
 
 **After:**
+
 ```
 Test Files  47 passed (47)
 Tests       1045 passed | 12 skipped (1045)
@@ -337,16 +367,19 @@ After completing, report:
 ### **If tests still fail after text changes:**
 
 **Gem Tests Issue:**
+
 - Check if emoji rendering differently in test environment
 - Try: `expect(container.textContent).toMatch(/Activate Gem[\?]?/)`
 - Or: `expect(screen.getByText(/Activate Gem/i)).toBeInTheDocument()`
 
 **Console.warn Issue:**
+
 - Verify spy setup happens BEFORE component render
 - Check mock restore happens in proper cleanup
 - Consider using act() wrapper for async state updates
 
 **Starter Test Issue:**
+
 - Log actual button text: `console.log(container.textContent)`
 - Verify button actually exists: `screen.debug()`
 - Use getByRole instead: `getByRole('button', { name: /Start/i })`
@@ -356,11 +389,13 @@ After completing, report:
 ## 📚 Reference Files
 
 **To understand test patterns:**
+
 - Other tests in same files that are passing
 - `tests/setup.ts` - Test configuration
 - `vitest.config.ts` - Test runner settings
 
 **DO NOT READ UNLESS NEEDED:**
+
 - Component source files (don't change game logic!)
 
 ---

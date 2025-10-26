@@ -917,14 +917,13 @@ describe('BattleScreen', () => {
         />
       );
 
-      // Navigate to Gems and select
-      await act(async () => {
-        fireEvent.keyDown(container, { key: 'ArrowDown' });
-        fireEvent.keyDown(container, { key: 'ArrowDown' });
-        fireEvent.keyDown(container, { key: 'ArrowDown' });
-        fireEvent.keyDown(container, { key: 'Enter' });
-        await new Promise(resolve => setTimeout(resolve, 100));
-      });
+      // Navigate to Gems (down 3 times)
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      
+      // Activate Gems
+      fireEvent.keyDown(container, { key: 'Enter' });
 
       // Should show gem confirmation panel
       await waitFor(() => {
@@ -958,24 +957,20 @@ describe('BattleScreen', () => {
         />
       );
 
-      // Navigate to Gems and select
-      await act(async () => {
-        fireEvent.keyDown(container, { key: 'ArrowDown' });
-        fireEvent.keyDown(container, { key: 'ArrowDown' });
-        fireEvent.keyDown(container, { key: 'ArrowDown' });
-        fireEvent.keyDown(container, { key: 'Enter' });
-        await new Promise(resolve => setTimeout(resolve, 100));
-      });
+      // Navigate to Gems (down 3 times)
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      fireEvent.keyDown(container, { key: 'ArrowDown' });
+      
+      // Activate Gems
+      fireEvent.keyDown(container, { key: 'Enter' });
 
       await waitFor(() => {
         expect(container.textContent).toContain('Activate Gem');
       }, { timeout: 2000 });
 
       // Press Escape to cancel
-      await act(async () => {
-        fireEvent.keyDown(container, { key: 'Escape' });
-        await new Promise(resolve => setTimeout(resolve, 100));
-      });
+      fireEvent.keyDown(container, { key: 'Escape' });
 
       // Should return to action menu
       await waitFor(() => {

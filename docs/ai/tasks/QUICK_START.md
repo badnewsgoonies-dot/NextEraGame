@@ -48,11 +48,13 @@ You are the Implementation Coder AI for NextEraGame.
 
 ## What You Need to Include
 
-### For BOTH Tasks:
+### For BOTH Tasks
+
 ✅ **Implementation Coder Onboarding** (`docs/ai/IMPLEMENTATION_CODER_ONBOARDING.md`)
 ✅ **The specific task file** (`TASK_FIX_FAILING_TESTS.md` or `TASK_REDESIGN_GEM_SYSTEM.md`)
 
-### Optional (but helpful):
+### Optional (but helpful)
+
 - `docs/ai/COMPREHENSIVE_TEMPLATE_SYSTEM.md` (for Task 2)
 - `docs/ai/FRESH_SESSION_PROTOCOL.md` (if using fresh chat)
 
@@ -61,11 +63,13 @@ You are the Implementation Coder AI for NextEraGame.
 ## Expected Timeline
 
 **Task 1 (Fix Tests):**
+
 - Agent reads docs: 3-5 mins
 - Agent implements: 20-25 mins
 - **Total: ~25-30 mins**
 
 **Task 2 (Gem System):**
+
 - Agent reads docs: 5-7 mins
 - Agent implements: 55-65 mins
 - **Total: ~60-70 mins**
@@ -74,7 +78,8 @@ You are the Implementation Coder AI for NextEraGame.
 
 ## Success Looks Like
 
-### Task 1:
+### Task 1
+
 ```bash
 npm test
 # Test Files  47 passed (47)
@@ -82,7 +87,8 @@ npm test
 # ✅ 100% pass rate!
 ```
 
-### Task 2:
+### Task 2
+
 ```bash
 npm test
 # All tests passing

@@ -6,7 +6,8 @@
 
 ## 📋 OVERVIEW
 
-### The Challenge:
+### The Challenge
+
 ```
 Architect AI (Strategic Planning)
     ↓ [Translation gap]
@@ -15,10 +16,12 @@ Coder AI (Implementation)
 Wrong Feature Built (Wasted time)
 ```
 
-### The Solution:
-**Explicit handoff protocol with verification checkpoints**
+### The Solution
 
-### When to Use:
+#### Explicit handoff protocol with verification checkpoints
+
+### When to Use
+
 - Multi-session feature development
 - Complex features requiring planning
 - Any time Architect AI creates session plan
@@ -28,18 +31,20 @@ Wrong Feature Built (Wasted time)
 
 ## ⚠️ REAL RISK: The Interpretation Gap
 
-### Example of Misinterpretation:
+### Example of Misinterpretation
 
 **Architect AI says:**
 > "Add critical hit system"
 
 **What Coder AI might interpret:**
+
 - ❌ Random crits (5% chance for all units)
 - ❌ Using Math.random() (non-deterministic)
 - ❌ Fixed 2x damage multiplier
 - ❌ No integration with stats
 
 **What was actually intended:**
+
 - ✅ Luck-based crits (varies per unit)
 - ✅ Using IRng (deterministic)
 - ✅ Configurable multiplier
@@ -56,6 +61,7 @@ Wrong Feature Built (Wasted time)
 **Architect AI MUST provide:**
 
 #### 1. Explicit Algorithm/Formula
+
 ```markdown
 ❌ BAD:
 "Calculate critical hit chance"
@@ -71,6 +77,7 @@ Process:
 ```
 
 #### 2. Exact Function Signatures
+
 ```markdown
 ❌ BAD:
 "Create function to check crits"
@@ -86,6 +93,7 @@ Returns: Ok(true) if crit, Ok(false) if not"
 ```
 
 #### 3. Example Input/Output
+
 ```markdown
 ❌ BAD:
 "Function should determine if attack crits"
@@ -103,6 +111,7 @@ Expected: 100% crit rate (always crits)"
 ```
 
 #### 4. Integration Points
+
 ```markdown
 ❌ BAD:
 "Add to battle system"
@@ -117,6 +126,7 @@ Expected: 100% crit rate (always crits)"
 ```
 
 #### 5. Reference Code
+
 ```markdown
 ❌ BAD:
 "Follow existing patterns"
@@ -140,7 +150,7 @@ Copy structure from EquipmentSystem.ts:
 
 **Coder AI MUST do BEFORE writing code:**
 
-#### Verification Checklist:
+#### Verification Checklist
 
 ```markdown
 ## Pre-Implementation Verification
@@ -184,7 +194,7 @@ Is this correct?"
 
 **User MUST review BEFORE Coder AI starts:**
 
-#### Review Checklist:
+#### Review Checklist
 
 ```markdown
 ## User Review Checklist
@@ -211,7 +221,7 @@ Is this correct?"
 
 ## 📝 HANDOFF TEMPLATE
 
-### For Architect AI to Create:
+### For Architect AI to Create
 
 ```markdown
 # SESSION PLAN: [Feature Name]
@@ -223,12 +233,14 @@ Is this correct?"
 
 ### Algorithm/Formula:
 ```
+
 [Exact calculation steps]
 
 Example:
 Input: X
 Process: 1. ... 2. ... 3. ...
 Output: Y
+
 ```
 
 ### Function Signatures:
@@ -239,7 +251,8 @@ export function [name](
 ): Result<SuccessType, ErrorType>
 ```
 
-### Example Input/Output:
+### Example Input/Output
+
 ```
 Scenario 1:
 Input: [data]
@@ -250,41 +263,48 @@ Input: [data]
 Expected: [result]
 ```
 
-### Integration Points:
+### Integration Points
+
 - Import from: [file path]
 - Called by: [system/function]
 - When: [timing]
 - Uses: [dependencies]
 - Does NOT: [out of scope]
 
-### Reference Code:
+### Reference Code
+
 - Pattern: [file to copy structure from]
 - Similar: [related functionality]
 - Tests: [test file to reference]
 
-### Testing Requirements:
+### Testing Requirements
+
 - [X] tests minimum
 - Must cover: [scenarios]
 - Test structure: Copy from [reference test]
 
 ## ✅ Acceptance Criteria
+
 - [ ] [Testable criterion 1]
 - [ ] [Testable criterion 2]
 - [ ] [Testable criterion 3]
 
 ## 🚫 Explicitly Out of Scope
+
 - [Feature A] - separate session
 - [Feature B] - future work
 - [Feature C] - different AI role
 
 ## ⏱️ Time Estimate
+
 [X] minutes
 
 ---
 
-## FOR CODER AI:
+## FOR CODER AI
 
 **Before implementing, you MUST:**
+
 1. Read this entire plan
 2. Verify you understand the algorithm
 3. Confirm your interpretation with user
@@ -293,12 +313,14 @@ Expected: [result]
 
 **Confirmation format:**
 "I will implement [feature] by:
+
 - Creating [files]
 - Using [algorithm]
 - Following [pattern]
 - Testing [scenarios]
 
 Proceed?"
+
 ```
 
 ---
@@ -322,6 +344,7 @@ Coder AI: Implement this.
 ```
 
 **Problems:**
+
 - No formula specified
 - No function signatures
 - No examples
@@ -330,9 +353,10 @@ Coder AI: Implement this.
 
 ---
 
-#### ✅ EXPLICIT HANDOFF (DO THIS):
+### ✅ EXPLICIT HANDOFF (DO THIS)
 
 **Architect AI:**
+
 ```markdown
 Session 1: Create Critical Hit Calculation System
 
@@ -341,14 +365,17 @@ Create a deterministic critical hit system based on PlayerUnit.luck stat
 
 ## Algorithm:
 ```
+
 Formula: critChance = attacker.luck / 100
 
 Process:
+
 1. Validate: attacker.luck is 0-100
 2. Calculate: chance = luck / 100
 3. Generate: random = rng.nextInt(0, 99)
 4. Compare: if random < luck, return Ok(true)
 5. Else: return Ok(false)
+
 ```
 
 ## Function Signature:
@@ -359,7 +386,8 @@ export function checkCriticalHit(
 ): Result<boolean, never>
 ```
 
-## Examples:
+## Examples
+
 ```
 luck: 0 → 0% crit rate
 luck: 50 → 50% crit rate
@@ -370,23 +398,27 @@ Test with seed 12345:
 - Same seed, same luck → same sequence (deterministic)
 ```
 
-## Integration:
+## Integration
+
 - File: src/systems/CriticalHitSystem.ts (NEW)
 - Import pattern: Same as EquipmentSystem
 - Called by: (Not yet - out of scope this session)
 - Uses: PlayerUnit.luck (added in prior session)
 
-## Reference:
+## Reference
+
 - Copy structure: src/systems/EquipmentSystem.ts
 - Copy tests: tests/systems/EquipmentSystem.test.ts
 - Use Result types: src/utils/Result.ts
 - Use RNG: src/utils/rng.ts (IRng interface)
 
-## Testing:
+## Testing
+
 - 10+ tests required
 - Must cover: boundaries (0, 100), probabilities (25%, 50%, 75%), determinism, errors
 
-## Out of Scope:
+## Out of Scope
+
 - Battle system integration (Session 2)
 - Damage multiplier calculation (Session 3)
 - UI indicators (Graphics AI)
@@ -394,6 +426,7 @@ Test with seed 12345:
 ---
 
 **Coder AI: Before implementing, confirm your understanding.**
+
 ```
 
 **Result:** Clear, unambiguous, ready to implement correctly
@@ -417,6 +450,7 @@ Coder AI: Refactor the equipment code.
 ```
 
 **Problems:**
+
 - "Cleaner" is subjective
 - No specific performance goals
 - "Better structure" - what does that mean?
@@ -424,7 +458,7 @@ Coder AI: Refactor the equipment code.
 
 ---
 
-#### ✅ EXPLICIT HANDOFF:
+#### ✅ EXPLICIT HANDOFF
 
 ```markdown
 Session 3: Extract Equipment Validation Logic
@@ -443,8 +477,10 @@ if (slot < 0 || slot >= unit.equipment.length) {
 }
 ```
 
-## Solution:
+## Solution
+
 Extract to helper function:
+
 ```typescript
 function validateEquipmentSlot(
   unit: PlayerUnit,
@@ -460,32 +496,38 @@ function validateEquipmentSlot(
 }
 ```
 
-## Changes Required:
+## Changes Required
+
 1. Add helper function (private, not exported)
 2. Replace 3 duplicate blocks with helper call
 3. NO other changes (pure refactor)
 
-## Critical Requirements:
+## Critical Requirements
+
 ⚠️ NO BEHAVIOR CHANGE
+
 - All existing tests must pass WITHOUT modification
 - Same inputs → same outputs
 - Same error messages
 - Same performance (validation is trivial)
 
-## Verification:
+## Verification
+
 - [ ] TypeScript compiles
 - [ ] ALL tests pass (unchanged)
 - [ ] 3 duplicate blocks removed
 - [ ] Helper function created
 - [ ] No new features added
 
-## Out of Scope:
+## Out of Scope
+
 - Adding new validation rules
 - Changing error messages
 - Performance optimization (not needed)
 - Adding new features
 
 Time: 10-15 minutes (simple refactor)
+
 ```
 
 ---
@@ -505,6 +547,7 @@ Coder AI: Add the new fields.
 ```
 
 **Problems:**
+
 - Which stats?
 - What values?
 - How to calculate?
@@ -512,7 +555,7 @@ Coder AI: Add the new fields.
 
 ---
 
-#### ✅ EXPLICIT HANDOFF:
+#### ✅ EXPLICIT HANDOFF
 
 ```markdown
 Session 5: Add Defense and MagicDefense Stats to All Units
@@ -529,7 +572,8 @@ interface PlayerUnit {
 }
 ```
 
-## Value Assignment (by role):
+## Value Assignment (by role)
+
 ```
 Tank:    defense: 15, magicDefense: 10
 Fighter: defense: 10, magicDefense: 8
@@ -538,11 +582,13 @@ Ranger:  defense: 8,  magicDefense: 10
 Support: defense: 7,  magicDefense: 12
 ```
 
-## Files to Modify:
+## Files to Modify
+
 1. src/types/game.ts - Add fields to PlayerUnit interface
 2. src/data/starterUnits.ts - Add values to all 12 units
 
-## Assignment by Unit:
+## Assignment by Unit
+
 ```
 // From starterUnits.ts (reference role):
 Arin (Fighter):    defense: 10, magicDefense: 8
@@ -553,17 +599,21 @@ Zara (Support):    defense: 7,  magicDefense: 12
 ... (7 more units - check their roles)
 ```
 
-## Self-Recovery Expectations:
+## Self-Recovery Expectations
+
 ⚠️ This WILL break test fixtures
 Expected: 10-20 test files need defense/magicDefense added
 
 Let AI find and fix autonomously:
+
 - Battle fixtures
 - Team fixtures
 - Unit mock objects
 
-## Testing:
+## Testing
+
 Create integration test:
+
 ```typescript
 // tests/integration/defense.stats.test.ts
 it('all 12 starter units have defense and magicDefense', () => {
@@ -575,7 +625,8 @@ it('all 12 starter units have defense and magicDefense', () => {
 });
 ```
 
-## Acceptance:
+## Acceptance
+
 - [ ] PlayerUnit has defense and magicDefense fields
 - [ ] All 12 starters have correct values (by role)
 - [ ] Integration test passes
@@ -583,6 +634,7 @@ it('all 12 starter units have defense and magicDefense', () => {
 - [ ] TypeScript 0 errors
 
 Time: 15-20 minutes (includes self-recovery)
+
 ```
 
 ---
@@ -636,6 +688,7 @@ I have reviewed the session plan. Here's my understanding:
 ### Step 3: User Approves
 
 **User response:**
+
 ```
 ✅ Yes, proceed
 ```
@@ -664,6 +717,7 @@ Only after explicit approval does Coder AI start writing code.
 ### Stop Sign 1: Ambiguous Requirements
 
 **Example:**
+
 ```markdown
 Plan says: "Integrate with battle system"
 
@@ -675,6 +729,7 @@ Red flags:
 ```
 
 **Action:**
+
 ```
 ❌ DO NOT guess and implement
 ✅ Ask: "Please specify:
@@ -689,6 +744,7 @@ Red flags:
 ### Stop Sign 2: Missing Examples
 
 **Example:**
+
 ```markdown
 Plan says: "Calculate damage modifier"
 
@@ -699,6 +755,7 @@ Red flags:
 ```
 
 **Action:**
+
 ```
 ❌ DO NOT make up formula
 ✅ Ask: "Please provide:
@@ -712,6 +769,7 @@ Red flags:
 ### Stop Sign 3: Unclear Integration
 
 **Example:**
+
 ```markdown
 Plan says: "Add to game loop"
 
@@ -722,6 +780,7 @@ Red flags:
 ```
 
 **Action:**
+
 ```
 ❌ DO NOT assume
 ✅ Ask: "Please specify:
@@ -735,6 +794,7 @@ Red flags:
 ### Stop Sign 4: Scope Creep
 
 **Example:**
+
 ```markdown
 Plan says: "Add critical hits"
 
@@ -742,7 +802,7 @@ Coder thinks: "I should also add:
 - Crit damage multiplier (2x)
 - Crit animation trigger
 - Crit sound effect
-- Crit UI indicator"
+- Crit UI indicator
 
 Red flags:
 - Adding features not in plan
@@ -750,6 +810,7 @@ Red flags:
 ```
 
 **Action:**
+
 ```
 ❌ DO NOT add extra features
 ✅ Ask: "Plan specifies crit calculation only.
@@ -765,14 +826,16 @@ Or are these separate tasks?"
 
 ## ✅ SUCCESS METRICS
 
-### Good Handoff:
+### Good Handoff
+
 ✅ Coder AI asks 0-2 clarifying questions  
 ✅ Implementation matches intent exactly  
 ✅ Zero wasted time on wrong approach  
 ✅ Code is correct first try  
 ✅ Acceptance criteria all met  
 
-### Bad Handoff:
+### Bad Handoff
+
 ❌ Coder AI asks 5+ questions (plan was vague)  
 ❌ Implements wrong feature (misunderstood)  
 ❌ 30+ mins wasted, needs to redo  
@@ -783,7 +846,8 @@ Or are these separate tasks?"
 
 ## 🎯 CHECKLIST SUMMARY
 
-### For Architect AI:
+### For Architect AI
+
 - [ ] Explicit algorithm/formula provided
 - [ ] Exact function signatures specified
 - [ ] Example input/output shown
@@ -792,7 +856,8 @@ Or are these separate tasks?"
 - [ ] Testing requirements clear
 - [ ] Out of scope items listed
 
-### For Coder AI:
+### For Coder AI
+
 - [ ] Read full session plan
 - [ ] Understand algorithm
 - [ ] Confirm interpretation
@@ -800,7 +865,8 @@ Or are these separate tasks?"
 - [ ] Wait for approval
 - [ ] THEN implement
 
-### For User:
+### For User
+
 - [ ] Review Coder's interpretation
 - [ ] Check for misunderstandings
 - [ ] Verify scope is correct
@@ -812,13 +878,16 @@ Or are these separate tasks?"
 ## 🔗 RELATED DOCUMENTATION
 
 **Planning:**
+
 - `ARCHITECT_ONBOARDING.md` - Creating session plans
 
 **Implementation:**
+
 - `CHAT_TEMPLATES.md` - Implementation templates
 - `FRESH_SESSION_PROTOCOL.md` - Fresh chat setup
 
 **Recovery:**
+
 - `INTERRUPTION_RECOVERY.md` - Handling interruptions
 
 ---
@@ -826,6 +895,7 @@ Or are these separate tasks?"
 ## 💡 PRO TIPS
 
 ### Tip 1: Over-Communicate Rather Than Assume
+
 ```
 When in doubt, be MORE explicit:
 "Use IRng from src/utils/rng.ts"
@@ -837,6 +907,7 @@ Not just:
 ---
 
 ### Tip 2: Show, Don't Tell
+
 ```
 ✅ "Formula: x = (a + b) * c"
 ✅ "Example: a=5, b=3, c=2 → x=16"
@@ -847,6 +918,7 @@ Not just:
 ---
 
 ### Tip 3: Reference Existing Code
+
 ```
 ✅ "Copy structure from EquipmentSystem.ts lines 45-78"
 
@@ -856,6 +928,7 @@ Not just:
 ---
 
 ### Tip 4: Explicit Out of Scope
+
 ```
 Prevents scope creep:
 "This task does NOT include:
@@ -871,11 +944,13 @@ Prevents scope creep:
 ### ❌ Mistake 1: Vague Requirements
 
 **Wrong:**
+
 ```
 "Add a system to handle equipment"
 ```
 
 **Right:**
+
 ```
 "Create EquipmentSystem.ts with these 3 functions:
 1. equipItem(unit, item, slot) → Result<Unit, string>
@@ -890,11 +965,13 @@ Example: equipItem(myUnit, ironSword, 0) → Ok(updated unit)"
 ### ❌ Mistake 2: No Examples
 
 **Wrong:**
+
 ```
 "Calculate critical hit chance based on luck"
 ```
 
 **Right:**
+
 ```
 "Formula: critChance = luck / 100
 Examples:
@@ -910,6 +987,7 @@ Test: luck 75 over 100 rolls → ~75 crits"
 ### ❌ Mistake 3: Assuming Context Carry-Over
 
 **Wrong:**
+
 ```
 [Architect in Chat 1]: "We'll add crits using luck stat"
 [Coder in Chat 2]: "Add critical hits"
@@ -917,6 +995,7 @@ Test: luck 75 over 100 rolls → ~75 crits"
 ```
 
 **Right:**
+
 ```
 [Architect in Chat 1]: Creates plan
 [Coder in Chat 2 receives]: Full plan with "Uses PlayerUnit.luck stat from prior session"
@@ -930,10 +1009,12 @@ Test: luck 75 over 100 rolls → ~75 crits"
 
 ## 🤝 WHEN CODER DISAGREES WITH ARCHITECT
 
-### Scenario:
+### Scenario
+
 Architect proposes approach, but Coder sees potential issue.
 
-### Coder Should:
+### Coder Should
+
 1. **State concern explicitly:**
    "This approach may fail because [specific reason]"
 
@@ -943,12 +1024,14 @@ Architect proposes approach, but Coder sees potential issue.
 3. **Await user decision:**
    Don't implement either until user chooses
 
-### User Should:
+### User Should
+
 1. Evaluate both approaches
 2. Make explicit choice
 3. Document why (for future reference)
 
-### Example:
+### Example
+
 ```
 Architect: "Use array.map() for processing"
 
@@ -958,20 +1041,16 @@ Coder: "This dataset is 100k items, map will be O(n) with full traversal.
 User: "Good catch. Use for loop with early exit."
 ```
 
-### What NOT to Do:
+### What NOT to Do
+
 ❌ Coder implements own preference without asking
 ❌ Architect insists without considering concern  
 ❌ User delegates decision back to AIs ("you two figure it out")
 
-### Best Outcome:
+### Best Outcome
+
 ✅ User makes informed decision
 ✅ Reasoning documented
 ✅ Best approach chosen
 
 ---
-
-## 📚 RELATED PROTOCOLS
-
-- **INTERRUPTION_RECOVERY.md** - If implementation interrupted mid-task
-- **FRESH_SESSION_PROTOCOL.md** - If handoff spans multiple sessions
-

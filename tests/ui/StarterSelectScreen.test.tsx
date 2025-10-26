@@ -43,7 +43,7 @@ describe('StarterSelectScreen', () => {
     test('Start button is disabled initially', () => {
       render(<StarterSelectScreen {...mockHandlers} />);
 
-      const startButton = screen.getByText(/Start Journey/);
+      const startButton = screen.getByRole('button', { name: /select.*units to continue/i });
       expect(startButton).toBeDisabled();
     });
   });
