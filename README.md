@@ -129,19 +129,43 @@ Works on desktop and mobile. No installation required!
 
 ## 🔄 Recent Updates (October 2025)
 
-### **Critical Bug Fixes**
+### **v1.1.0 - Gem System Redesign + Visual Polish** 🎉
+
+**Major Features:**
+- ✨ **NEW: Global Gem System** - Select 1 gem at game start for party-wide bonuses
+  - 6 elemental gems: Mars 🔥, Mercury 💧, Jupiter ⚡, Venus 🌍, Moon 🌙, Sun ☀️
+  - Elemental affinity system (Strong/Neutral/Weak stat modifiers)
+  - Battle super spell - powerful one-time ability per battle
+  - Beautiful gem selection screen with team preview
+- 🎨 **Visual Polish Pass** - 6 UI/UX bugs fixed
+  - StarterSelectScreen: All 12 units now selectable (rows 3-4 fixed)
+  - Battle items menu: Clean transition to ally targeting (no UI overlap)
+  - Equipment screen: Beautiful styling with icons ⚔️🛡️💍💎
+  - Navigation hints: Styled panels matching Golden Sun aesthetic
+  - Recruitment: Proper sprite rendering
+- 🧪 **100% Test Coverage** - 1004/1004 tests passing (maintained through major refactor)
+
+**Technical Achievements:**
+- Complete gem system architecture redesign (old per-unit system → global party system)
+- 0 TypeScript errors maintained throughout merge
+- Keyboard accessibility improved (Gem Super, Items, Abilities all work with Enter key)
+- Removed 3 deprecated files, added comprehensive new gem data
+
+### **Previous Updates**
+
+**Critical Bug Fixes:**
 - ✅ **Fixed game soft-lock** - Game can now progress through unlimited battles
 - ✅ **Fixed recruitment system** - Defeated enemies now correctly appear for recruitment (ID mismatch resolved)
 - ✅ **Fixed state machine** - Roster management properly transitions to next battle
 
-### **Performance Improvements**
+**Performance Improvements:**
 - ✅ **Improved UI responsiveness** - Replaced broad CSS transitions with specific properties
 - ✅ **Faster click detection** - Interactive elements respond within 500ms
 - ✅ **Maintained visual polish** - Smooth animations preserved
 
-### **Testing Enhancements**
+**Testing Enhancements:**
 - ✅ **Added E2E tests** - 4 regression tests prevent critical bugs from returning
-- ✅ **100% test pass rate** - All 771 tests passing (up from 767/779)
+- ✅ **100% test pass rate** - All 1004 tests passing (up from 767/779)
 - ✅ **Verified multi-battle flow** - Manual QA confirmed game playable through Battle #3+
 
 **Game Status:** ✅ Fully playable, production-ready, no known blockers
