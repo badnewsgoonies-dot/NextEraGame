@@ -303,7 +303,7 @@ This directory contains comprehensive onboarding documentation for AI assistants
 **NextEraGame - Turn-Based Tactical Roguelike**
 
 - **Status:** Production deployed ✅
-- **URL:** https://dist-next-era.vercel.app
+- **URL:** https://planetsdesending.netlify.app
 - **Health:** 10/10 score
 - **Tests:** 905+ tests, ~99% passing
 - **Coverage:** ~50%+
