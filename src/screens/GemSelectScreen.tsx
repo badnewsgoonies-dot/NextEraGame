@@ -18,7 +18,7 @@
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
-import type { PlayerUnit, GlobalGem, Element, ElementAffinity } from '../types/game.js';
+import type { PlayerUnit, ElementAffinity } from '../types/game.js';
 import { ALL_GLOBAL_GEMS, calculateAffinity } from '../data/gems.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
 
@@ -44,22 +44,22 @@ export function GemSelectScreen({
 
   // Keyboard navigation
   useKeyboard({
-    onArrowUp: () => {
+    onUp: () => {
       setFocusedGemIndex((prev) => {
         const newIndex = prev - 3;
         return newIndex < 0 ? prev : newIndex;
       });
     },
-    onArrowDown: () => {
+    onDown: () => {
       setFocusedGemIndex((prev) => {
         const newIndex = prev + 3;
         return newIndex >= ALL_GLOBAL_GEMS.length ? prev : newIndex;
       });
     },
-    onArrowLeft: () => {
+    onLeft: () => {
       setFocusedGemIndex((prev) => (prev > 0 ? prev - 1 : prev));
     },
-    onArrowRight: () => {
+    onRight: () => {
       setFocusedGemIndex((prev) =>
         (prev < ALL_GLOBAL_GEMS.length - 1 ? prev + 1 : prev)
       );

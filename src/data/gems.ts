@@ -13,7 +13,7 @@
  * - Moon (Light) ↔ Sun (Dark)
  */
 
-import type { GlobalGem, Element, ElementAffinity, StatBonus, GemSpell, SuperSpell } from '../types/game.js';
+import type { GlobalGem, Element, ElementAffinity, StatBonus } from '../types/game.js';
 
 // ============================================
 // Stat Bonus Presets

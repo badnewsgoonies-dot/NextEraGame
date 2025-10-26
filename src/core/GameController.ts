@@ -31,7 +31,6 @@ import type {
   ElementalGem,
   GlobalGem,
   GlobalGemState,
-  Element,
   StatBonus,
 } from '../types/game.js';
 import { ok, err, type Result } from '../utils/Result.js';
@@ -615,7 +614,7 @@ export class GameController {
    * - Neutral element units get no spells
    * @private
    */
-  private grantGemSpells(gem: GlobalGem): void {
+  private grantGemSpells(_gem: GlobalGem): void {
     // Note: This is a placeholder for future spell system integration
     // Currently PlayerUnit doesn't have an abilities/spells array
     // When implementing, you would add spells to unit.abilities array
@@ -665,7 +664,7 @@ export class GameController {
       superUsedThisBattle: true,
     };
 
-    return ok(this.state.globalGemState.selectedGem.superSpell);
+    return ok(this.state.globalGemState.selectedGem!.superSpell);
   }
 
   /**

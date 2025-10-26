@@ -851,6 +851,10 @@ describe('BattleScreen', () => {
     });
   });
 
+  // TODO: Add tests for new global gem system with super spells
+});
+
+
   describe('Gem Activation', () => {
     test('Gems action is available in menu', () => {
       const { container } = render(

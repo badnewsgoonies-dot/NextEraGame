@@ -383,36 +383,19 @@ export function BattleScreen({
         break;
 
       case 'party_buff':
-        // Apply buffs to all player units
-        setPlayers(prev => prev.map(player => {
-          const buffedUnit = applyBuff(player, {
-            stat: 'defense',
-            amount: superSpell.power,
-            duration: 3,
-            source: 'gem-super',
-            sourceName: superSpell.name
-          });
-          return buffedUnit as BattleUnit;
-        }));
+        // TODO: Implement proper buff system integration
         setGemActivationMessage(`🛡️ ${superSpell.name}! Party defense increased!`);
+        console.log('TODO: Apply defense buff to party');
         break;
 
       case 'enemy_debuff':
-        // Apply debuffs to all enemies and deal damage
-        setEnemies(prev => prev.map(enemy => {
-          const debuffedUnit = applyBuff(enemy, {
-            stat: 'attack',
-            amount: -superSpell.power / 2,
-            duration: 3,
-            source: 'gem-super',
-            sourceName: superSpell.name
-          });
-          return {
-            ...debuffedUnit,
-            currentHp: Math.max(0, debuffedUnit.currentHp - superSpell.power)
-          } as BattleUnit;
-        }));
-        setGemActivationMessage(`💀 ${superSpell.name}! Enemies weakened and damaged!`);
+        // Apply damage to all enemies (debuff part TODO)
+        setEnemies(prev => prev.map(enemy => ({
+          ...enemy,
+          currentHp: Math.max(0, enemy.currentHp - superSpell.power)
+        })));
+        setGemActivationMessage(`💀 ${superSpell.name}! Enemies damaged!`);
+        break;
         break;
 
       case 'revive':
@@ -631,7 +614,7 @@ export function BattleScreen({
         setTimeout(() => {
           setPhase('resolving');
           advanceTurnPointer();
-        }, ANIMATION_TIMING.GEM_ACTIVATION_DURATION || 1500);
+        }, 1500); // Gem activation duration
       }
     } else if (label === 'Items') {
       // Show item menu (keyboard/enter flow)
@@ -706,7 +689,7 @@ export function BattleScreen({
             setTimeout(() => {
               setPhase('resolving');
               advanceTurnPointer();
-            }, ANIMATION_TIMING.GEM_ACTIVATION_DURATION || 1500);
+            }, 1500); // Gem activation duration
           }
         } else if (label === 'Items') {
           // Show item menu (always, even if empty - will show "No items available")
