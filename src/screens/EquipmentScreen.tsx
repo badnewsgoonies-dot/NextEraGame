@@ -55,8 +55,14 @@ export function EquipmentScreen({
     <div className="h-full w-full bg-gradient-to-b from-purple-800 to-purple-900 flex flex-col">
       {/* Fixed Header */}
       <div className="flex-shrink-0 p-6 border-b-2 border-purple-600/50 bg-gradient-to-b from-purple-800 to-purple-800/95">
-        <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-yellow-300 via-yellow-200 to-yellow-300 bg-clip-text text-transparent drop-shadow-lg">
-          ⚔️ Equipment Management
+        <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-yellow-300 via-yellow-200 to-yellow-300 bg-clip-text text-transparent drop-shadow-lg flex items-center justify-center gap-3">
+          <img 
+            src="/sprites/ui/equipment/sword.gif"
+            alt="Equipment"
+            className="w-10 h-10 pixelated inline-block"
+            style={{ imageRendering: 'pixelated' }}
+          />
+          Equipment Management
         </h1>
         <p className="text-center text-purple-200 mt-2 text-sm">
           Equip items to boost your team's power
@@ -101,7 +107,10 @@ export function EquipmentScreen({
                     {/* Weapon Slot */}
                     <div className="flex items-center gap-4">
                       <span className="w-28 text-sm font-semibold text-gray-300 flex items-center gap-2">
-                        <span className="text-lg">⚔️</span> Weapon:
+                                              <div className="text-sm text-gray-300 mb-2 flex items-center gap-2">
+                        <img src="/sprites/ui/equipment/sword.gif" alt="Weapon" className="w-5 h-5 pixelated" style={{ imageRendering: 'pixelated' }} />
+                        <span>Weapon:</span>
+                      </div>
                       </span>
                       {weapon ? (
                         <div className="flex-1 flex items-center justify-between bg-gradient-to-r from-slate-700 to-slate-800 rounded-lg p-3 border border-gray-600">
