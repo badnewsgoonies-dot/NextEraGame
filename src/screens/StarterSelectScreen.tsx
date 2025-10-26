@@ -28,7 +28,7 @@ export function StarterSelectScreen({
   const [selectedUnits, setSelectedUnits] = useState<Set<string>>(new Set());
   const [focusedIndex, setFocusedIndex] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
-  const [gridCols, setGridCols] = useState(3);
+  const [gridCols, setGridCols] = useState(4); // Default to 4 columns
 
   const maxSelection = 4;
   const canStart = selectedUnits.size === maxSelection;
@@ -129,20 +129,20 @@ export function StarterSelectScreen({
   }, [focusedIndex]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-8 pb-48">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-4 pb-28">
+      {/* Header - Compact */}
+      <div className="max-w-7xl mx-auto mb-4">
+        <h1 className="text-3xl font-bold text-white mb-1 drop-shadow-lg">
           Choose Your Team
         </h1>
-        <p className="text-lg text-gray-300">
+        <p className="text-base text-gray-300">
           Select exactly {maxSelection} units to begin your journey
         </p>
         
         {/* Selection counter */}
-        <div className="mt-4 flex items-center gap-4">
+        <div className="mt-2 flex items-center gap-4">
           <div
-            className={`text-2xl font-bold ${
+            className={`text-xl font-bold ${
               canStart
                 ? 'text-green-400'
                 : 'text-gray-400'
@@ -160,13 +160,13 @@ export function StarterSelectScreen({
         </div>
       </div>
 
-      {/* Unit grid */}
-      <div className="max-w-6xl mx-auto mb-32">
+      {/* Unit grid - 4 columns for better fit */}
+      <div className="max-w-7xl mx-auto mb-24">
         <div
           ref={gridRef}
           role="group"
           aria-label="Starter units selection"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
         >
           {STARTER_CATALOG.map((unit, index) => (
             <UnitCard
@@ -183,13 +183,13 @@ export function StarterSelectScreen({
         </div>
       </div>
 
-      {/* Action buttons - FIXED: More prominent, better contrast */}
-      <div className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-t-2 border-yellow-500/50 p-6 shadow-2xl z-50">
-        <div className="max-w-6xl mx-auto flex justify-between items-center gap-4">
+      {/* Action buttons - Compact footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-t-2 border-yellow-500/50 p-4 shadow-2xl z-50">
+        <div className="max-w-7xl mx-auto flex justify-between items-center gap-4">
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-3 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors shadow-lg border-2 border-gray-600"
+            className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors shadow-lg border-2 border-gray-600"
           >
             ← Back to Menu
           </button>
@@ -198,20 +198,20 @@ export function StarterSelectScreen({
             type="button"
             onClick={handleStart}
             disabled={!canStart}
-            className={`px-8 py-4 rounded-lg font-bold text-xl transition-all duration-200 shadow-xl border-2 ${
+            className={`px-6 py-3 rounded-lg font-bold text-lg transition-all duration-200 shadow-xl border-2 ${
               canStart
                 ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-400 hover:from-green-400 hover:to-emerald-500 hover:scale-105 hover:shadow-2xl cursor-pointer animate-pulse'
                 : 'bg-gray-700 text-gray-500 border-gray-600 cursor-not-allowed opacity-50'
             }`}
             aria-label={canStart ? 'Start your journey with selected units' : 'Select 4 units to continue'}
           >
-            {canStart ? '🚀 Start Journey →' : `Select ${maxSelection - selectedUnits.size} more unit${maxSelection - selectedUnits.size !== 1 ? 's' : ''}`}
+            {canStart ? '🚀 Start Journey →' : `Select ${maxSelection - selectedUnits.size} more`}
           </button>
         </div>
       </div>
 
-      {/* Keyboard hints */}
-      <div className="max-w-6xl mx-auto mb-24 text-center text-sm text-gray-400">
+      {/* Keyboard hints - Compact */}
+      <div className="max-w-7xl mx-auto mb-20 text-center text-xs text-gray-400">
         <p>Arrow keys: Navigate • Space/Enter: Select • Ctrl+Enter: Start • Esc: Cancel</p>
       </div>
     </div>
