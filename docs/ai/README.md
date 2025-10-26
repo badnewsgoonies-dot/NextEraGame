@@ -103,14 +103,61 @@ This directory contains comprehensive onboarding documentation for AI assistants
 - Copy-paste initialization messages for all three AIs
 - Task handoff templates (architect → coder/graphics)
 - Completion report templates (coder/graphics → architect)
-- Feedback loop templates
+- **🆕 Real battle-tested task templates** (from successful implementations)
 - Full workflow example (leveling system)
 - Visual role reminders
 - Quick reference commands
-- Emergency commands
-- Success pattern checklist
 
 **Read this if:** You're starting a new AI session and want exact messages to copy-paste.
+
+---
+
+### **6. FRESH_SESSION_PROTOCOL.md** 🔄
+**For:** Implementation Coder AI (new sessions)
+
+**Contents:**
+- **Critical instructions for continuing work in new chats**
+- Branch setup and verification checklist
+- Context validation steps
+- Common mistakes and how to avoid them
+- Fresh session task template
+- Git workflow for multi-session projects
+- Handoff format between sessions
+
+**Read this if:** You're starting a NEW chat to continue work from previous sessions.
+
+---
+
+### **7. INTERRUPTION_RECOVERY.md** 🛟
+**For:** Both Architect and Coder AI (interrupted tasks)
+
+**Contents:**
+- **What to do when implementation stops mid-task**
+- Immediate assessment checklist (git status, test status, TypeScript)
+- Strategies for resuming in same chat vs fresh chat
+- Recovery context template with concrete examples
+- Specific scenarios: TypeScript errors, partial completion, complex state
+- Best practices: checkpoint commits, feature flags, incremental testing
+- Common mistakes and how to avoid them
+
+**Read this if:** A chat was interrupted (rate limit, crash, break) and you need to resume cleanly.
+
+---
+
+### **8. AI_HANDOFF_PROTOCOL.md** 🤝
+**For:** Both Architect and Coder AI (coordination)
+
+**Contents:**
+- **Ensuring clear communication between Architect and Coder AI**
+- Requirements checklist for Architect (algorithm, signatures, examples, integration)
+- Pre-implementation verification for Coder (confirm understanding before coding)
+- User review checkpoint (approve before execution)
+- Good vs vague handoff examples (critical hits, equipment, migrations)
+- Confirmation loop workflow
+- Red flags: when to stop and clarify
+- Common mistakes in coordination
+
+**Read this if:** Planning a task (Architect) or receiving a task (Coder) to ensure clear understanding.
 
 ---
 
@@ -320,6 +367,24 @@ This directory contains comprehensive onboarding documentation for AI assistants
 ### **Problem: Coder making strategic decisions**
 **Solution:** STOP. Read IMPLEMENTATION_CODER_ONBOARDING.md. Ask architect for guidance.
 
+### **Problem: Chat interrupted mid-task (rate limit, crash, break)**
+**Solution:** Read INTERRUPTION_RECOVERY.md. Assess state (git status, tests, TypeScript), save work, document what's done vs pending. When resuming, use recovery template.
+
+### **Problem: Coder AI misunderstood task from Architect**
+**Solution:** Read AI_HANDOFF_PROTOCOL.md. Architect should provide explicit algorithm/formula/examples. Coder should confirm understanding BEFORE coding. User approves approach.
+
+### **Problem: Unclear what's completed in interrupted task**
+**Solution:** Run verification commands from INTERRUPTION_RECOVERY.md:
+```bash
+npm run type-check  # TypeScript errors?
+npm test            # Which tests pass?
+git status          # What's modified?
+git diff            # See actual changes
+```
+
+### **Problem: Starting fresh chat but continuing prior work**
+**Solution:** Read FRESH_SESSION_PROTOCOL.md first, then INTERRUPTION_RECOVERY.md if prior work was incomplete. Verify branch, check files exist, document what's done vs pending.
+
 ---
 
 ## 📞 Quick Reference
@@ -336,6 +401,9 @@ This directory contains comprehensive onboarding documentation for AI assistants
 | Polish UI/UX | GRAPHICS_ONBOARDING.md | 🎨 Graphics |
 | Add animations | GRAPHICS_ONBOARDING.md | 🎨 Graphics |
 | Manage assets | GRAPHICS_ONBOARDING.md | 🎨 Graphics |
+| Continue in new chat | FRESH_SESSION_PROTOCOL.md | 🛠️ Coder |
+| **Resume interrupted task** | **INTERRUPTION_RECOVERY.md** | **🏛️ 🛠️ Both** |
+| **Coordinate Architect→Coder** | **AI_HANDOFF_PROTOCOL.md** | **🏛️ 🛠️ Both** |
 | Understand workflow | ROLE_IDENTIFICATION.md | All Three |
 | Initialize sessions | CHAT_TEMPLATES.md | Human |
 | Handle confusion | ROLE_IDENTIFICATION.md | All Three |
@@ -397,6 +465,14 @@ This directory contains comprehensive onboarding documentation for AI assistants
   - Added Graphics AI role boundaries
   - Updated workflow diagrams
   - Added sprite integration guidance
+
+- **v3.0** (2025-10-25): Workflow resilience improvements
+  - INTERRUPTION_RECOVERY.md (NEW!)
+  - AI_HANDOFF_PROTOCOL.md (NEW!)
+  - Battle-tested protocols for interrupted tasks
+  - Explicit coordination between Architect and Coder
+  - Recovery templates and verification checklists
+  - Updated README with new troubleshooting
 
 ---
 

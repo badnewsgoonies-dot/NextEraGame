@@ -93,6 +93,171 @@ Turn-based tactical roguelike game with equipment progression, recruitment mecha
 
 ---
 
+## 📋 Session Planning (CRITICAL!)
+
+**Before each development session, create a structured plan to prevent scope creep and maintain direction.**
+
+### **Why Session Planning Matters:**
+- ✅ **Prevents scope creep** - Stay focused on session goals
+- ✅ **Maintains clear direction** - Everyone knows what success looks like  
+- ✅ **Enables progress tracking** - Easy to see what's done
+- ✅ **Reduces cognitive load** - Plan once, execute systematically
+- ✅ **Facilitates handoffs** - Clear state for next session
+
+### **Session Plan Template:**
+
+```markdown
+# 🗓️ Session [Number/Date]: [Session Goal]
+
+## 🎯 Session Objective
+[One sentence: What we're trying to accomplish this session]
+
+## 📊 Current State
+- Test Count: [X tests passing]
+- Coverage: [X%]
+- Known Issues: [List any blockers]
+- Last Completed: [Previous session's work]
+
+## 🎯 Session Goals (Priority Order)
+1. **[Goal 1]** - [Why this matters] - [Est: Xh]
+2. **[Goal 2]** - [Why this matters] - [Est: Xh]  
+3. **[Goal 3]** - [Why this matters] - [Est: Xh]
+
+## 📋 Implementation Tasks
+
+### Task 1: [Title]
+- **File(s):** [Path(s)]
+- **Action:** [What to do]
+- **Acceptance:** [How we know it's done]
+- **Time:** [Estimate]
+
+### Task 2: [Title]
+- **File(s):** [Path(s)]
+- **Action:** [What to do]
+- **Acceptance:** [How we know it's done]
+- **Time:** [Estimate]
+
+[Repeat for all tasks]
+
+## ✅ Session Success Criteria
+- [ ] All session goals completed
+- [ ] Tests passing (100% pass rate)
+- [ ] TypeScript 0 errors
+- [ ] No regressions introduced
+- [ ] Code quality maintained
+
+## 🚫 Out of Scope (Defer to Later)
+- [Thing 1 we're NOT doing this session]
+- [Thing 2 we're NOT doing this session]
+
+## 📊 Expected End State
+- Test Count: [X tests]
+- New Features: [List]
+- Files Modified: [Rough count]
+- Ready for: [Next session's focus]
+```
+
+### **When to Create Session Plans:**
+
+**ALWAYS create before:**
+- Starting a new feature
+- Complex refactoring work
+- Multi-session projects
+- After user requests
+
+**OPTIONAL for:**
+- Single quick fixes
+- Emergency bug patches
+- Very small polish tasks
+
+### **Session Plan Benefits:**
+
+**For You (Architect):**
+- Clear scope boundaries
+- Easy progress tracking
+- Better time estimates
+- Prevents over-engineering
+
+**For Implementation Coder:**
+- Crystal clear expectations
+- Know when to stop
+- Can't accidentally scope creep
+- Clear success definition
+
+**For Human Developer:**
+- Visibility into progress
+- Can review plan before work starts
+- Easy to course-correct early
+- Clear session summaries
+
+### **Example Session Plan:**
+
+```markdown
+# 🗓️ Session 12: Critical Hit System
+
+## 🎯 Session Objective
+Add critical hit mechanic based on luck stat to increase combat variety.
+
+## 📊 Current State
+- Test Count: 1034 tests passing
+- Coverage: 50%+
+- Known Issues: None blocking
+- Last Completed: Luck stat added to PlayerUnit (Session 11)
+
+## 🎯 Session Goals (Priority Order)
+1. **Create CriticalHitSystem** - Core mechanic for variable damage - [Est: 1h]
+2. **Integrate with BattleSystem** - Hook into damage calculation - [Est: 1h]  
+3. **Add comprehensive tests** - Cover all edge cases - [Est: 1h]
+
+## 📋 Implementation Tasks
+
+### Task 1: Create CriticalHitSystem
+- **File(s):** src/systems/CriticalHitSystem.ts
+- **Action:** Pure function checkCriticalHit(attacker, rng) → Result<boolean>
+- **Acceptance:** Returns true/false based on attacker.luck / 100
+- **Time:** 30 min
+
+### Task 2: Add CriticalHitSystem Tests
+- **File(s):** tests/systems/CriticalHitSystem.test.ts
+- **Action:** 10+ tests covering boundaries, determinism, errors
+- **Acceptance:** All tests passing, determinism verified
+- **Time:** 30 min
+
+### Task 3: Integrate with BattleSystem
+- **File(s):** src/systems/BattleSystem.ts
+- **Action:** Call checkCriticalHit before damage calc, double damage on crit
+- **Acceptance:** Critical hits work in battle, properly animated
+- **Time:** 1h
+
+### Task 4: Update Battle Tests
+- **File(s):** tests/systems/BattleSystem.test.ts
+- **Action:** Add crit tests to battle suite
+- **Acceptance:** Battle tests cover crit scenarios
+- **Time:** 30 min
+
+## ✅ Session Success Criteria
+- [ ] CriticalHitSystem created with Result types
+- [ ] 10+ new tests for crits (all passing)
+- [ ] Battle system uses crits correctly
+- [ ] All existing tests still pass
+- [ ] TypeScript 0 errors
+- [ ] Deterministic behavior verified
+
+## 🚫 Out of Scope (Defer to Later)
+- Visual effects for crits (Session 13 - Graphics AI)
+- Crit stat modifiers from equipment (Session 14)
+- Special crit abilities or skills (Future)
+- Crit damage multiplier customization (Future)
+
+## 📊 Expected End State
+- Test Count: ~1044 tests (10 new)
+- New Features: Critical hits functional in combat
+- Files Modified: ~4 files
+- Ready for: Visual polish (crit animations)
+```
+
+---
+
 ## 🎯 Your Strategic Responsibilities
 
 ### **1. Feature Planning**

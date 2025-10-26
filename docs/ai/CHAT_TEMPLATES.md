@@ -79,6 +79,402 @@ After reading, confirm your role and tell me you're ready to make the game beaut
 
 ---
 
+## 🧪 Real Task Templates (Battle-Tested)
+
+**These templates are from actual successful implementations. Copy and adapt them.**
+
+---
+
+### **Template 1: Simple Utility Function** (5-10 mins)
+
+**Complexity:** Low | **Risk:** Low | **Value:** Medium
+
+```markdown
+# Task: Add [Function Name] Utility Function
+
+## Context
+Project: NextEraGame (C:\Dev\AiGames\NextEraGame)
+Pattern: Pure functions, uses seeded RNG from pure-rand
+
+## Objective
+Create a utility function that [one sentence description].
+
+## Requirements
+- File: src/utils/[filename].ts (create new file)
+- Function: [name]<T>([params]): [return type]
+- [Specific requirement 1]
+- [Specific requirement 2]
+- Pure function (no mutations)
+- Add [N] tests to tests/utils/[filename].test.ts
+
+## Acceptance
+- [ ] TypeScript compiles (0 errors)
+- [ ] [N] tests pass ([list test cases])
+- [ ] Uses deterministic RNG (if applicable)
+
+## Time: 5-10 minutes
+```
+
+**Real Example:**
+```markdown
+# Task: Add getRandomElement Utility Function
+
+## Context
+Project: NextEraGame
+Pattern: Pure functions, uses seeded RNG from pure-rand
+
+## Objective
+Create a utility function that returns a random element from an array using our deterministic RNG.
+
+## Requirements
+- File: src/utils/arrayUtils.ts (create new file)
+- Function: getRandomElement<T>(array: T[], rng: IRng): T | undefined
+- Return undefined for empty arrays
+- Use our IRng type from src/utils/rng.ts
+- Pure function (no mutations)
+- Add 3 tests to tests/utils/arrayUtils.test.ts
+
+## Acceptance
+- [ ] TypeScript compiles (0 errors)
+- [ ] 3 tests pass (empty array, single element, multiple elements)
+- [ ] Uses deterministic RNG
+
+## Time: 5 minutes
+```
+
+---
+
+### **Template 2: Add Field to Type** (10-15 mins)
+
+**Complexity:** Medium | **Risk:** Medium (breaking change) | **Value:** High
+
+```markdown
+# Task: Add [FieldName] to [TypeName]
+
+## Context
+Project: NextEraGame
+Pattern: Pure functions, TypeScript strict mode, comprehensive testing
+
+## Objective
+Add [field] to [type] type and update all usages.
+
+## Requirements
+
+1. **Update Type Definition:**
+   - File: src/types/game.ts
+   - Add `[fieldName]: [type]` to [Interface] (find existing interface)
+   - DO NOT modify any other interfaces
+
+2. **Update Data Files:**
+   - File: [path to data file]
+   - Add `[fieldName]: [defaultValue]` to ALL [N] instances
+   - Keep all existing properties
+
+3. **Create Tests:**
+   - File: tests/integration/[name].test.ts (new file)
+   - Test 1: Verify type has field
+   - Test 2: Verify all instances have field = [value]
+   - Test 3: Verify TypeScript compilation with field
+
+## Pattern Requirements
+- No mutations (pure data updates)
+- TypeScript must compile with 0 errors
+- ALL existing tests must still pass
+
+## Acceptance Criteria
+- [ ] TypeScript compiles (0 errors)
+- [ ] ALL existing tests still pass ([N]+ tests)
+- [ ] 3 new tests pass
+- [ ] All [N] instances have [field]: [value]
+
+## Skip Git Operations
+DO NOT commit or push - this is a test task.
+
+## Time: 10-15 minutes
+```
+
+**Real Example:**
+```markdown
+# Task: Add "Luck" Stat to PlayerUnit
+
+## Context
+Project: NextEraGame
+Pattern: Pure functions, TypeScript strict mode
+
+## Objective
+Add luck stat to PlayerUnit type and update starter units to include it.
+
+## Requirements
+
+1. **Update Type Definition:**
+   - File: src/types/game.ts
+   - Add `luck: number` to PlayerUnit interface
+   - DO NOT modify any other interfaces
+
+2. **Update Starter Units:**
+   - File: src/data/starterUnits.ts
+   - Add `luck: 5` to ALL 12 starter units
+   - Keep all existing properties
+
+3. **Create Tests:**
+   - File: tests/integration/luck.stat.test.ts
+   - Test 1: PlayerUnit type has luck field
+   - Test 2: All 12 starter units have luck = 5
+   - Test 3: TypeScript compilation with luck field
+
+## Acceptance Criteria
+- [ ] TypeScript compiles (0 errors)
+- [ ] ALL existing tests still pass (743+ tests)
+- [ ] 3 new tests pass
+- [ ] All 12 starter units have luck: 5
+
+## Time: 10 minutes
+```
+
+---
+
+### **Template 3: Create New System** (20-30 mins)
+
+**Complexity:** High | **Risk:** Medium | **Value:** High
+
+```markdown
+# Task: Add [SystemName]
+
+## Context
+Project: NextEraGame
+Branch: [branch-name]
+Pattern: Copy [ExistingSystem] structure (uses Result types, pure functions)
+
+## Objective
+Create a system to [one sentence description].
+
+## Requirements
+
+### 1. Create System File
+- File: src/systems/[SystemName].ts (NEW file)
+- Pattern: Copy structure from src/systems/[ExistingSystem].ts
+- Use Result types for error handling
+- Pure functions (no mutations)
+- Deterministic RNG
+
+### 2. Function Signature
+```typescript
+export function [functionName](
+  [param1]: [Type1], 
+  [param2]: [Type2]
+): Result<[SuccessType], [ErrorType]>
+```
+
+### 3. Formula/Logic
+```
+[Describe the calculation or logic]
+```
+
+### 4. Create Tests
+- File: tests/systems/[SystemName].test.ts (NEW file)
+- Pattern: Copy test structure from tests/systems/[ExistingSystem].test.ts
+- Required tests:
+  - [Test case 1]
+  - [Test case 2]
+  - [Test case 3]
+  - Test determinism (same seed + same input = same result)
+  - [Additional tests as needed]
+
+### 5. Integration Check
+- Verify it works WITH existing changes
+- Can import needed types
+- Uses pure function patterns like other systems
+
+## Pattern Requirements
+- **Result type** - All functions return Result<T, E>
+- **Pure functions** - No mutations, no side effects
+- **Deterministic RNG** - Use IRng, not Math.random()
+- **TypeScript strict** - No type errors
+- **Comprehensive tests** - 10+ tests minimum
+
+## Acceptance Criteria
+- [ ] TypeScript compiles (0 errors)
+- [ ] 10+ new tests created
+- [ ] ALL new tests passing
+- [ ] ALL existing tests still pass
+- [ ] Follows pure function pattern
+- [ ] Uses Result type correctly
+- [ ] Deterministic (same seed = same outcome)
+
+## Skip Git Operations
+DO NOT commit or push - this is a test task.
+
+## Time Target: 20-30 minutes
+
+## Reference Files to Copy Patterns From
+- src/systems/[ExistingSystem].ts (system structure)
+- tests/systems/[ExistingSystem].test.ts (test structure)
+- src/utils/Result.ts (Result type usage)
+- src/utils/rng.ts (IRng interface)
+```
+
+**Real Example:**
+```markdown
+# Task: Add Critical Hit System
+
+## Context
+Project: NextEraGame
+Branch: claude/add-random-element-util-011CUUWyg2WA4PiuwTLXj8MM
+Pattern: Copy EquipmentSystem structure
+
+**Important:** This is a fresh session. Previous work exists:
+- Test 1: Created src/utils/arrayUtils.ts
+- Test 2: Added luck stat to PlayerUnit type
+
+## Objective
+Create a system to calculate critical hits based on the luck stat.
+
+## Requirements
+
+### 1. Create System File
+- File: src/systems/CriticalHitSystem.ts (NEW file)
+- Pattern: Copy structure from src/systems/EquipmentSystem.ts
+- Use Result types, pure functions, deterministic RNG
+
+### 2. Function Signature
+```typescript
+export function checkCriticalHit(
+  attacker: PlayerUnit, 
+  rng: IRng
+): Result<boolean, never>
+```
+
+### 3. Formula
+```typescript
+critChance = attacker.luck / 100
+// luck: 5 = 5% crit chance
+// luck: 50 = 50% crit chance
+// Use rng.nextInt(0, 99) to determine if crit occurs
+```
+
+### 4. Create Tests
+- File: tests/systems/CriticalHitSystem.test.ts (NEW file)
+- Required tests:
+  - Test with luck = 0 (never crits)
+  - Test with luck = 100 (always crits)
+  - Test determinism (same seed = same result)
+  - Test with luck = 50 (~50% over 100 rolls)
+  - Test invalid luck values
+  - Test Result type returned correctly
+
+## Acceptance Criteria
+- [ ] TypeScript compiles (0 errors)
+- [ ] 10+ new tests created and passing
+- [ ] ALL existing tests still pass (1034+)
+- [ ] Uses Result type and pure functions
+- [ ] Deterministic (same seed = same outcome)
+
+## Skip Git Operations
+DO NOT commit or push.
+
+## Time: 20 minutes
+```
+
+---
+
+### **Template 4: Fresh Session Task** (Variable)
+
+**Use when continuing work from previous sessions in a NEW chat.**
+
+```markdown
+# Task: [Feature Name]
+
+## 🔄 Fresh Session Context
+
+**This is a NEW session continuing prior work.**
+
+### Prior Work Completed:
+- Session 1: [What was done]
+- Session 2: [What was done]
+
+### Expected Existing Files:
+- `path/to/file1.ts` - [What it contains]
+- `path/to/file2.ts` - [What it contains]
+
+### Branch Information:
+- **Correct Branch:** `[exact-branch-name]`
+- **Switch BEFORE starting:** `git checkout [branch-name]`
+
+---
+
+## 🎯 Your Task
+
+[Normal task description...]
+
+---
+
+## ⚠️ CRITICAL INSTRUCTIONS
+
+### BEFORE Writing Any Code:
+1. ✅ `git checkout [branch-name]`
+2. ✅ `git status` - verify expected files
+3. ✅ Read key files for context
+4. ✅ Confirm dependencies present
+
+### If Files Missing:
+- STOP and report: "Expected file X not found"
+- DON'T recreate work from prior sessions
+```
+
+**See FRESH_SESSION_PROTOCOL.md for full details.**
+
+---
+
+## 🎯 Task Complexity Guide
+
+### **Simple Tasks (5-10 mins)**
+- Single utility function
+- Simple data updates
+- Isolated changes
+- **Template:** Use Template 1
+
+### **Medium Tasks (10-20 mins)**
+- Type modifications
+- Multiple file updates
+- May affect test fixtures
+- **Template:** Use Template 2
+
+### **Complex Tasks (20-30+ mins)**
+- New system creation
+- Integration work
+- Comprehensive testing needed
+- **Template:** Use Template 3
+
+### **Multi-Session Tasks**
+- Requires multiple sessions
+- Builds on prior work
+- **Template:** Use Template 4 + Fresh Session Protocol
+
+---
+
+## 📚 Pattern Enforcement
+
+**Include this in EVERY task template:**
+
+```markdown
+## Pattern Requirements (ALWAYS ENFORCE)
+
+- **Result types** - Use Result<T, E> for error handling
+- **Pure functions** - No mutations, no side effects
+- **Deterministic RNG** - Use IRng from src/utils/rng.ts
+- **TypeScript strict** - No `any`, no type errors
+- **Comprehensive tests** - Cover happy path + edge cases
+
+## Quality Gates
+
+- [ ] TypeScript compiles (0 errors)
+- [ ] ALL tests passing (100% pass rate)
+- [ ] No circular dependencies
+- [ ] Follows project patterns
+```
+
+---
+
 ## 🎨 Graphics AI Quick Example
 
 **When to use Graphics AI:**

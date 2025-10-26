@@ -4,7 +4,7 @@
 
 [![Live Demo](https://img.shields.io/badge/Play-Live%20Demo-blue?style=for-the-badge)](https://next-era-game.netlify.app)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-blue?style=flat-square)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/Tests-1029/1033_Passing_(99.6%25)-success?style=flat-square)](./tests)
+[![Tests](https://img.shields.io/badge/Tests-1029+_Passing_(99%2B%25)-success?style=flat-square)](./tests)
 [![Health Score](https://img.shields.io/badge/Health-10/10-success?style=flat-square)](#-quality-metrics)
 [![AI Assisted](https://img.shields.io/badge/Built_with-Claude_Sonnet_4.5-purple?style=flat-square)](https://www.anthropic.com/claude)
 
@@ -56,6 +56,7 @@
 
 **From Concept to Production:**
 - ⏱️ **Total Time:** ~30+ hours of AI collaboration
+- 📋 **Session Planning:** Architect AI creates structured plans before each session, preventing scope creep and maintaining clear direction
 - 🎯 **Original MVP:** 4.5 hours (opponent selection system)
 - 🎮 **Full Game:** +25 hours (complete game loop, all systems, visual polish)
 - 📈 **vs Traditional:** 30-40x faster than solo development
@@ -155,8 +156,8 @@ Works on desktop and mobile. No installation required!
 - **Testing:** Vitest + Testing Library (191 tests, 100% passing)
 - **RNG:** pure-rand (deterministic, forkable)
 - **Validation:** Valibot
-- **Deployment:** Vercel (auto-deploy on push)
-- **Analytics:** Vercel Analytics
+- **Deployment:** Netlify (auto-deploy on push)
+- **Analytics:** Netlify Analytics
 
 ---
 
@@ -305,7 +306,7 @@ npm run build
 ### Other Platforms
 
 Works on any static hosting:
-- Netlify (current host)
+- **Netlify (current host)** ✅
 - Vercel
 - GitHub Pages
 - Cloudflare Pages
@@ -569,7 +570,7 @@ MIT License - feel free to use, modify, and distribute!
 
 **Ready to play?**
 
-👉 **[Launch NextEraGame](https://dist-next-era.vercel.app)** 👈
+👉 **[Launch NextEraGame](https://next-era-game.netlify.app)** 👈
 
 ---
 
