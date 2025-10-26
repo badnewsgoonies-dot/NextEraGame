@@ -925,12 +925,18 @@ describe('BattleScreen', () => {
       });
 
       // Navigate to Gems and select (React 19: Fire keyboard events on window)
+      // Fire each event separately like the passing Flee test does
       await act(async () => {
         fireEvent.keyDown(window, { key: 'ArrowDown' });
+      });
+      await act(async () => {
         fireEvent.keyDown(window, { key: 'ArrowDown' });
+      });
+      await act(async () => {
         fireEvent.keyDown(window, { key: 'ArrowDown' });
+      });
+      await act(async () => {
         fireEvent.keyDown(window, { key: 'Enter' });
-        await new Promise(resolve => setTimeout(resolve, 100));
       });
 
       // Should show gem confirmation panel
@@ -972,12 +978,18 @@ describe('BattleScreen', () => {
       });
 
       // Navigate to Gems and select (React 19: Fire keyboard events on window)
+      // Fire each event separately like the passing Flee test does
       await act(async () => {
         fireEvent.keyDown(window, { key: 'ArrowDown' });
+      });
+      await act(async () => {
         fireEvent.keyDown(window, { key: 'ArrowDown' });
+      });
+      await act(async () => {
         fireEvent.keyDown(window, { key: 'ArrowDown' });
+      });
+      await act(async () => {
         fireEvent.keyDown(window, { key: 'Enter' });
-        await new Promise(resolve => setTimeout(resolve, 100));
       });
 
       await waitFor(() => {
@@ -987,7 +999,6 @@ describe('BattleScreen', () => {
       // Press Escape to cancel
       await act(async () => {
         fireEvent.keyDown(window, { key: 'Escape' });
-        await new Promise(resolve => setTimeout(resolve, 100));
       });
 
       // Should return to action menu
