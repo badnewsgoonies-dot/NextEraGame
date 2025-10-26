@@ -217,6 +217,100 @@ export interface EquippedGem {
   readonly state: GemState;
 }
 
+/**
+ * Global Gem System - Redesigned (Game-Start Selection)
+ *
+ * NEW DESIGN:
+ * - ONE gem selected at game start (after roster selection)
+ * - Provides global party-wide stat bonuses based on elemental affinity
+ * - Grants spells to matching element units
+ * - Has a battle "super spell" usable once per battle
+ */
+
+/**
+ * Element affinity level for gem bonus calculation
+ */
+export type ElementAffinity = 'strong' | 'neutral' | 'weak';
+
+/**
+ * Stat bonuses granted by gem (flat values)
+ */
+export interface StatBonus {
+  readonly atk: number;
+  readonly def: number;
+  readonly matk: number;
+  readonly hp: number;
+  readonly mp: number;
+  readonly spd: number;
+}
+
+/**
+ * Spell granted to units by gem
+ */
+export interface GemSpell {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly mpCost: number;
+  readonly power: number;
+  readonly element: Element;
+  readonly target: AbilityTargetType;
+}
+
+/**
+ * Super spell effect types
+ */
+export type SuperSpellEffect =
+  | 'aoe_damage'
+  | 'party_heal'
+  | 'party_buff'
+  | 'enemy_debuff'
+  | 'revive';
+
+/**
+ * Battle super spell (one-time use per battle)
+ */
+export interface SuperSpell {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly effect: SuperSpellEffect;
+  readonly power: number;
+  readonly element: Element;
+}
+
+/**
+ * Global Gem - Selected at game start
+ * Provides party-wide bonuses and grants spells based on elemental affinity
+ */
+export interface GlobalGem {
+  readonly id: string;
+  readonly element: Element;
+  readonly name: string;
+  readonly description: string;
+  readonly icon: string;
+
+  // Stat bonuses by affinity level
+  readonly strongBonus: StatBonus;    // Same element units
+  readonly neutralBonus: StatBonus;   // Neutral element units
+  readonly weakBonus: StatBonus;      // Counter element units
+
+  // Spells granted by gem
+  readonly sameElementSpell: GemSpell;    // Granted to same element units
+  readonly counterElementSpell: GemSpell; // Granted to counter element units (compensation)
+
+  // Battle super spell
+  readonly superSpell: SuperSpell;
+}
+
+/**
+ * Global Gem State - Tracks selected gem and battle usage
+ */
+export interface GlobalGemState {
+  readonly selectedGem: GlobalGem | null;
+  readonly superUsedThisBattle: boolean;
+}
+
 // ============================================
 // Unit System
 // ============================================

@@ -29,6 +29,10 @@ import type {
   Gem,
   ActiveGemState,
   ElementalGem,
+  GlobalGem,
+  GlobalGemState,
+  Element,
+  StatBonus,
 } from '../types/game.js';
 import { ok, err, type Result } from '../utils/Result.js';
 import { GameStateMachine } from './GameStateMachine.js';
@@ -38,6 +42,7 @@ import { SaveSystem, type GameStateSnapshot } from '../systems/SaveSystem.js';
 import { EventLogger } from '../systems/EventLogger.js';
 import { makeRng } from '../utils/rng.js';
 import { ITEM_CATALOG } from '../data/items.js';
+import { getGemById, calculateAffinity } from '../data/gems.js';
 
 export interface GameControllerState {
   runSeed: number;
@@ -45,7 +50,8 @@ export interface GameControllerState {
   playerTeam: PlayerUnit[];
   inventory: Item[];
   gems: Gem[]; // Gem inventory (Djinn equipment system)
-  activeGemState: ActiveGemState; // Active elemental alignment gem
+  activeGemState: ActiveGemState; // Active elemental alignment gem (old system - deprecated)
+  globalGemState: GlobalGemState; // NEW: Global gem system (selected at game start)
   progression: ProgressionCounters;
   currentChoices: OpponentPreview[] | null;
   selectedOpponentId: string | null;
@@ -79,6 +85,10 @@ export class GameController {
       activeGemState: {
         activeGem: null,
         isActivated: false,
+      },
+      globalGemState: {
+        selectedGem: null,
+        superUsedThisBattle: false,
       },
       progression: {
         runsAttempted: 0,
@@ -120,6 +130,10 @@ export class GameController {
       activeGemState: {
         activeGem: null,
         isActivated: false,
+      },
+      globalGemState: {
+        selectedGem: null,
+        superUsedThisBattle: false,
       },
       progression: {
         ...this.state.progression,
@@ -339,6 +353,10 @@ export class GameController {
         activeGem: null,
         isActivated: false,
       }, // Restore active gem state or default to null
+      globalGemState: {
+        selectedGem: null, // TODO: Add to save system when ready
+        superUsedThisBattle: false,
+      },
       progression: saveData.progression,
       currentChoices: saveData.choice.lastChoices ? [...saveData.choice.lastChoices] : null,
       selectedOpponentId: null,
@@ -525,5 +543,138 @@ export class GameController {
         isActivated: false,
       };
     }
+  }
+
+  // ============================================
+  // Global Gem System (Redesigned - Game Start Selection)
+  // ============================================
+
+  /**
+   * Select global gem at game start
+   * Applies stat bonuses and grants spells to all party members based on elemental affinity
+   *
+   * @param gemId - ID of the gem to select
+   * @returns Success or error if gem not found
+   */
+  selectGlobalGem(gemId: string): Result<void, string> {
+    const gem = getGemById(gemId);
+    if (!gem) {
+      return err(`Gem with ID ${gemId} not found`);
+    }
+
+    // Set selected gem
+    this.state.globalGemState = {
+      selectedGem: gem,
+      superUsedThisBattle: false,
+    };
+
+    // Apply stat bonuses to all party members
+    this.applyGemBonusesToParty(gem);
+
+    // Grant spells to units based on elemental affinity
+    this.grantGemSpells(gem);
+
+    return ok(undefined);
+  }
+
+  /**
+   * Apply stat bonuses to all party members based on elemental affinity
+   * @private
+   */
+  private applyGemBonusesToParty(gem: GlobalGem): void {
+    this.state.playerTeam = this.state.playerTeam.map(unit => {
+      const affinity = calculateAffinity(unit.element, gem.element);
+
+      let bonus: StatBonus;
+      if (affinity === 'strong') {
+        bonus = gem.strongBonus;
+      } else if (affinity === 'neutral') {
+        bonus = gem.neutralBonus;
+      } else {
+        bonus = gem.weakBonus;
+      }
+
+      // Apply bonuses (create new unit with updated stats)
+      return {
+        ...unit,
+        atk: unit.atk + bonus.atk,
+        def: unit.def + bonus.def,
+        maxHp: unit.maxHp + bonus.hp,
+        hp: unit.hp + bonus.hp, // Also increase current HP
+        speed: unit.speed + bonus.spd,
+        // Note: MATK and MP bonuses would require adding those fields to PlayerUnit
+        // For now, they're part of the bonus structure but not applied
+      };
+    });
+  }
+
+  /**
+   * Grant spells to units based on elemental affinity
+   * - Same element units get the gem's same-element spell
+   * - Counter element units get the gem's counter-element spell (compensation)
+   * - Neutral element units get no spells
+   * @private
+   */
+  private grantGemSpells(gem: GlobalGem): void {
+    // Note: This is a placeholder for future spell system integration
+    // Currently PlayerUnit doesn't have an abilities/spells array
+    // When implementing, you would add spells to unit.abilities array
+
+    // TODO: When abilities system is integrated:
+    // this.state.playerTeam = this.state.playerTeam.map(unit => {
+    //   const affinity = calculateAffinity(unit.element, gem.element);
+    //
+    //   if (affinity === 'strong') {
+    //     return { ...unit, abilities: [...unit.abilities, gem.sameElementSpell] };
+    //   } else if (affinity === 'weak') {
+    //     return { ...unit, abilities: [...unit.abilities, gem.counterElementSpell] };
+    //   }
+    //
+    //   return unit;
+    // });
+
+    console.log('[GlobalGem] Spell grants would be applied here when ability system is integrated');
+  }
+
+  /**
+   * Get current global gem state
+   * @returns Current global gem state (read-only)
+   */
+  getGlobalGemState(): Readonly<GlobalGemState> {
+    return { ...this.state.globalGemState };
+  }
+
+  /**
+   * Use gem super spell in battle
+   * Can only be used once per battle
+   *
+   * @returns Success with super spell data, or error if unavailable
+   */
+  useGemSuper(): Result<GlobalGem['superSpell'], string> {
+    if (!this.state.globalGemState.selectedGem) {
+      return err('No gem selected');
+    }
+
+    if (this.state.globalGemState.superUsedThisBattle) {
+      return err('Gem super already used this battle');
+    }
+
+    // Mark as used
+    this.state.globalGemState = {
+      ...this.state.globalGemState,
+      superUsedThisBattle: true,
+    };
+
+    return ok(this.state.globalGemState.selectedGem.superSpell);
+  }
+
+  /**
+   * Reset gem super availability (called at start of each battle)
+   */
+  resetGemSuper(): void {
+    this.state.globalGemState = {
+      ...this.state.globalGemState,
+      superUsedThisBattle: false,
+    };
   }
 }

@@ -47,9 +47,6 @@ import { BattlefieldFloor } from '../components/battle/BattlefieldFloor.js';
 import { makeRng } from '../utils/rng.js';
 import { getBattleBackground, preloadCommonSprites } from '../data/spriteRegistry.js';
 import { ANIMATION_TIMING } from '../components/battle/battleConstants.js';
-import { getGemActivation } from '../data/gemActivations.js';
-import { executeGemActivation } from '../systems/GemActivationSystem.js';
-import { GemConfirmPanel } from '../components/battle/GemConfirmPanel.js';
 
 // ============================================
 // Types & Constants
@@ -67,18 +64,17 @@ export interface ManualBattleScreenProps {
   gameController: GameController;
 }
 
-type Phase = 
-  | 'menu' 
-  | 'targeting' 
-  | 'item-menu' 
-  | 'item-targeting' 
+type Phase =
+  | 'menu'
+  | 'targeting'
+  | 'item-menu'
+  | 'item-targeting'
   | 'ability-menu'
   | 'ability-targeting'
-  | 'gem-menu'
-  | 'animating' 
+  | 'animating'
   | 'resolving';
 
-const ACTIONS = ['Attack', 'Defend', 'Abilities', 'Gems', 'Items', 'Flee'] as const;
+const ACTIONS = ['Attack', 'Defend', 'Abilities', 'Gem Super', 'Items', 'Flee'] as const;
 
 // ============================================
 // Main Component
@@ -101,6 +97,11 @@ export function BattleScreen({
   useEffect(() => {
     preloadCommonSprites().catch(err => console.warn('Sprite preload failed:', err));
   }, []);
+
+  // Reset gem super at battle start
+  useEffect(() => {
+    gameController.resetGemSuper();
+  }, [gameController]);
 
   // ==================== Battle State ====================
 
@@ -355,6 +356,84 @@ export function BattleScreen({
   }, [roundIdx, roundOrder, computeRoundOrder]);
 
   /**
+   * Execute global gem super spell effect
+   * Simplified implementation for MVP
+   */
+  const executeGemSuperSpell = useCallback((superSpell: { effect: string; power: number; name: string }) => {
+    console.log(`🔮 Executing Gem Super: ${superSpell.name} (${superSpell.effect})`);
+
+    switch (superSpell.effect) {
+      case 'aoe_damage':
+        // Deal damage to all enemies
+        setEnemies(prev => prev.map(enemy => ({
+          ...enemy,
+          currentHp: Math.max(0, enemy.currentHp - superSpell.power)
+        })));
+        setGemActivationMessage(`💥 ${superSpell.name}! All enemies take ${superSpell.power} damage!`);
+        break;
+
+      case 'party_heal':
+        // Heal all player units
+        setPlayers(prev => prev.map(player => ({
+          ...player,
+          currentHp: Math.min(player.maxHp, player.currentHp + superSpell.power),
+          buffState: { buffs: [] } // Remove all debuffs
+        })));
+        setGemActivationMessage(`✨ ${superSpell.name}! Party healed for ${superSpell.power} HP!`);
+        break;
+
+      case 'party_buff':
+        // Apply buffs to all player units
+        setPlayers(prev => prev.map(player => {
+          const buffedUnit = applyBuff(player, {
+            stat: 'defense',
+            amount: superSpell.power,
+            duration: 3,
+            source: 'gem-super',
+            sourceName: superSpell.name
+          });
+          return buffedUnit as BattleUnit;
+        }));
+        setGemActivationMessage(`🛡️ ${superSpell.name}! Party defense increased!`);
+        break;
+
+      case 'enemy_debuff':
+        // Apply debuffs to all enemies and deal damage
+        setEnemies(prev => prev.map(enemy => {
+          const debuffedUnit = applyBuff(enemy, {
+            stat: 'attack',
+            amount: -superSpell.power / 2,
+            duration: 3,
+            source: 'gem-super',
+            sourceName: superSpell.name
+          });
+          return {
+            ...debuffedUnit,
+            currentHp: Math.max(0, debuffedUnit.currentHp - superSpell.power)
+          } as BattleUnit;
+        }));
+        setGemActivationMessage(`💀 ${superSpell.name}! Enemies weakened and damaged!`);
+        break;
+
+      case 'revive':
+        // Massive heal to all player units (doesn't actually revive dead units in this simplified version)
+        setPlayers(prev => prev.map(player => ({
+          ...player,
+          currentHp: Math.min(player.maxHp, player.currentHp + superSpell.power)
+        })));
+        setGemActivationMessage(`🌟 ${superSpell.name}! Massive party heal!`);
+        break;
+
+      default:
+        console.warn(`Unknown super spell effect: ${superSpell.effect}`);
+        setGemActivationMessage(`✨ ${superSpell.name} activated!`);
+    }
+
+    // Clear message after delay
+    setTimeout(() => setGemActivationMessage(null), 2500);
+  }, []);
+
+  /**
    * Get the center position of a unit's DOM element
    * Used for targeting attack animations
    */
@@ -529,18 +608,30 @@ export function BattleScreen({
     } else if (label === 'Abilities') {
       // Show abilities menu
       setPhase('ability-menu');
-    } else if (label === 'Gems') {
-      // Check if gem is available
-      const gemState = gameController.getGemState();
-      if (!gemState.activeGem) {
-        console.warn('💎 No gem equipped');
-        // Stay in menu phase - could add visual feedback here
-      } else if (gemState.isActivated) {
-        console.warn('💎 Gem already activated this battle');
-        // Stay in menu phase - could add visual feedback here
+    } else if (label === 'Gem Super') {
+      // NEW: Global Gem Super Spell
+      const gemSuperResult = gameController.useGemSuper();
+      if (!gemSuperResult.ok) {
+        console.warn('💎 Gem Super unavailable:', gemSuperResult.error);
+        // Stay in menu phase - show feedback
+        setGemActivationMessage(gemSuperResult.error);
+        setTimeout(() => setGemActivationMessage(null), 2000);
       } else {
-        // Show gem confirmation panel
-        setPhase('gem-menu');
+        // Execute super spell immediately
+        const superSpell = gemSuperResult.value;
+        console.log('💎 Using Gem Super:', superSpell.name);
+
+        // Set animating phase while super spell executes
+        setPhase('animating');
+
+        // Execute super spell effect (simplified for MVP)
+        executeGemSuperSpell(superSpell);
+
+        // Advance turn after animation
+        setTimeout(() => {
+          setPhase('resolving');
+          advanceTurnPointer();
+        }, ANIMATION_TIMING.GEM_ACTIVATION_DURATION || 1500);
       }
     } else if (label === 'Items') {
       // Show item menu (keyboard/enter flow)
@@ -600,18 +691,22 @@ export function BattleScreen({
         } else if (label === 'Abilities') {
           // Show abilities menu
           setPhase('ability-menu');
-        } else if (label === 'Gems') {
-          // Check if gem is available
-          const gemState = gameController.getGemState();
-          if (!gemState.activeGem) {
-            console.warn('💎 No gem equipped');
-            // Stay in menu phase - could add visual feedback here
-          } else if (gemState.isActivated) {
-            console.warn('💎 Gem already activated this battle');
-            // Stay in menu phase - could add visual feedback here
+        } else if (label === 'Gem Super') {
+          // NEW: Global Gem Super Spell (click flow)
+          const gemSuperResult = gameController.useGemSuper();
+          if (!gemSuperResult.ok) {
+            console.warn('💎 Gem Super unavailable:', gemSuperResult.error);
+            setGemActivationMessage(gemSuperResult.error);
+            setTimeout(() => setGemActivationMessage(null), 2000);
           } else {
-            // Show gem confirmation panel
-            setPhase('gem-menu');
+            const superSpell = gemSuperResult.value;
+            console.log('💎 Using Gem Super:', superSpell.name);
+            setPhase('animating');
+            executeGemSuperSpell(superSpell);
+            setTimeout(() => {
+              setPhase('resolving');
+              advanceTurnPointer();
+            }, ANIMATION_TIMING.GEM_ACTIVATION_DURATION || 1500);
           }
         } else if (label === 'Items') {
           // Show item menu (always, even if empty - will show "No items available")
@@ -1048,105 +1143,11 @@ export function BattleScreen({
     setPhase('menu');
   }, []);
 
-  /**
-   * Confirm gem activation and execute effect
-   */
-  const handleConfirmGemActivation = useCallback(() => {
-    if (!activeId) return;
-
-    // Get gem state from game controller
-    const gemState = gameController.getGemState();
-    if (!gemState.activeGem || gemState.isActivated) {
-      console.error('No gem to activate or already activated');
-      setPhase('menu');
-      return;
-    }
-
-    // Activate gem (marks as used, removes stat bonus)
-    const result = gameController.activateGem();
-    if (!result.ok) {
-      console.error('Gem activation failed:', result.error);
-      setPhase('menu');
-      return;
-    }
-
-    setPhase('animating');
-
-    // Get activation effect
-    const activation = getGemActivation(gemState.activeGem.element);
-
-    // Execute effect on battle units (convert BattleUnit to PlayerUnit format)
-    const playerUnitsForGem = players.map(u => ({
-      ...u,
-      hp: u.currentHp,
-    })) as any[];
-    const enemyUnitsForGem = enemies.map(u => ({
-      ...u,
-      hp: u.currentHp,
-    })) as any[];
-
-    const effectResult = executeGemActivation(
-      activation,
-      playerUnitsForGem as any,
-      enemyUnitsForGem as any
-    );
-
-    // Apply HP changes after short delay
-    const gemTimeout = setTimeout(() => {
-      // Map HP changes back to BattleUnit format
-      setPlayers(prev =>
-        prev.map((u, idx) => ({
-          ...u,
-          currentHp: effectResult.updatedPlayerUnits[idx]?.hp ?? u.currentHp,
-        }))
-      );
-      setEnemies(prev =>
-        prev.map((u, idx) => ({
-          ...u,
-          currentHp: effectResult.updatedEnemies[idx]?.hp ?? u.currentHp,
-        }))
-      );
-      setGemActivationMessage(effectResult.message);
-    }, 500);
-    registerTimeout(gemTimeout);
-
-    // Log action
-    pushAction({
-      type: 'item-used', // Reuse item-used type for gem activation
-      actorId: activeId,
-      targetId: activeId,
-      itemId: activation.id,
-      itemName: activation.name,
-      hpRestored: 0,
-    });
-
-    // Clean up and advance turn
-    const cleanupTimeout = setTimeout(() => {
-      setGemActivationMessage(null);
-      setPhase('resolving');
-      advanceTurnPointer();
-    }, 2000); // Show message for 2 seconds
-    registerTimeout(cleanupTimeout);
-  }, [
-    activeId,
-    gameController,
-    players,
-    enemies,
-    advanceTurnPointer,
-    pushAction,
-    registerTimeout,
-  ]);
-
-  /**
-   * Cancel gem activation and return to main menu
-   */
-  const handleCancelGemActivation = useCallback(() => {
-    setPhase('menu');
-  }, []);
+  // OLD GEM SYSTEM HANDLERS REMOVED (deprecated)
 
   // ==================== Keyboard Input ====================
 
-  const keyboardEnabled = phase === 'menu' || phase === 'targeting' || phase === 'item-menu' || phase === 'item-targeting' || phase === 'ability-menu' || phase === 'ability-targeting' || phase === 'gem-menu';
+  const keyboardEnabled = phase === 'menu' || phase === 'targeting' || phase === 'item-menu' || phase === 'item-targeting' || phase === 'ability-menu' || phase === 'ability-targeting';
 
   // Get consumables fresh each time to ensure inventory changes are reflected
   // Note: gameController state is mutable, so useMemo wouldn't catch changes
@@ -1245,7 +1246,6 @@ export function BattleScreen({
       else if (phase === 'item-targeting') handleConfirmItemUse();
       else if (phase === 'ability-menu') handleAbilitySelect(abilityMenuIndex);
       else if (phase === 'ability-targeting') handleConfirmAbilityUse();
-      else if (phase === 'gem-menu') handleConfirmGemActivation();
     },
     onSpace: () => {
       if (phase === 'menu') handleConfirmAction();
@@ -1254,7 +1254,6 @@ export function BattleScreen({
       else if (phase === 'item-targeting') handleConfirmItemUse();
       else if (phase === 'ability-menu') handleAbilitySelect(abilityMenuIndex);
       else if (phase === 'ability-targeting') handleConfirmAbilityUse();
-      else if (phase === 'gem-menu') handleConfirmGemActivation();
     },
     onEscape: () => {
       if (phase === 'targeting') {
@@ -1270,8 +1269,6 @@ export function BattleScreen({
         setTargetedId(null);
       } else if (phase === 'ability-menu') {
         handleCancelAbilityMenu();
-      } else if (phase === 'gem-menu') {
-        handleCancelGemActivation();
       } else if (phase === 'menu') {
         confirmFlee();
       }
@@ -1381,30 +1378,8 @@ export function BattleScreen({
             defending={defending.current.has(activeId ?? '')}
           />
           <div className="mt-3">
-            {/* Main action menu, item submenu, ability submenu, or gem confirmation */}
-            {phase === 'gem-menu' ? (
-              <>
-                {(() => {
-                  const gemState = gameController.getGemState();
-                  if (!gemState.activeGem) {
-                    return (
-                      <div className="bg-gradient-to-b from-blue-900/95 to-blue-950/95 border-4 border-yellow-500/80 rounded-xl p-6 text-center text-red-300">
-                        No gem equipped!
-                        <div className="mt-2 text-sm text-gray-400">Press Escape to cancel</div>
-                      </div>
-                    );
-                  }
-                  const activation = getGemActivation(gemState.activeGem.element);
-                  return (
-                    <GemConfirmPanel
-                      gemActivation={activation}
-                      onConfirm={handleConfirmGemActivation}
-                      onCancel={handleCancelGemActivation}
-                    />
-                  );
-                })()}
-              </>
-            ) : phase === 'item-menu' ? (
+            {/* Main action menu, item submenu, or ability submenu */}
+            {phase === 'item-menu' ? (
               <>
                 <ActionMenu
                   items={consumables.length > 0 ? consumables.map(item => {
