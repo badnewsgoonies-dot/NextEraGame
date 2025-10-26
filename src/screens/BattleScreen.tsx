@@ -526,6 +526,22 @@ export function BattleScreen({
       pushAction({ type: 'defend', actorId: actor.id });
       setPhase('resolving');
       advanceTurnPointer();
+    } else if (label === 'Abilities') {
+      // Show abilities menu
+      setPhase('ability-menu');
+    } else if (label === 'Gems') {
+      // Check if gem is available
+      const gemState = gameController.getGemState();
+      if (!gemState.activeGem) {
+        console.warn('💎 No gem equipped');
+        // Stay in menu phase - could add visual feedback here
+      } else if (gemState.isActivated) {
+        console.warn('💎 Gem already activated this battle');
+        // Stay in menu phase - could add visual feedback here
+      } else {
+        // Show gem confirmation panel
+        setPhase('gem-menu');
+      }
     } else if (label === 'Items') {
       // Show item menu (keyboard/enter flow)
       const consumables = gameController.getConsumables();
@@ -543,7 +559,7 @@ export function BattleScreen({
       // Flee from battle
       confirmFlee();
     }
-  }, [activeId, aliveEnemies, advanceTurnPointer, confirmFlee, findUnit, menuIndex, pushAction]);
+  }, [activeId, aliveEnemies, advanceTurnPointer, confirmFlee, findUnit, gameController, menuIndex, pushAction]);
 
   /**
    * Handle mouse/touch action selection
