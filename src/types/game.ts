@@ -612,7 +612,7 @@ export interface BattleState {
 /**
  * Combat action types
  */
-export type CombatActionType = 'attack' | 'defend' | 'defeat' | 'item-used';
+export type CombatActionType = 'attack' | 'defend' | 'defeat' | 'item-used' | 'ability-used';
 
 /**
  * Attack action in combat log
@@ -660,9 +660,23 @@ export interface ItemUsedAction {
 }
 
 /**
+ * Ability used action in combat log
+ */
+export interface AbilityUsedAction {
+  readonly type: 'ability-used';
+  readonly actorId: string;
+  readonly targetId: string;
+  readonly abilityId: string;
+  readonly abilityName: string;
+  readonly effectType: 'damage' | 'heal' | 'buff' | 'debuff' | 'debuff_remove';
+  readonly effectValue: number; // Damage dealt, HP restored, or buff amount
+  readonly seq: number;
+}
+
+/**
  * Combat action in the log (union type)
  */
-export type CombatAction = AttackAction | DefendAction | DefeatAction | ItemUsedAction;
+export type CombatAction = AttackAction | DefendAction | DefeatAction | ItemUsedAction | AbilityUsedAction;
 
 /**
  * Battle result (after battle ends)

@@ -228,53 +228,152 @@ describe('AbilitySystem', () => {
   });
 
   describe('Damage Calculation', () => {
-    test('fireball damage scales with caster attack', () => {
+    test('fireball damage scales with caster attack (no RNG)', () => {
       const fireball = FIREBALL;
-      
+
       // Low attack caster
       const damage1 = calculateAbilityDamage(fireball, 10);
       expect(damage1).toBe(40); // 35 + (10 * 0.5) = 40
-      
+
       // High attack caster
       const damage2 = calculateAbilityDamage(fireball, 50);
       expect(damage2).toBe(60); // 35 + (50 * 0.5) = 60
     });
 
-    test('flame wall damage scales with caster attack', () => {
+    test('flame wall damage scales with caster attack (no RNG)', () => {
       const flameWall = FLAME_WALL;
       const damage = calculateAbilityDamage(flameWall, 30);
-      
+
       expect(damage).toBe(35); // 20 + (30 * 0.5) = 35
     });
 
     test('heal abilities return 0 damage', () => {
       const cure = CURE; // Heal ability
       const damage = calculateAbilityDamage(cure, 100);
-      
+
       expect(damage).toBe(0);
     });
 
     test('buff abilities return 0 damage', () => {
       const stoneWall = STONE_WALL; // Buff ability
       const damage = calculateAbilityDamage(stoneWall, 100);
-      
+
       expect(damage).toBe(0);
     });
   });
 
+  describe('Damage Calculation with RNG', () => {
+    test('damage has variance when RNG provided', () => {
+      const fireball = FIREBALL; // base power 35
+      const casterAttack = 10; // +5 damage
+      // Expected base: 40
+
+      // Mock RNG that returns -2 (min variance)
+      const rngMin = { int: () => -2 };
+      const damageMin = calculateAbilityDamage(fireball, casterAttack, rngMin);
+      expect(damageMin).toBe(38); // 40 - 2
+
+      // Mock RNG that returns +2 (max variance)
+      const rngMax = { int: () => 2 };
+      const damageMax = calculateAbilityDamage(fireball, casterAttack, rngMax);
+      expect(damageMax).toBe(42); // 40 + 2
+
+      // Mock RNG that returns 0 (no variance)
+      const rngZero = { int: () => 0 };
+      const damageZero = calculateAbilityDamage(fireball, casterAttack, rngZero);
+      expect(damageZero).toBe(40); // 40 + 0
+    });
+
+    test('minimum 1 damage even with negative variance', () => {
+      const weakSpell: typeof FIREBALL = {
+        ...FIREBALL,
+        effect: { ...FIREBALL.effect, power: 1 }
+      };
+      const casterAttack = 0; // +0 damage
+      // Expected base: 1
+
+      // Mock RNG that returns -2 (would make damage -1)
+      const rng = { int: () => -2 };
+      const damage = calculateAbilityDamage(weakSpell, casterAttack, rng);
+
+      expect(damage).toBeGreaterThanOrEqual(1); // Minimum 1 damage
+    });
+
+    test('damage without RNG has no variance', () => {
+      const fireball = FIREBALL;
+      const casterAttack = 20;
+
+      const damage1 = calculateAbilityDamage(fireball, casterAttack);
+      const damage2 = calculateAbilityDamage(fireball, casterAttack);
+      const damage3 = calculateAbilityDamage(fireball, casterAttack);
+
+      // All should be exactly the same without RNG
+      expect(damage1).toBe(damage2);
+      expect(damage2).toBe(damage3);
+      expect(damage1).toBe(45); // 35 + (20 * 0.5) = 45
+    });
+  });
+
   describe('Healing Calculation', () => {
-    test('cure heals fixed amount', () => {
+    test('cure heals fixed amount (no RNG)', () => {
       const cure = CURE;
       const healing = calculateAbilityHealing(cure);
-      
+
       expect(healing).toBe(50); // Fixed healing (CURE power = 50)
     });
 
     test('damage abilities return 0 healing', () => {
       const fireball = FIREBALL;
       const healing = calculateAbilityHealing(fireball);
-      
+
       expect(healing).toBe(0);
+    });
+  });
+
+  describe('Healing Calculation with RNG', () => {
+    test('healing has less variance than damage when RNG provided', () => {
+      const cure = CURE; // power 50
+
+      // Mock RNG that returns -1 (min variance for healing)
+      const rngMin = { int: () => -1 };
+      const healMin = calculateAbilityHealing(cure, rngMin);
+      expect(healMin).toBe(49); // 50 - 1
+
+      // Mock RNG that returns +1 (max variance for healing)
+      const rngMax = { int: () => 1 };
+      const healMax = calculateAbilityHealing(cure, rngMax);
+      expect(healMax).toBe(51); // 50 + 1
+
+      // Mock RNG that returns 0 (no variance)
+      const rngZero = { int: () => 0 };
+      const healZero = calculateAbilityHealing(cure, rngZero);
+      expect(healZero).toBe(50); // 50 + 0
+    });
+
+    test('minimum 1 HP healed even with negative variance', () => {
+      const weakHeal: typeof CURE = {
+        ...CURE,
+        effect: { ...CURE.effect, power: 1 }
+      };
+
+      // Mock RNG that returns -1 (would make healing 0)
+      const rng = { int: () => -1 };
+      const healing = calculateAbilityHealing(weakHeal, rng);
+
+      expect(healing).toBeGreaterThanOrEqual(1); // Minimum 1 HP
+    });
+
+    test('healing without RNG is consistent', () => {
+      const cure = CURE;
+
+      const heal1 = calculateAbilityHealing(cure);
+      const heal2 = calculateAbilityHealing(cure);
+      const heal3 = calculateAbilityHealing(cure);
+
+      // All should be exactly the same without RNG
+      expect(heal1).toBe(heal2);
+      expect(heal2).toBe(heal3);
+      expect(heal1).toBe(50);
     });
   });
 

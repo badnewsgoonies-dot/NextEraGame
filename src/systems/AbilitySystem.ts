@@ -64,36 +64,64 @@ export function restoreAllMp(team: readonly PlayerUnit[], maxMp: number = 50): r
 }
 
 /**
- * Calculate ability damage based on caster's attack stat
- * Formula: base power + (caster attack * 0.5)
- * This makes abilities scale with the caster's strength
+ * Calculate ability damage based on caster's attack stat with RNG variance
+ * Formula: base power + (caster attack * 0.5) + variance(-2, 2)
+ * This makes abilities scale with the caster's strength and adds unpredictability
+ *
+ * @param ability - The ability being used
+ * @param casterAttack - Caster's attack stat
+ * @param rng - Deterministic RNG for variance (optional, defaults to no variance)
+ * @returns Damage amount (minimum 1)
  */
 export function calculateAbilityDamage(
   ability: Ability,
-  casterAttack: number
+  casterAttack: number,
+  rng?: { int: (min: number, max: number) => number }
 ): number {
   const effect = ability.effect;
-  
+
   if (effect.type !== 'damage') {
     return 0;
   }
-  
+
   // Base power + 50% of caster's attack
-  return Math.floor(effect.power + (casterAttack * 0.5));
+  const baseDamage = Math.floor(effect.power + (casterAttack * 0.5));
+
+  // Add variance if RNG provided (same as normal attacks: -2 to +2)
+  const variance = rng ? rng.int(-2, 2) : 0;
+  const totalDamage = baseDamage + variance;
+
+  // Minimum 1 damage
+  return Math.max(1, totalDamage);
 }
 
 /**
- * Calculate ability healing (fixed amount, doesn't scale)
- * Formula: base power (healing is consistent, not based on stats)
+ * Calculate ability healing with optional RNG variance
+ * Formula: base power + variance (healing has less variance than damage)
+ *
+ * @param ability - The ability being used
+ * @param rng - Deterministic RNG for variance (optional, defaults to no variance)
+ * @returns Healing amount (minimum 1)
  */
-export function calculateAbilityHealing(ability: Ability): number {
+export function calculateAbilityHealing(
+  ability: Ability,
+  rng?: { int: (min: number, max: number) => number }
+): number {
   const effect = ability.effect;
-  
+
   if (effect.type !== 'heal') {
     return 0;
   }
-  
-  return effect.power;
+
+  // Base healing power
+  const baseHealing = effect.power;
+
+  // Add small variance if RNG provided (less than damage: -1 to +1)
+  const variance = rng ? rng.int(-1, 1) : 0;
+  const totalHealing = baseHealing + variance;
+
+  // Minimum 1 HP restored
+  return Math.max(1, totalHealing);
 }
 
 /**
