@@ -232,15 +232,13 @@ Is this correct?"
 ## 📦 Detailed Requirements
 
 ### Algorithm/Formula:
-```
-
+```text
 [Exact calculation steps]
 
 Example:
 Input: X
 Process: 1. ... 2. ... 3. ...
 Output: Y
-
 ```
 
 ### Function Signatures:

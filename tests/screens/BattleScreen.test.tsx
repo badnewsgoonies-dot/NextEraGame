@@ -121,12 +121,15 @@ describe('BattleScreen', () => {
     const logger = new ConsoleLogger('error');
     gameController = new GameController(logger);
     // Initialize with starter team to set up inventory
-    const starterTeam: PlayerUnit[] = mockPlayerUnits.map(u => ({
-      ...u,
-      hp: u.currentHp,
-      level: 1,
-      experience: 0,
-    }));
+    const starterTeam: PlayerUnit[] = mockPlayerUnits.map(
+      (u) =>
+        ({
+          ...u,
+          hp: u.currentHp,
+          level: 1,
+          experience: 0,
+        } as PlayerUnit)
+    );
     gameController.startRun(starterTeam, 12345);
     // Sprite mocks now at module top level
   });
