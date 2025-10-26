@@ -169,9 +169,14 @@ export function GemSelectScreen({
                     aria-pressed={isSelected}
                     tabIndex={isFocused ? 0 : -1}
                   >
-                    {/* Element Icon */}
-                    <div className="text-6xl text-center mb-3">
-                      {gem.icon}
+                    {/* Element Icon - Sprite */}
+                    <div className="flex justify-center mb-3">
+                      <img 
+                        src={gem.iconPath}
+                        alt={`${gem.name} icon`}
+                        className="w-16 h-16 pixelated"
+                        style={{ imageRendering: 'pixelated' }}
+                      />
                     </div>
 
                     {/* Gem Name */}
@@ -230,7 +235,12 @@ export function GemSelectScreen({
             {displayGem && (
               <div className="bg-gray-900/80 rounded-xl p-6 border-2 border-gray-700">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-5xl">{displayGem.icon}</span>
+                  <img 
+                    src={displayGem.iconPath}
+                    alt={`${displayGem.name} icon`}
+                    className="w-12 h-12 pixelated"
+                    style={{ imageRendering: 'pixelated' }}
+                  />
                   <div>
                     <h3 className="text-2xl font-bold text-white">
                       {displayGem.name}

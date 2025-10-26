@@ -163,7 +163,8 @@ kbd {
 }
 
 /* Pixel art rendering (for Golden Sun sprites) */
-.pixel-art {
+.pixel-art,
+.pixelated {
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;

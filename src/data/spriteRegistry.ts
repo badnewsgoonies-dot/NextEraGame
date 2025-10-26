@@ -8,6 +8,44 @@
 import type { Role } from '../types/game.js';
 
 // ============================================
+// UI Sprites (Icons, Elements, Equipment)
+// ============================================
+
+export const UI_SPRITES = {
+  // Gem icons (used in GemSelectScreen and BattleScreen)
+  gems: {
+    mars: '/sprites/ui/gems/mars.gif',
+    mercury: '/sprites/ui/gems/mercury.gif',
+    jupiter: '/sprites/ui/gems/jupiter.gif',
+    venus: '/sprites/ui/gems/venus.gif',
+    moon: '/sprites/ui/gems/moon.gif',
+    sun: '/sprites/ui/gems/sun.gif',
+  },
+  
+  // Element indicators (used in UnitCard, OpponentCard)
+  elements: {
+    Mars: '/sprites/ui/elements/fire.gif',
+    Mercury: '/sprites/ui/elements/water.gif',
+    Jupiter: '/sprites/ui/elements/lightning.gif',
+    Venus: '/sprites/ui/elements/earth.gif',
+    Moon: '/sprites/ui/elements/light.gif',
+    Sun: '/sprites/ui/elements/dark.gif',
+  },
+  
+  // Equipment icons (used in EquipmentScreen, RewardsScreen)
+  equipment: {
+    weapon: '/sprites/ui/equipment/sword.gif',
+    armor: '/sprites/ui/equipment/shield.gif',
+    accessory: '/sprites/ui/equipment/ring.gif',
+    gem: '/sprites/ui/equipment/gem.gif',
+    // Stat indicators
+    attack: '/sprites/ui/equipment/sword.gif',
+    defense: '/sprites/ui/equipment/shield.gif',
+    speed: '/sprites/ui/elements/lightning.gif',
+  },
+} as const;
+
+// ============================================
 // Sprite Animation States
 // ============================================
 

@@ -55,7 +55,7 @@ export const MARS_GEM: GlobalGem = {
   element: 'Mars',
   name: 'Mars Gem',
   description: 'Harness the power of fire. Strengthens offensive abilities and burns enemies.',
-  icon: '🔥',
+  iconPath: '/sprites/ui/gems/mars.gif',
 
   strongBonus: STRONG_BONUS,
   neutralBonus: NEUTRAL_BONUS,
@@ -100,7 +100,7 @@ export const MERCURY_GEM: GlobalGem = {
   element: 'Mercury',
   name: 'Mercury Gem',
   description: 'Command the power of water. Strengthens healing and purifies the party.',
-  icon: '💧',
+  iconPath: '/sprites/ui/gems/mercury.gif',
 
   strongBonus: STRONG_BONUS,
   neutralBonus: NEUTRAL_BONUS,
@@ -145,7 +145,7 @@ export const JUPITER_GEM: GlobalGem = {
   element: 'Jupiter',
   name: 'Jupiter Gem',
   description: 'Channel the power of wind and lightning. Enhances speed and agility.',
-  icon: '⚡',
+  iconPath: '/sprites/ui/gems/jupiter.gif',
 
   strongBonus: STRONG_BONUS,
   neutralBonus: NEUTRAL_BONUS,
@@ -190,7 +190,7 @@ export const VENUS_GEM: GlobalGem = {
   element: 'Venus',
   name: 'Venus Gem',
   description: 'Wield the power of earth and nature. Strengthens defense and endurance.',
-  icon: '🌍',
+  iconPath: '/sprites/ui/gems/venus.gif',
 
   strongBonus: STRONG_BONUS,
   neutralBonus: NEUTRAL_BONUS,
@@ -235,7 +235,7 @@ export const MOON_GEM: GlobalGem = {
   element: 'Moon',
   name: 'Moon Gem',
   description: 'Invoke the power of light and purity. Enhances divine abilities and resurrection.',
-  icon: '🌙',
+  iconPath: '/sprites/ui/gems/moon.gif',
 
   strongBonus: STRONG_BONUS,
   neutralBonus: NEUTRAL_BONUS,
@@ -280,7 +280,7 @@ export const SUN_GEM: GlobalGem = {
   element: 'Sun',
   name: 'Sun Gem',
   description: 'Master the power of darkness and shadow. Strengthens debuffs and drains foes.',
-  icon: '☀️',
+  iconPath: '/sprites/ui/gems/sun.gif',
 
   strongBonus: STRONG_BONUS,
   neutralBonus: NEUTRAL_BONUS,

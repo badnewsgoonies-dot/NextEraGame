@@ -288,7 +288,7 @@ export interface GlobalGem {
   readonly element: Element;
   readonly name: string;
   readonly description: string;
-  readonly icon: string;
+  readonly iconPath: string; // Path to sprite image
 
   // Stat bonuses by affinity level
   readonly strongBonus: StatBonus;    // Same element units
