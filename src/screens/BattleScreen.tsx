@@ -1404,21 +1404,39 @@ export function BattleScreen({
                   );
                 })()}
               </>
-            ) : phase === 'item-menu' ? (
+            ) : phase === 'item-menu' || phase === 'item-targeting' ? (
               <>
-                <ActionMenu
-                  items={consumables.length > 0 ? consumables.map(item => {
-                    const hpRestore = item.stats?.hpRestore ?? 0;
-                    return `${item.name} (+${hpRestore} HP)`;
-                  }) : ['No items available']}
-                  selectedIndex={consumables.length > 0 ? itemMenuIndex : 0}
-                  disabled={consumables.length === 0}
-                  title="Items"
-                  onSelect={consumables.length > 0 ? handleItemSelect : undefined}
-                />
-                <div className="mt-2 text-center text-sm text-gray-400">
-                  Press Escape to cancel
-                </div>
+                {phase === 'item-menu' && (
+                  <>
+                    <ActionMenu
+                      items={consumables.length > 0 ? consumables.map(item => {
+                        const hpRestore = item.stats?.hpRestore ?? 0;
+                        return `${item.name} (+${hpRestore} HP)`;
+                      }) : ['No items available']}
+                      selectedIndex={consumables.length > 0 ? itemMenuIndex : 0}
+                      disabled={consumables.length === 0}
+                      title="Items"
+                      onSelect={consumables.length > 0 ? handleItemSelect : undefined}
+                    />
+                    <div className="mt-2 text-center text-sm text-gray-400">
+                      Press Escape to cancel
+                    </div>
+                  </>
+                )}
+                {phase === 'item-targeting' && (
+                  <>
+                    <ActionMenu
+                      items={ACTIONS as unknown as string[]}
+                      selectedIndex={menuIndex}
+                      disabled={true}
+                      title="Choose Ally"
+                      onSelect={handleActionSelect}
+                    />
+                    <div className="mt-2 text-center text-sm text-yellow-300">
+                      ← → to select ally, Enter to confirm
+                    </div>
+                  </>
+                )}
               </>
             ) : phase === 'ability-menu' ? (
               <>
@@ -1447,7 +1465,6 @@ export function BattleScreen({
                   disabled={phase !== 'menu'}
                   title={
                     phase === 'targeting' ? 'Choose Target' :
-                    phase === 'item-targeting' ? 'Choose Ally' :
                     phase === 'ability-targeting' ? (
                       selectedAbility?.effect.target === 'single_enemy' ? 'Choose Enemy' : 'Choose Ally'
                     ) :
@@ -1456,11 +1473,6 @@ export function BattleScreen({
                   onSelect={handleActionSelect}
                 />
                 {phase === 'targeting' && <TargetHelp />}
-                {phase === 'item-targeting' && (
-                  <div className="mt-2 text-center text-sm text-yellow-300">
-                    ← → to select ally, Enter to confirm
-                  </div>
-                )}
                 {phase === 'ability-targeting' && (
                   <div className="mt-2 text-center text-sm text-yellow-300">
                     ← → to select target, Enter to confirm

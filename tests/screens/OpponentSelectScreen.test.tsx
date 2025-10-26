@@ -97,10 +97,10 @@ describe('OpponentSelectScreen', () => {
         />
       );
 
-      // Check for keyboard instructions (text is split by <kbd> elements)
-      expect(screen.getByText('Press', { exact: false })).toBeInTheDocument();
-      expect(screen.getByText('to select', { exact: false })).toBeInTheDocument();
-      expect(screen.getByText('to cancel', { exact: false })).toBeInTheDocument();
+      // Check for keyboard instructions (we updated styling)
+      expect(screen.getByText('◄')).toBeInTheDocument();
+      expect(screen.getByText('►')).toBeInTheDocument();
+      expect(screen.getByText('Enter')).toBeInTheDocument();
     });
 
     test('renders radiogroup with proper ARIA label', () => {
@@ -699,9 +699,11 @@ describe('OpponentSelectScreen', () => {
         />
       );
 
-      // Check for kbd elements
-      const kbdElements = screen.getAllByText('←', { selector: 'kbd' });
-      expect(kbdElements.length).toBeGreaterThan(0);
+      // Check for navigation instructions (we updated the styling, so check for arrow symbols)
+      expect(screen.getByText('◄')).toBeInTheDocument();
+      expect(screen.getByText('►')).toBeInTheDocument();
+      expect(screen.getByText('Enter')).toBeInTheDocument();
+      expect(screen.getByText('Esc')).toBeInTheDocument();
     });
   });
 
