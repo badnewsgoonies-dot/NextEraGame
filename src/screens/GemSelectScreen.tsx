@@ -1,116 +1,348 @@
-import React from 'react';
-import type { GemChoice } from '../types/game.js';
+/**
+ * Gem Select Screen - Redesigned
+ *
+ * Shown ONCE at game start (after roster selection, before first battle).
+ * Player selects ONE gem that provides:
+ * - Global party-wide stat bonuses based on elemental affinity
+ * - Spells granted to matching element units
+ * - Battle super spell (one-time use per battle)
+ *
+ * Features:
+ * - Displays all 6 gems in grid layout
+ * - Shows player's current team
+ * - Displays affinity indicators for each unit
+ * - Shows stat bonus previews
+ * - Keyboard navigation (Arrow keys, Enter, Escape)
+ * - Mouse support (click to select)
+ * - Accessible (ARIA labels, keyboard navigation)
+ */
 
-interface GemSelectScreenProps {
-  gemChoices: readonly GemChoice[];
-  onSelectGem: (gem: GemChoice) => void;
+import React, { useState, useCallback, useEffect } from 'react';
+import type { PlayerUnit, GlobalGem, Element, ElementAffinity } from '../types/game.js';
+import { ALL_GLOBAL_GEMS, calculateAffinity } from '../data/gems.js';
+import { useKeyboard } from '../hooks/useKeyboard.js';
+
+export interface GemSelectScreenProps {
+  playerUnits: readonly PlayerUnit[];
+  onGemSelected: (gemId: string) => void;
+  onCancel?: () => void;
 }
 
-export const GemSelectScreen: React.FC<GemSelectScreenProps> = ({
-  gemChoices,
-  onSelectGem,
-}) => {
-  // Element icons
-  const getElementIcon = (element: string): string => {
-    switch (element) {
-      case 'Fire': return '🔥';
-      case 'Water': return '💧';
-      case 'Earth': return '🌍';
-      case 'Wind': return '💨';
-      default: return '💎';
+export function GemSelectScreen({
+  playerUnits,
+  onGemSelected,
+  onCancel,
+}: GemSelectScreenProps): React.ReactElement {
+  const [selectedGemId, setSelectedGemId] = useState<string | null>(null);
+  const [focusedGemIndex, setFocusedGemIndex] = useState(0);
+  const [hoveredGemId, setHoveredGemId] = useState<string | null>(null);
+
+  const selectedGem = selectedGemId ? ALL_GLOBAL_GEMS.find(g => g.id === selectedGemId) : null;
+  const displayGem = hoveredGemId
+    ? ALL_GLOBAL_GEMS.find(g => g.id === hoveredGemId)
+    : selectedGem;
+
+  // Keyboard navigation
+  useKeyboard({
+    onArrowUp: () => {
+      setFocusedGemIndex((prev) => {
+        const newIndex = prev - 3;
+        return newIndex < 0 ? prev : newIndex;
+      });
+    },
+    onArrowDown: () => {
+      setFocusedGemIndex((prev) => {
+        const newIndex = prev + 3;
+        return newIndex >= ALL_GLOBAL_GEMS.length ? prev : newIndex;
+      });
+    },
+    onArrowLeft: () => {
+      setFocusedGemIndex((prev) => (prev > 0 ? prev - 1 : prev));
+    },
+    onArrowRight: () => {
+      setFocusedGemIndex((prev) =>
+        (prev < ALL_GLOBAL_GEMS.length - 1 ? prev + 1 : prev)
+      );
+    },
+    onEnter: () => {
+      if (focusedGemIndex >= 0 && focusedGemIndex < ALL_GLOBAL_GEMS.length) {
+        const gem = ALL_GLOBAL_GEMS[focusedGemIndex];
+        if (selectedGemId === gem.id) {
+          // Confirm selection if already selected
+          onGemSelected(gem.id);
+        } else {
+          // Select gem
+          setSelectedGemId(gem.id);
+        }
+      }
+    },
+    onEscape: () => {
+      if (selectedGemId) {
+        setSelectedGemId(null);
+      } else if (onCancel) {
+        onCancel();
+      }
+    },
+  });
+
+  // Focus management
+  useEffect(() => {
+    const gemElement = document.getElementById(`gem-${focusedGemIndex}`);
+    if (gemElement) {
+      gemElement.focus();
+    }
+  }, [focusedGemIndex]);
+
+  const handleGemClick = useCallback((gemId: string) => {
+    setSelectedGemId(gemId);
+  }, []);
+
+  const handleConfirm = useCallback(() => {
+    if (selectedGemId) {
+      onGemSelected(selectedGemId);
+    }
+  }, [selectedGemId, onGemSelected]);
+
+  // Get affinity indicator styling
+  const getAffinityStyle = (affinity: ElementAffinity): string => {
+    switch (affinity) {
+      case 'strong':
+        return 'border-green-400 bg-green-400/20 text-green-300';
+      case 'neutral':
+        return 'border-gray-400 bg-gray-400/10 text-gray-400';
+      case 'weak':
+        return 'border-red-400 bg-red-400/20 text-red-300';
     }
   };
 
-  // Element color classes
-  const getElementColor = (element: string): string => {
-    switch (element) {
-      case 'Fire': return 'bg-red-500/20 border-red-500';
-      case 'Water': return 'bg-blue-500/20 border-blue-500';
-      case 'Earth': return 'bg-green-500/20 border-green-500';
-      case 'Wind': return 'bg-cyan-500/20 border-cyan-500';
-      default: return 'bg-purple-500/20 border-purple-500';
-    }
-  };
-
-  // Tier color
-  const getTierColor = (tier: number): string => {
-    switch (tier) {
-      case 3: return 'text-purple-400';
-      case 2: return 'text-blue-400';
-      case 1: return 'text-green-400';
-      default: return 'text-gray-400';
+  const getAffinityLabel = (affinity: ElementAffinity): string => {
+    switch (affinity) {
+      case 'strong':
+        return '★ Strong';
+      case 'neutral':
+        return '○ Neutral';
+      case 'weak':
+        return '✕ Weak';
     }
   };
 
   return (
-    <div className="h-full w-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 flex flex-col items-center justify-center p-6">
-      <div className="max-w-6xl w-full">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-900 flex flex-col items-center justify-center p-8">
+      <div className="max-w-7xl w-full">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-white mb-4">
-            💎 Select a Gem
+            Choose Your Gem
           </h1>
-          <p className="text-gray-400 text-lg">
-            Choose one gem to add to your inventory
+          <p className="text-gray-300 text-lg">
+            Select one gem to empower your party throughout your journey
           </p>
         </div>
 
-        {/* Gem Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {gemChoices.map((gem, index) => (
-            <div
-              key={`${gem.id}-${index}`}
-              className={`${getElementColor(gem.element)} border-2 rounded-xl p-6 backdrop-blur-sm hover:scale-105 transition-transform duration-200`}
-            >
-              {/* Element Icon */}
-              <div className="text-6xl text-center mb-4">
-                {getElementIcon(gem.element)}
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Panel: Gem Grid */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-3 gap-4">
+              {ALL_GLOBAL_GEMS.map((gem, index) => {
+                const isSelected = selectedGemId === gem.id;
+                const isFocused = focusedGemIndex === index;
+                const isHovered = hoveredGemId === gem.id;
 
-              {/* Gem Name */}
-              <h2 className="text-2xl font-bold text-white text-center mb-2">
-                {gem.name}
-              </h2>
+                return (
+                  <button
+                    key={gem.id}
+                    id={`gem-${index}`}
+                    onClick={() => handleGemClick(gem.id)}
+                    onMouseEnter={() => setHoveredGemId(gem.id)}
+                    onMouseLeave={() => setHoveredGemId(null)}
+                    onFocus={() => setFocusedGemIndex(index)}
+                    className={`
+                      relative p-6 rounded-xl border-4 transition-all duration-200
+                      ${isSelected
+                        ? 'border-yellow-400 bg-yellow-400/20 shadow-2xl scale-105'
+                        : isFocused || isHovered
+                        ? 'border-white/50 bg-white/10 scale-105'
+                        : 'border-gray-600 bg-gray-800/50 hover:border-gray-400'
+                      }
+                    `}
+                    aria-label={`Select ${gem.name}`}
+                    aria-pressed={isSelected}
+                    tabIndex={isFocused ? 0 : -1}
+                  >
+                    {/* Element Icon */}
+                    <div className="text-6xl text-center mb-3">
+                      {gem.icon}
+                    </div>
 
-              {/* Element Type */}
-              <div className="text-center mb-3">
-                <span className="text-gray-300 text-lg">
-                  {getElementIcon(gem.element)} {gem.element}
-                </span>
-              </div>
+                    {/* Gem Name */}
+                    <h3 className="text-xl font-bold text-white text-center mb-1">
+                      {gem.name}
+                    </h3>
 
-              {/* Tier */}
-              <div className="text-center mb-3">
-                <span className={`${getTierColor(gem.tier)} font-semibold text-lg`}>
-                  Tier {gem.tier}
-                </span>
-              </div>
+                    {/* Element Type */}
+                    <p className="text-gray-300 text-center text-sm mb-2">
+                      {gem.element} Element
+                    </p>
 
-              {/* Boost */}
-              <div className="text-center mb-6">
-                <span className="text-yellow-400 font-bold text-xl">
-                  +{gem.boost} boost
-                </span>
-              </div>
-
-              {/* Select Button */}
-              <button
-                onClick={() => onSelectGem(gem)}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                Select
-              </button>
+                    {/* Selected Indicator */}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 text-yellow-400 text-2xl">
+                        ✓
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-          ))}
+
+            {/* Confirm Button */}
+            <div className="mt-6 flex gap-4">
+              <button
+                onClick={handleConfirm}
+                disabled={!selectedGemId}
+                className={`
+                  flex-1 py-4 px-8 rounded-lg font-bold text-xl transition-all duration-200
+                  ${selectedGemId
+                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl'
+                    : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  }
+                `}
+                aria-label="Confirm gem selection"
+              >
+                {selectedGemId ? 'Confirm Selection' : 'Select a Gem'}
+              </button>
+
+              {onCancel && (
+                <button
+                  onClick={onCancel}
+                  className="py-4 px-8 rounded-lg font-bold text-xl bg-gray-700 hover:bg-gray-600 text-white transition-all duration-200"
+                  aria-label="Cancel and go back"
+                >
+                  Back
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Right Panel: Details & Team Preview */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Gem Details */}
+            {displayGem && (
+              <div className="bg-gray-900/80 rounded-xl p-6 border-2 border-gray-700">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-5xl">{displayGem.icon}</span>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">
+                      {displayGem.name}
+                    </h3>
+                    <p className="text-gray-400 text-sm">{displayGem.element} Element</p>
+                  </div>
+                </div>
+
+                <p className="text-gray-300 text-sm mb-4">
+                  {displayGem.description}
+                </p>
+
+                {/* Super Spell Preview */}
+                <div className="mb-4 p-3 bg-purple-900/50 rounded-lg border border-purple-500">
+                  <h4 className="text-yellow-300 font-bold text-sm mb-1">
+                    Super Spell
+                  </h4>
+                  <p className="text-white font-semibold">{displayGem.superSpell.name}</p>
+                  <p className="text-gray-300 text-xs">{displayGem.superSpell.description}</p>
+                </div>
+
+                {/* Stat Bonuses Preview */}
+                <div className="space-y-2">
+                  <h4 className="text-white font-bold text-sm">Stat Bonuses:</h4>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="text-center">
+                      <div className="text-green-300 font-bold">Strong</div>
+                      <div className="text-gray-400">+{displayGem.strongBonus.atk} ATK</div>
+                      <div className="text-gray-400">+{displayGem.strongBonus.hp} HP</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-gray-300 font-bold">Neutral</div>
+                      <div className="text-gray-400">+{displayGem.neutralBonus.atk} ATK</div>
+                      <div className="text-gray-400">+{displayGem.neutralBonus.hp} HP</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-red-300 font-bold">Weak</div>
+                      <div className="text-gray-400">{displayGem.weakBonus.atk} ATK</div>
+                      <div className="text-gray-400">{displayGem.weakBonus.hp} HP</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Team Affinity Preview */}
+            {displayGem && (
+              <div className="bg-gray-900/80 rounded-xl p-6 border-2 border-gray-700">
+                <h3 className="text-white font-bold mb-4">Your Team Affinity</h3>
+                <div className="space-y-3">
+                  {playerUnits.map((unit) => {
+                    const affinity = calculateAffinity(unit.element, displayGem.element);
+                    return (
+                      <div
+                        key={unit.id}
+                        className={`flex items-center justify-between p-3 rounded-lg border-2 ${getAffinityStyle(affinity)}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-white">
+                            {unit.name}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            ({unit.element})
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold">
+                          {getAffinityLabel(affinity)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Affinity Summary */}
+                <div className="mt-4 pt-4 border-t border-gray-700">
+                  <div className="grid grid-cols-3 gap-2 text-xs text-center">
+                    <div>
+                      <div className="text-green-300 font-bold">
+                        {playerUnits.filter(u =>
+                          calculateAffinity(u.element, displayGem.element) === 'strong'
+                        ).length}
+                      </div>
+                      <div className="text-gray-400">Strong</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-300 font-bold">
+                        {playerUnits.filter(u =>
+                          calculateAffinity(u.element, displayGem.element) === 'neutral'
+                        ).length}
+                      </div>
+                      <div className="text-gray-400">Neutral</div>
+                    </div>
+                    <div>
+                      <div className="text-red-300 font-bold">
+                        {playerUnits.filter(u =>
+                          calculateAffinity(u.element, displayGem.element) === 'weak'
+                        ).length}
+                      </div>
+                      <div className="text-gray-400">Weak</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Help Text */}
-        {gemChoices.length === 0 && (
-          <div className="text-center text-gray-500 text-lg">
-            No gems available
-          </div>
-        )}
+        <div className="mt-6 text-center text-gray-400 text-sm">
+          <p>Use Arrow Keys to navigate, Enter to select, Escape to cancel</p>
+        </div>
       </div>
     </div>
   );
-};
+}

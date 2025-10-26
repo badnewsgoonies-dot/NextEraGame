@@ -37,10 +37,11 @@ import { useDevShortcuts, DevShortcutsBadge } from './hooks/useDevShortcuts';
 type AppScreen =
   | 'menu'
   | 'starter_select'
+  | 'global_gem_select' // NEW: Gem selection at game start
   | 'opponent_select'
   | 'battle'
   | 'rewards'
-  | 'gem_select'
+  | 'gem_select' // OLD: Gem selection from rewards (deprecated)
   | 'equipment'
   | 'recruit'
   | 'roster_management'
@@ -306,19 +307,41 @@ export function App(): React.ReactElement {
   // Starter selection
   const handleStarterSelected = (starters: PlayerUnit[]) => {
     setPlayerTeam(starters);
-    
+
     const initResult = controller.startRun(starters, Date.now());
     if (initResult.ok) {
-      const choicesResult = controller.generateOpponentChoices();
-      if (choicesResult.ok) {
-        setPreviews(choicesResult.value);
-        setScreen('opponent_select');
-      }
+      // NEW: Go to global gem selection screen (once at game start)
+      setScreen('global_gem_select');
     }
   };
 
   const handleStarterCancel = () => {
     setScreen('menu');
+  };
+
+  // Global gem selection (at game start)
+  const handleGlobalGemSelect = (gemId: string) => {
+    // Select gem in controller (applies bonuses and grants spells)
+    const selectResult = controller.selectGlobalGem(gemId);
+    if (!selectResult.ok) {
+      console.error('Failed to select gem:', selectResult.error);
+      return;
+    }
+
+    // Update player team with gem bonuses applied
+    const updatedTeam = controller.getState().playerTeam;
+    setPlayerTeam(updatedTeam);
+
+    // Proceed to opponent selection
+    const choicesResult = controller.generateOpponentChoices();
+    if (choicesResult.ok) {
+      setPreviews(choicesResult.value);
+      setScreen('opponent_select');
+    }
+  };
+
+  const handleGlobalGemCancel = () => {
+    setScreen('starter_select');
   };
 
   // Opponent selection
@@ -653,6 +676,15 @@ export function App(): React.ReactElement {
           />
         );
 
+      case 'global_gem_select':
+        return (
+          <GemSelectScreen
+            playerUnits={playerTeam}
+            onGemSelected={handleGlobalGemSelect}
+            onCancel={handleGlobalGemCancel}
+          />
+        );
+
       case 'opponent_select':
         return (
           <OpponentSelectScreen
@@ -692,15 +724,18 @@ export function App(): React.ReactElement {
         );
 
       case 'gem_select':
-        if (!rewards?.gemChoices) {
-          return <div>Loading gem choices...</div>;
+        // DEPRECATED: Old gem selection from rewards (replaced by global gem system)
+        // If gem choices are provided, skip to equipment screen
+        if (rewards?.gemChoices && rewards.gemChoices.length > 0) {
+          handleGemSelect(rewards.gemChoices[0]); // Auto-select first gem
+          return <div>Selecting gem...</div>;
         }
-        return (
-          <GemSelectScreen
-            gemChoices={rewards.gemChoices}
-            onSelectGem={handleGemSelect}
-          />
-        );
+        // Skip to equipment
+        const transition = controller.handleRewardsContinue();
+        if (transition.ok) {
+          setScreen('equipment');
+        }
+        return <div>Loading...</div>;
 
       case 'equipment':
         return (
