@@ -970,8 +970,8 @@ export function BattleScreen({
         const effectType = abilityToUse.effect.type;
 
         if (effectType === 'damage') {
-          // Calculate and apply damage
-          const damage = calculateAbilityDamage(abilityToUse, actorUnit.atk);
+          // Calculate and apply damage with RNG variance
+          const damage = calculateAbilityDamage(abilityToUse, actorUnit.atk, rngRef.current);
 
           // Show animation at target position
           if (i === 0 || targets.length === 1) {
@@ -989,14 +989,17 @@ export function BattleScreen({
 
           // Log action
           pushAction({
-            type: 'attack', // TODO: Add 'ability' type to CombatAction
+            type: 'ability-used',
             actorId: actorUnit.id,
             targetId: target.id,
-            damage,
+            abilityId: abilityToUse.id,
+            abilityName: abilityToUse.name,
+            effectType: 'damage',
+            effectValue: damage,
           });
         } else if (effectType === 'heal') {
-          // Calculate and apply healing
-          const healing = calculateAbilityHealing(abilityToUse);
+          // Calculate and apply healing with RNG variance
+          const healing = calculateAbilityHealing(abilityToUse, rngRef.current);
           const actualHeal = Math.min(healing, target.maxHp - target.currentHp);
 
           // Show heal animation
@@ -1019,12 +1022,13 @@ export function BattleScreen({
 
           // Log action
           pushAction({
-            type: 'item-used', // TODO: Add 'ability' type to CombatAction
+            type: 'ability-used',
             actorId: actorUnit.id,
             targetId: target.id,
-            itemId: abilityToUse.id,
-            itemName: abilityToUse.name,
-            hpRestored: actualHeal,
+            abilityId: abilityToUse.id,
+            abilityName: abilityToUse.name,
+            effectType: 'heal',
+            effectValue: actualHeal,
           });
         } else if (effectType === 'buff') {
           // Apply buff to target
@@ -1052,12 +1056,13 @@ export function BattleScreen({
 
           // Log action
           pushAction({
-            type: 'item-used', // TODO: Add 'buff' type to CombatAction
+            type: 'ability-used',
             actorId: actorUnit.id,
             targetId: target.id,
-            itemId: abilityToUse.id,
-            itemName: abilityToUse.name,
-            hpRestored: 0, // Not healing, just buff
+            abilityId: abilityToUse.id,
+            abilityName: abilityToUse.name,
+            effectType: 'buff',
+            effectValue: abilityToUse.effect.buffAmount || 0,
           });
         } else if (effectType === 'debuff_remove') {
           // Cleanse: Remove all buffs
