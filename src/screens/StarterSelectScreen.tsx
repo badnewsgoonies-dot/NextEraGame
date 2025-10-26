@@ -129,7 +129,7 @@ export function StarterSelectScreen({
   }, [focusedIndex]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-8 pb-32">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-8 pb-48">
       {/* Header */}
       <div className="max-w-6xl mx-auto mb-8">
         <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
@@ -161,12 +161,12 @@ export function StarterSelectScreen({
       </div>
 
       {/* Unit grid */}
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto mb-32">
         <div
           ref={gridRef}
           role="group"
           aria-label="Starter units selection"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         >
           {STARTER_CATALOG.map((unit, index) => (
             <UnitCard
