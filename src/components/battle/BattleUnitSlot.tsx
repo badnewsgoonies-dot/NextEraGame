@@ -45,6 +45,10 @@ export interface BattleUnitSlotProps {
   isHit?: boolean;
   /** Optional CSS class names */
   className?: string;
+  /** Optional click handler for mouse interaction */
+  onClick?: () => void;
+  /** Whether this unit is clickable (for cursor styling) */
+  isClickable?: boolean;
 }
 
 /**
@@ -68,6 +72,8 @@ export const BattleUnitSlot = forwardRef<HTMLDivElement, BattleUnitSlotProps>(
       isAttacking = false,
       isHit = false,
       className = '',
+      onClick,
+      isClickable = false,
     },
     ref
   ) => {
@@ -118,9 +124,11 @@ export const BattleUnitSlot = forwardRef<HTMLDivElement, BattleUnitSlotProps>(
           left: `${position.x}px`,
           [isPlayer ? 'bottom' : 'top']: `${position.y}px`,
           transform: `scale(${scale})`,
+          cursor: isClickable ? 'pointer' : 'default',
         }}
         role="group"
         aria-label={ariaLabel}
+        onClick={onClick}
       >
         <div className="flex flex-col items-center">
           {/* Unit sprite with animations and effects */}

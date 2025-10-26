@@ -1131,6 +1131,52 @@ export function BattleScreen({
     setPhase('menu');
   }, []);
 
+  /**
+   * Handle mouse click on enemy unit (targeting)
+   */
+  const handleEnemyClick = useCallback((enemyIndex: number) => {
+    // Only allow clicks during enemy targeting phases
+    if (phase !== 'targeting' && !(phase === 'ability-targeting' && selectedAbility?.effect.target === 'single_enemy')) {
+      return;
+    }
+
+    // Set target
+    setTargetIndex(enemyIndex);
+    setTargetedId(aliveEnemies[enemyIndex]?.id ?? null);
+
+    // Auto-confirm on click for better UX
+    setTimeout(() => {
+      if (phase === 'targeting') {
+        handleConfirmTarget();
+      } else if (phase === 'ability-targeting') {
+        handleConfirmAbilityUse();
+      }
+    }, 100); // Small delay to ensure state updates
+  }, [phase, selectedAbility, aliveEnemies, handleConfirmTarget, handleConfirmAbilityUse]);
+
+  /**
+   * Handle mouse click on player unit (item/ability targeting)
+   */
+  const handlePlayerClick = useCallback((playerIndex: number) => {
+    // Only allow clicks during ally targeting phases
+    if (phase !== 'item-targeting' && !(phase === 'ability-targeting' && selectedAbility?.effect.target === 'single_ally')) {
+      return;
+    }
+
+    // Set target
+    setTargetIndex(playerIndex);
+    setTargetedId(alivePlayers[playerIndex]?.id ?? null);
+
+    // Auto-confirm on click for better UX
+    setTimeout(() => {
+      if (phase === 'item-targeting') {
+        handleConfirmItemUse();
+      } else if (phase === 'ability-targeting') {
+        handleConfirmAbilityUse();
+      }
+    }, 100); // Small delay to ensure state updates
+  }, [phase, selectedAbility, alivePlayers, handleConfirmItemUse, handleConfirmAbilityUse]);
+
   // OLD GEM SYSTEM HANDLERS REMOVED (deprecated)
 
   // ==================== Keyboard Input ====================
@@ -1314,20 +1360,28 @@ export function BattleScreen({
           aria-label="Enemy units"
         >
           <div className="relative" style={{ minHeight: '320px' }}>
-            {enemies.map((u, idx) => (
-              <BattleUnitSlot
-                key={u.id}
-                ref={el => {
-                  enemyEls.current[u.id] = el;
-                }}
-                unit={u}
-                index={idx}
-                isPlayer={false}
-                isActive={activeId === u.id}
-                isTargeted={targetedId === u.id}
-                isHit={targetedId === u.id && phase === 'animating'}
-              />
-            ))}
+            {enemies.map((u, idx) => {
+              const aliveIdx = aliveEnemies.findIndex(e => e.id === u.id);
+              const isClickable = (phase === 'targeting' ||
+                                   (phase === 'ability-targeting' && selectedAbility?.effect.target === 'single_enemy')) &&
+                                  aliveIdx !== -1;
+              return (
+                <BattleUnitSlot
+                  key={u.id}
+                  ref={el => {
+                    enemyEls.current[u.id] = el;
+                  }}
+                  unit={u}
+                  index={idx}
+                  isPlayer={false}
+                  isActive={activeId === u.id}
+                  isTargeted={targetedId === u.id}
+                  isHit={targetedId === u.id && phase === 'animating'}
+                  onClick={isClickable ? () => handleEnemyClick(aliveIdx) : undefined}
+                  isClickable={isClickable}
+                />
+              );
+            })}
           </div>
         </div>
 
@@ -1338,18 +1392,26 @@ export function BattleScreen({
           aria-label="Player party"
         >
           <div className="relative" style={{ minHeight: '360px' }}>
-            {players.map((u, idx) => (
-              <BattleUnitSlot
-                key={u.id}
-                unit={u}
-                index={idx}
-                isPlayer={true}
-                isActive={activeId === u.id}
-                isTargeted={targetedId === u.id}
-                isAttacking={activeId === u.id && phase === 'animating'}
-                isHit={targetedId === u.id && phase === 'animating'}
-              />
-            ))}
+            {players.map((u, idx) => {
+              const aliveIdx = alivePlayers.findIndex(p => p.id === u.id);
+              const isClickable = (phase === 'item-targeting' ||
+                                   (phase === 'ability-targeting' && selectedAbility?.effect.target === 'single_ally')) &&
+                                  aliveIdx !== -1;
+              return (
+                <BattleUnitSlot
+                  key={u.id}
+                  unit={u}
+                  index={idx}
+                  isPlayer={true}
+                  isActive={activeId === u.id}
+                  isTargeted={targetedId === u.id}
+                  isAttacking={activeId === u.id && phase === 'animating'}
+                  isHit={targetedId === u.id && phase === 'animating'}
+                  onClick={isClickable ? () => handlePlayerClick(aliveIdx) : undefined}
+                  isClickable={isClickable}
+                />
+              );
+            })}
           </div>
         </div>
 
