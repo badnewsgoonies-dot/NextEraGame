@@ -11,16 +11,14 @@ import type { Role } from '../types/game.js';
 // ASSET MODE: GS (Golden Sun) or Simple (Built-in)
 // ============================================
 const ASSET_MODE: 'gs' | 'simple' = (() => {
-  // Check if Golden Sun assets exist by looking for a known file
-  // In dev, we prefer GS if available; in prod, env var controls
-  if (typeof window === 'undefined') return 'simple'; // SSR safety
+  // Always use GS mode since we have the Golden Sun assets
+  // Can be overridden to simple mode with VITE_USE_SIMPLE_ASSETS=true
+  if (typeof window === 'undefined') return 'gs'; // SSR safety
 
-  const isDev = import.meta.env?.DEV ?? false;
-  const forceGS = import.meta.env?.VITE_USE_GS_ASSETS === 'true';
+  const forceSimple = import.meta.env?.VITE_USE_SIMPLE_ASSETS === 'true';
 
-  // In dev, default to GS if we have the assets
-  // In prod, require explicit opt-in
-  return (isDev || forceGS) ? 'gs' : 'simple';
+  // Default to GS mode (beautiful sprites), opt-in to simple mode for legal testing
+  return forceSimple ? 'simple' : 'gs';
 })();
 
 console.log(`[SpriteRegistry] Asset mode: ${ASSET_MODE}`);
