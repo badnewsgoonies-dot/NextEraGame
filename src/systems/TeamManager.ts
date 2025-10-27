@@ -67,25 +67,6 @@ export class TeamManager {
     else if (enemyTemplate.tags.includes('Mech')) element = 'Jupiter';
     else if (enemyTemplate.tags.includes('Undead')) element = 'Sun';
 
-    // Create matching gem for the element
-    const elementIcons: Record<typeof element, string> = {
-      'Moon': '🌙',
-      'Venus': '🌿',
-      'Mars': '🔥',
-      'Mercury': '💧',
-      'Jupiter': '💨',
-      'Sun': '☀️',
-    };
-
-    const elementDescriptions: Record<typeof element, string> = {
-      'Moon': 'Light element gem',
-      'Venus': 'Earth element gem',
-      'Mars': 'Fire element gem',
-      'Mercury': 'Water element gem',
-      'Jupiter': 'Wind element gem',
-      'Sun': 'Dark element gem',
-    };
-
     return {
       id: `recruited_${enemyTemplate.id}_${this.recruitCounter}`,
       templateId: enemyTemplate.id, // Use template ID for duplicate detection
