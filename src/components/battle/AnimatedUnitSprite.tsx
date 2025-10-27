@@ -143,7 +143,7 @@ export function AnimatedUnitSprite({
         width={160}
         height={160}
         className={`w-40 h-40 object-contain ${className} ${spriteLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-        style={{ 
+        style={{
           imageRendering: 'pixelated',
           filter: unit.currentHp <= 0 ? 'grayscale(100%) opacity(0.5)' : 'none',
           ...style,
@@ -155,6 +155,13 @@ export function AnimatedUnitSprite({
           setSpriteLoading(false);
         }}
       />
+
+      {/* KO overlay */}
+      {unit.currentHp <= 0 && (
+        <div className="absolute inset-0 bg-black/60 flex items-center justify-center pointer-events-none">
+          <span className="text-red-400 font-bold text-sm">KO</span>
+        </div>
+      )}
     </div>
   );
 }

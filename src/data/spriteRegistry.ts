@@ -8,6 +8,24 @@
 import type { Role } from '../types/game.js';
 
 // ============================================
+// ASSET MODE: GS (Golden Sun) or Simple (Built-in)
+// ============================================
+const ASSET_MODE: 'gs' | 'simple' = (() => {
+  // Check if Golden Sun assets exist by looking for a known file
+  // In dev, we prefer GS if available; in prod, env var controls
+  if (typeof window === 'undefined') return 'simple'; // SSR safety
+
+  const isDev = import.meta.env?.DEV ?? false;
+  const forceGS = import.meta.env?.VITE_USE_GS_ASSETS === 'true';
+
+  // In dev, default to GS if we have the assets
+  // In prod, require explicit opt-in
+  return (isDev || forceGS) ? 'gs' : 'simple';
+})();
+
+console.log(`[SpriteRegistry] Asset mode: ${ASSET_MODE}`);
+
+// ============================================
 // UI Sprites (Icons, Elements, Equipment)
 // ============================================
 
@@ -77,6 +95,9 @@ export interface SpriteSet {
   readonly cast1?: string;
   readonly cast2?: string;
 }
+
+// Alias for party sprites (same as SpriteSet)
+export type PartySpriteSet = SpriteSet;
 
 export interface CharacterSpriteMapping {
   readonly gsCharacter: string; // Golden Sun character name
@@ -231,32 +252,72 @@ const BG_BY_TAG: Record<string, string[]> = {
 // ============================================
 
 /**
- * Get sprite path for party member
+ * Get sprite path for party member (dual-path: GS or Simple mode)
  */
 export function getPartySpriteSet(
   unitName: string,
-  weapon: WeaponType
-): SpriteSet | null {
+  weapon?: WeaponType
+): PartySpriteSet | null {
   const mapping = UNIT_TO_GS_CHARACTER[unitName];
-  if (!mapping) return null;
+  if (!mapping) {
+    console.warn(`[SpriteRegistry] No mapping for unit: ${unitName}`);
+    return null;
+  }
 
-  const char = mapping.gsCharacter; // e.g., 'jenna_gs2', 'isaac', 'mia'
-  const basePath = `/sprites/golden-sun/battle/party/${char}`;
+  const actualWeapon = weapon || mapping.defaultWeapon;
 
-  // Extract display name (part before underscore for files like jenna_gs2 -> Jenna)
-  // Filenames use just 'Jenna_*' not 'Jenna_gs2_*'
-  const displayStem = char.includes('_') ? char.split('_')[0] : char;
-  const charName = displayStem.charAt(0).toUpperCase() + displayStem.slice(1);
+  if (ASSET_MODE === 'gs') {
+    // Golden Sun mode - full animation set
+    const char = mapping.gsCharacter; // e.g., 'isaac', 'mia', 'jenna_gs2'
 
-  return {
-    idle: `${basePath}/${charName}_${weapon}_Front.gif`,
-    attack1: `${basePath}/${charName}_${weapon}_Attack1.gif`,
-    attack2: `${basePath}/${charName}_${weapon}_Attack2.gif`,
-    hit: `${basePath}/${charName}_${weapon}_HitFront.gif`,
-    downed: `${basePath}/${charName}_${weapon}_DownedFront.gif`,
-    cast1: `${basePath}/${charName}_${weapon}_CastFront1.gif`,
-    cast2: `${basePath}/${charName}_${weapon}_CastFront2.gif`,
-  };
+    // Handle special case: jenna_gs2 folder but Jenna_ file prefix
+    const displayStem = char.includes('_') ? char.split('_')[0] : char;
+    const name = displayStem.charAt(0).toUpperCase() + displayStem.slice(1);
+
+    const base = `/sprites/golden-sun/battle/party/${char}`;
+
+    return {
+      idle: `${base}/${name}_${actualWeapon}_Front.gif`,
+      attack1: `${base}/${name}_${actualWeapon}_Attack1.gif`,
+      attack2: `${base}/${name}_${actualWeapon}_Attack2.gif`,
+      hit: `${base}/${name}_${actualWeapon}_HitFront.gif`,
+      downed: `${base}/${name}_${actualWeapon}_DownedFront.gif`,
+      cast1: `${base}/${name}_${actualWeapon}_CastFront1.gif`,
+      cast2: `${base}/${name}_${actualWeapon}_CastFront2.gif`,
+    };
+  } else {
+    // Simple mode - reuse idle frame for all states (avoids 404s)
+    const simpleMapping: Record<string, string> = {
+      'Warrior': 'warrior',
+      'Guardian': 'guardian',
+      'Paladin': 'paladin',
+      'Rogue': 'rogue',
+      'Mage': 'mage',
+      'Ranger': 'ranger',
+      'Cleric': 'cleric',
+      'Shaman': 'shaman',
+      'Bard': 'bard',
+      'Necromancer': 'necromancer',
+      'Engineer': 'engineer',
+      'Summoner': 'summoner',
+    };
+
+    const simpleName = simpleMapping[unitName];
+    if (!simpleName) return null;
+
+    const idle = `/sprites/party/${simpleName}_idle.gif`;
+
+    // Reuse idle for all states in simple mode
+    return {
+      idle,
+      attack1: idle,
+      attack2: idle,
+      hit: idle,
+      downed: idle,
+      cast1: idle,
+      cast2: idle,
+    };
+  }
 }
 
 /**
@@ -275,15 +336,16 @@ export function getEnemySprite(unitName: string, role: Role): string {
 }
 
 /**
- * Get battle background (deterministic based on battle index)
+ * Get battle background (deterministic based on battle index, dual-path)
  */
 export function getBattleBackground(battleIndex: number): string {
-  if (BATTLE_BACKGROUNDS.length === 0) {
-    return '/sprites/golden-sun/backgrounds/gs1/Cave.gif'; // Safe default
+  if (ASSET_MODE === 'gs' && BATTLE_BACKGROUNDS.length > 0) {
+    return BATTLE_BACKGROUNDS[battleIndex % BATTLE_BACKGROUNDS.length];
   }
 
-  const index = battleIndex % BATTLE_BACKGROUNDS.length;
-  return BATTLE_BACKGROUNDS[index];
+  // Simple mode fallback
+  const simpleBGs = ['/sprites/backgrounds/cave.gif'];
+  return simpleBGs[battleIndex % simpleBGs.length];
 }
 
 /**
@@ -326,26 +388,30 @@ export async function preloadSprite(url: string): Promise<boolean> {
 }
 
 export async function preloadCommonSprites(): Promise<void> {
-  const common: string[] = [];
+  const urls = new Set<string>();
 
-  // Preload all default party sprites (idle + attack)
-  Object.entries(UNIT_TO_GS_CHARACTER).forEach(([unitName, mapping]) => {
+  // Preload party sprites for all mapped units
+  for (const [unitName, mapping] of Object.entries(UNIT_TO_GS_CHARACTER)) {
     const spriteSet = getPartySpriteSet(unitName, mapping.defaultWeapon);
     if (spriteSet) {
-      common.push(spriteSet.idle, spriteSet.attack1, spriteSet.attack2);
+      urls.add(spriteSet.idle);
+      urls.add(spriteSet.attack1);
+      urls.add(spriteSet.attack2);
+      urls.add(spriteSet.hit);
+      urls.add(spriteSet.downed);
     }
-  });
+  }
 
-  // Preload common enemy sprites
-  const commonEnemies = ['Goblin', 'Undead', 'Wild_Wolf', 'Brigand', 'Ooze'];
-  commonEnemies.forEach(sprite => {
-    common.push(`/sprites/golden-sun/battle/enemies/${sprite}.gif`);
-  });
+  // Preload backgrounds
+  for (let i = 0; i < 3; i++) {
+    urls.add(getBattleBackground(i));
+  }
 
-  // Preload first 5 backgrounds
-  common.push(...BATTLE_BACKGROUNDS.slice(0, 5));
+  // Preload in parallel
+  await Promise.allSettled(
+    Array.from(urls).map(url => preloadSprite(url))
+  );
 
-  // Load all in parallel
-  await Promise.allSettled(common.map(preloadSprite));
+  console.log(`[SpriteRegistry] Preloaded ${urls.size} sprites in ${ASSET_MODE} mode`);
 }
 
