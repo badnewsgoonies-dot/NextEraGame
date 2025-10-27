@@ -39,6 +39,8 @@ import { useKeyboard } from '../hooks/useKeyboard.js';
 import { BattleUnitSlot } from '../components/battle/BattleUnitSlot.js';
 import { AttackAnimation } from '../components/battle/AttackAnimation.js';
 import { HealNumber } from '../components/battle/HealNumber.js';
+import { DamageNumber, type DamageNumberType } from '../components/battle/DamageNumber.js';
+import { PsynergyAnimation } from '../components/battle/PsynergyAnimation.js';
 import { ActionMenu } from '../components/battle/ActionMenu.js';
 import { PlayerStatusPanel } from '../components/battle/PlayerStatusPanel.js';
 import { TurnBanner } from '../components/battle/TurnBanner.js';
@@ -47,6 +49,9 @@ import { BattlefieldFloor } from '../components/battle/BattlefieldFloor.js';
 import { makeRng } from '../utils/rng.js';
 import { getBattleBackground, preloadCommonSprites } from '../data/spriteRegistry.js';
 import { ANIMATION_TIMING } from '../components/battle/battleConstants.js';
+import { useScreenShake } from '../hooks/useScreenShake.js';
+import { useFlashEffect } from '../hooks/useFlashEffect.js';
+import { preloadPsynergySprites } from '../data/psynergySprites.js';
 
 // ============================================
 // Types & Constants
@@ -96,7 +101,12 @@ export function BattleScreen({
   // Preload sprites on mount for smoother animations
   useEffect(() => {
     preloadCommonSprites().catch(err => console.warn('Sprite preload failed:', err));
+    preloadPsynergySprites(); // Preload psynergy spell sprites
   }, []);
+
+  // Initialize visual effect hooks
+  const { shake } = useScreenShake();
+  const { flash, FlashOverlay } = useFlashEffect();
 
   // Reset gem super at battle start
   useEffect(() => {
@@ -145,6 +155,22 @@ export function BattleScreen({
   // Ability system state (gem-granted abilities)
   const [abilityMenuIndex, setAbilityMenuIndex] = useState(0);
   const [selectedAbility, setSelectedAbility] = useState<Ability | null>(null);
+
+  // SESSION 4: Psynergy animation state
+  interface PsynergyAnimInstance {
+    id: string;
+    spellId: string;
+    position: { x: number; y: number };
+    targetType: string;
+  }
+  interface DamageNumInstance {
+    id: string;
+    amount: number;
+    type: DamageNumberType;
+    position: { x: number; y: number };
+  }
+  const [psynergyAnims, setPsynergyAnims] = useState<PsynergyAnimInstance[]>([]);
+  const [damageNums, setDamageNums] = useState<DamageNumInstance[]>([]);
 
   // Gem system state
   const [gemActivationMessage, setGemActivationMessage] = useState<string | null>(null);
@@ -437,6 +463,24 @@ export function BattleScreen({
       y: Math.round(r.top + r.height / 2 + scrollY),
     };
   }, []);
+
+  /**
+   * SESSION 4: Trigger psynergy animation sprite
+   */
+  const playPsynergyAnim = useCallback((spellId: string, targetId: string, targetType: string) => {
+    const pos = getTargetCenter(targetId);
+    const id = `psyn-${spellId}-${Date.now()}`;
+    setPsynergyAnims(prev => [...prev, { id, spellId, position: pos, targetType }]);
+  }, [getTargetCenter]);
+
+  /**
+   * SESSION 4: Show damage/heal number
+   */
+  const showDamageNum = useCallback((targetId: string, amount: number, type: DamageNumberType) => {
+    const pos = getTargetCenter(targetId);
+    const id = `dmg-${Date.now()}-${Math.random()}`;
+    setDamageNums(prev => [...prev, { id, amount, type, position: pos }]);
+  }, [getTargetCenter]);
 
   /**
    * Register a timeout for cleanup
@@ -975,13 +1019,23 @@ export function BattleScreen({
           // Calculate and apply damage with RNG variance
           const damage = calculateAbilityDamage(abilityToUse, actorUnit.atk, rngRef.current);
 
-          // Show animation at target position
-          if (i === 0 || targets.length === 1) {
-            setTargetedId(target.id);
-            setAttackAnimRole(actorUnit.role);
-            setAttackAnimPos(getTargetCenter(target.id));
-            setShowAttackAnim(true);
+          // SESSION 4: Show psynergy sprite animation (first target only)
+          if (i === 0) {
+            playPsynergyAnim(abilityToUse.id, target.id, targetType);
           }
+
+          // SESSION 4: Flash + Shake on impact (300ms after psynergy starts)
+          const impactTimeout = setTimeout(() => {
+            flash('rgba(255, 0, 0, 0.3)'); // Red flash for damage
+            const totalDmg = targets.reduce((sum, t) => sum + calculateAbilityDamage(abilityToUse, actorUnit.atk, rngRef.current), 0);
+            if (totalDmg > 100) shake('heavy');
+            else if (totalDmg > 50) shake('medium');
+            else shake('light');
+
+            // SESSION 4: Show damage number
+            showDamageNum(target.id, damage, 'damage');
+          }, 300);
+          registerTimeout(impactTimeout);
 
           // Apply damage after delay
           const damageTimeout = setTimeout(() => {
@@ -1004,13 +1058,17 @@ export function BattleScreen({
           const healing = calculateAbilityHealing(abilityToUse, rngRef.current);
           const actualHeal = Math.min(healing, target.maxHp - target.currentHp);
 
-          // Show heal animation
-          if (i === 0 || targets.length === 1) {
-            setTargetedId(target.id);
-            setHealAmount(actualHeal);
-            setHealPos(getTargetCenter(target.id));
-            setShowHealAnim(true);
+          // SESSION 4: Show psynergy sprite animation (first target only)
+          if (i === 0) {
+            playPsynergyAnim(abilityToUse.id, target.id, targetType);
           }
+
+          // SESSION 4: Flash + Heal number (300ms after psynergy starts)
+          const impactTimeout = setTimeout(() => {
+            flash('rgba(0, 255, 0, 0.3)'); // Green flash for healing
+            showDamageNum(target.id, actualHeal, 'heal');
+          }, 300);
+          registerTimeout(impactTimeout);
 
           // Apply healing after short delay
           const healTimeout = setTimeout(() => {
@@ -1019,7 +1077,7 @@ export function BattleScreen({
                 u.id === target.id ? { ...u, currentHp: Math.min(u.maxHp, u.currentHp + actualHeal) } : u
               )
             );
-          }, 200);
+          }, 400);
           registerTimeout(healTimeout);
 
           // Log action
@@ -1048,12 +1106,9 @@ export function BattleScreen({
             );
           }
 
-          // Show visual feedback (reuse heal animation for now)
-          if (i === 0 || targets.length === 1) {
-            setTargetedId(target.id);
-            setHealAmount(abilityToUse.effect.buffAmount || 0); // Show buff amount
-            setHealPos(getTargetCenter(target.id));
-            setShowHealAnim(true);
+          // SESSION 4: Show psynergy sprite animation (first target only)
+          if (i === 0) {
+            playPsynergyAnim(abilityToUse.id, target.id, targetType);
           }
 
           // Log action
@@ -1122,6 +1177,10 @@ export function BattleScreen({
       pushAction,
       advanceTurnPointer,
       registerTimeout,
+      playPsynergyAnim,
+      showDamageNum,
+      flash,
+      shake,
     ]
   );
 
@@ -1516,6 +1575,9 @@ export function BattleScreen({
         </div>
       </div>
 
+      {/* SESSION 4: Flash overlay */}
+      <FlashOverlay />
+
       {/* Attack animation overlay */}
       {showAttackAnim && attackAnimRole && (
         <AttackAnimation
@@ -1535,6 +1597,28 @@ export function BattleScreen({
           onComplete={() => setShowHealAnim(false)}
         />
       )}
+
+      {/* SESSION 4: Psynergy sprite animations */}
+      {psynergyAnims.map(anim => (
+        <PsynergyAnimation
+          key={anim.id}
+          spellId={anim.spellId}
+          position={anim.position}
+          targetType={anim.targetType}
+          onComplete={() => setPsynergyAnims(prev => prev.filter(a => a.id !== anim.id))}
+        />
+      ))}
+
+      {/* SESSION 4: Damage/heal numbers */}
+      {damageNums.map(dmg => (
+        <DamageNumber
+          key={dmg.id}
+          amount={dmg.amount}
+          type={dmg.type}
+          position={dmg.position}
+          onComplete={() => setDamageNums(prev => prev.filter(d => d.id !== dmg.id))}
+        />
+      ))}
 
       {/* Gem activation message overlay */}
       {gemActivationMessage && (
