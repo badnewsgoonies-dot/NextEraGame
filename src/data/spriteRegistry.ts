@@ -442,6 +442,64 @@ export function getBattleBackgroundForTags(tags: readonly string[], fallbackInde
 }
 
 // ============================================
+// Psynergy Animations (Ability Visual Effects)
+// ============================================
+
+/**
+ * Maps ability/spell names to Psynergy icon GIFs for visual effects
+ * These display briefly when abilities are cast in battle
+ */
+export const PSYNERGY_ANIMATIONS: Record<string, string> = {
+  // === Fire/Mars Psynergy ===
+  'Fireball': '/sprites/golden-sun/icons/psynergy/Blast1.gif',
+  'Volcano': '/sprites/golden-sun/icons/psynergy/Eruption.gif',
+  'Inferno': '/sprites/golden-sun/icons/psynergy/Inferno.gif',
+  'Fire': '/sprites/golden-sun/icons/psynergy/Blaze.gif',
+  'Flame': '/sprites/golden-sun/icons/psynergy/Flare.gif',
+
+  // === Water/Mercury Psynergy ===
+  'Ply': '/sprites/golden-sun/icons/psynergy/Ply.gif',
+  'Cure': '/sprites/golden-sun/icons/psynergy/Cure.gif',
+  'Wish': '/sprites/golden-sun/icons/psynergy/Wish.gif',
+  'Water': '/sprites/golden-sun/icons/psynergy/Douse.gif',
+  'Ice': '/sprites/golden-sun/icons/psynergy/Ice.gif',
+  'Frost': '/sprites/golden-sun/icons/psynergy/Frost.gif',
+
+  // === Wind/Jupiter Psynergy ===
+  'Bolt': '/sprites/golden-sun/icons/psynergy/Bolt.gif',
+  'Thunder': '/sprites/golden-sun/icons/psynergy/Blue_Bolt.gif',
+  'Storm': '/sprites/golden-sun/icons/psynergy/Storm_Ray.gif',
+  'Whirlwind': '/sprites/golden-sun/icons/psynergy/Whirlwind.gif',
+  'Wind': '/sprites/golden-sun/icons/psynergy/Gale.gif',
+
+  // === Earth/Venus Psynergy ===
+  'Quake': '/sprites/golden-sun/icons/psynergy/Quake.gif',
+  'Stone': '/sprites/golden-sun/icons/psynergy/Stone_Spire.gif',
+  'Spire': '/sprites/golden-sun/icons/psynergy/Spire.gif',
+  'Earth': '/sprites/golden-sun/icons/psynergy/Gaia.gif',
+  'Thorn': '/sprites/golden-sun/icons/psynergy/Thorn.gif',
+
+  // === Support/Buff Psynergy ===
+  'Ward': '/sprites/golden-sun/icons/psynergy/Ward.gif',
+  'Impact': '/sprites/golden-sun/icons/psynergy/Impact.gif',
+  'Resist': '/sprites/golden-sun/icons/psynergy/Resist.gif',
+  'Barrier': '/sprites/golden-sun/icons/psynergy/Barrier.gif',
+
+  // === Offensive Abilities ===
+  'Slash': '/sprites/golden-sun/icons/psynergy/Slash.gif',
+  'Blast': '/sprites/golden-sun/icons/psynergy/Astral_Blast.gif',
+  'Nova': '/sprites/golden-sun/icons/psynergy/Nova.gif',
+};
+
+/**
+ * Get psynergy icon for an ability
+ * Returns icon path if found, null otherwise
+ */
+export function getPsynergyIcon(abilityName: string): string | null {
+  return PSYNERGY_ANIMATIONS[abilityName] ?? null;
+}
+
+// ============================================
 // Sprite Preloading
 // ============================================
 

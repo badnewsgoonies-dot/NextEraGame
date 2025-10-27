@@ -39,6 +39,7 @@ import { useKeyboard } from '../hooks/useKeyboard.js';
 import { BattleUnitSlot } from '../components/battle/BattleUnitSlot.js';
 import { AttackAnimation } from '../components/battle/AttackAnimation.js';
 import { HealNumber } from '../components/battle/HealNumber.js';
+import { DamageNumber } from '../components/battle/DamageNumber.js';
 import { ActionMenu } from '../components/battle/ActionMenu.js';
 import { PlayerStatusPanel } from '../components/battle/PlayerStatusPanel.js';
 import { TurnBanner } from '../components/battle/TurnBanner.js';
@@ -148,6 +149,11 @@ export function BattleScreen({
 
   // Gem system state
   const [gemActivationMessage, setGemActivationMessage] = useState<string | null>(null);
+
+  // Visual effects state (hit flash, screen shake, damage numbers)
+  const [showHitFlash, setShowHitFlash] = useState(false);
+  const [screenShake, setScreenShake] = useState(false);
+  const [damageNumbers, setDamageNumbers] = useState<Array<{ id: string; damage: number; x: number; y: number }>>([]);
 
   // Battle mechanics
   const defending = useRef<Set<string>>(new Set());
@@ -317,7 +323,30 @@ export function BattleScreen({
     if (defending.current.has(defenderId)) {
       defending.current.delete(defenderId);
     }
-  }, []);
+
+    // Visual effects: hit flash and screen shake on heavy hits
+    if (amount > 0) {
+      // Hit flash (150ms red overlay)
+      setShowHitFlash(true);
+      setTimeout(() => setShowHitFlash(false), 150);
+
+      // Screen shake on heavy hits (>30 damage)
+      if (amount > 30) {
+        setScreenShake(true);
+        setTimeout(() => setScreenShake(false), 400);
+      }
+
+      // Show damage number
+      const targetPos = getTargetCenter(defenderId);
+      const damageId = `${defenderId}-${Date.now()}-${Math.random()}`;
+      setDamageNumbers(prev => [...prev, { id: damageId, damage: amount, x: targetPos.x, y: targetPos.y }]);
+
+      // Remove damage number after animation
+      setTimeout(() => {
+        setDamageNumbers(prev => prev.filter(d => d.id !== damageId));
+      }, 1500);
+    }
+  }, [getTargetCenter]);
 
   /**
    * Log an action to the battle result
@@ -1326,7 +1355,7 @@ export function BattleScreen({
 
   return (
     <div
-      className="h-full w-full text-white relative overflow-hidden animate-battle-entry"
+      className={`h-full w-full text-white relative overflow-hidden animate-battle-entry ${screenShake ? 'animate-screen-shake' : ''}`}
       role="application"
       aria-label="Battle screen"
     >
@@ -1347,6 +1376,15 @@ export function BattleScreen({
         role="presentation"
         aria-hidden="true"
       />
+
+      {/* Hit Flash Overlay (red flash on damage) */}
+      {showHitFlash && (
+        <div
+          className="absolute inset-0 bg-red-600/40 z-50 pointer-events-none animate-hit-flash"
+          role="presentation"
+          aria-hidden="true"
+        />
+      )}
 
       {/* Perspective floor effect for depth */}
       <BattlefieldFloor />
@@ -1547,6 +1585,19 @@ export function BattleScreen({
           </div>
         </div>
       )}
+
+      {/* Damage Numbers overlay */}
+      {damageNumbers.map(dmg => (
+        <DamageNumber
+          key={dmg.id}
+          damage={dmg.damage}
+          x={dmg.x}
+          y={dmg.y}
+          onComplete={() => {
+            setDamageNumbers(prev => prev.filter(d => d.id !== dmg.id));
+          }}
+        />
+      ))}
 
       {/* Live region for screen reader announcements */}
       <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
