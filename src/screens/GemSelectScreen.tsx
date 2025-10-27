@@ -127,8 +127,8 @@ export function GemSelectScreen({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-900 flex flex-col items-center justify-center p-8">
-      <div className="max-w-7xl w-full">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-900 overflow-y-auto py-8 px-8">
+      <div className="max-w-7xl w-full mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-white mb-4">
@@ -349,7 +349,7 @@ export function GemSelectScreen({
         </div>
 
         {/* Help Text */}
-        <div className="mt-6 text-center text-gray-400 text-sm">
+        <div className="mt-6 mb-8 text-center text-gray-400 text-sm">
           <p>Use Arrow Keys to navigate, Enter to select, Escape to cancel</p>
         </div>
       </div>

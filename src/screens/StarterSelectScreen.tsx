@@ -129,7 +129,7 @@ export function StarterSelectScreen({
   }, [focusedIndex]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-4 pb-28">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-4 pb-48">
       {/* Header - Compact */}
       <div className="max-w-7xl mx-auto mb-4">
         <h1 className="text-3xl font-bold text-white mb-1 drop-shadow-lg">
@@ -161,7 +161,7 @@ export function StarterSelectScreen({
       </div>
 
       {/* Unit grid - 4 columns for better fit */}
-      <div className="max-w-7xl mx-auto mb-24">
+      <div className="max-w-7xl mx-auto mb-32">
         <div
           ref={gridRef}
           role="group"
