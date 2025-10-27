@@ -357,7 +357,8 @@ export interface PlayerUnit extends Unit {
   
   // ===== ELEMENTAL SYSTEM =====
   readonly element: Element; // Elemental affinity for active gem bonuses
-  
+  readonly activeGemState: ActiveGemState; // Currently active gem (determines available spells)
+
   // ===== PROGRESSION SYSTEMS =====
   readonly rank: UnitRank; // Starts at 'C', upgrades via merging duplicates
   readonly baseClass: BaseClass; // Fundamental class (inherited from template)

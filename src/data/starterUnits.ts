@@ -23,7 +23,17 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Warrior',
     role: 'Tank',
     tags: ['Holy'],
-    element: 'Moon' as Element, // Holy → Light element
+    element: 'Mars' as Element, // Offensive/Aggressive - Tank but offensive
+    activeGemState: {
+      activeGem: {
+        id: 'gem_mars_starter',
+        element: 'Mars',
+        name: 'Mars Gem',
+        description: 'Starter fire element gem',
+        icon: '🔥',
+      },
+      isActivated: true,
+    },
     hp: 100,
     maxHp: 100,
     atk: 20,
@@ -43,6 +53,16 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     role: 'Tank',
     tags: ['Nature'],
     element: 'Venus' as Element, // Nature → Earth element
+    activeGemState: {
+      activeGem: {
+        id: 'gem_venus_starter',
+        element: 'Venus',
+        name: 'Venus Gem',
+        description: 'Starter earth element gem',
+        icon: '🌿',
+      },
+      isActivated: true,
+    },
     hp: 110,
     maxHp: 110,
     atk: 18,
@@ -61,7 +81,17 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Paladin',
     role: 'Tank',
     tags: ['Holy'],
-    element: 'Moon', // Holy → Light element
+    element: 'Venus', // Defensive/Sturdy - Tank, holy warrior
+    activeGemState: {
+      activeGem: {
+        id: 'gem_venus_starter',
+        element: 'Venus',
+        name: 'Venus Gem',
+        description: 'Starter earth element gem',
+        icon: '🌿',
+      },
+      isActivated: true,
+    },
     hp: 95,
     maxHp: 95,
     atk: 22,
@@ -83,6 +113,16 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     role: 'DPS',
     tags: ['Beast'],
     element: 'Mars', // Beast → Fire element
+    activeGemState: {
+      activeGem: {
+        id: 'gem_mars_starter',
+        element: 'Mars',
+        name: 'Mars Gem',
+        description: 'Starter fire element gem',
+        icon: '🔥',
+      },
+      isActivated: true,
+    },
     hp: 60,
     maxHp: 60,
     atk: 35,
@@ -101,7 +141,17 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Mage',
     role: 'DPS',
     tags: ['Arcane'],
-    element: 'Mercury', // Arcane → Water element
+    element: 'Moon', // Holy/Protective - DPS, light magic
+    activeGemState: {
+      activeGem: {
+        id: 'gem_moon_starter',
+        element: 'Moon',
+        name: 'Moon Gem',
+        description: 'Starter light element gem',
+        icon: '🌙',
+      },
+      isActivated: true,
+    },
     hp: 55,
     maxHp: 55,
     atk: 38,
@@ -120,7 +170,17 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Ranger',
     role: 'DPS',
     tags: ['Nature'],
-    element: 'Venus', // Nature → Earth element
+    element: 'Jupiter', // Fast/Support - DPS, agile
+    activeGemState: {
+      activeGem: {
+        id: 'gem_jupiter_starter',
+        element: 'Jupiter',
+        name: 'Jupiter Gem',
+        description: 'Starter wind element gem',
+        icon: '💨',
+      },
+      isActivated: true,
+    },
     hp: 65,
     maxHp: 65,
     atk: 33,
@@ -141,7 +201,17 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Cleric',
     role: 'Support',
     tags: ['Holy'],
-    element: 'Moon', // Holy → Light element
+    element: 'Mercury', // Healing/Adaptive - Support, healer
+    activeGemState: {
+      activeGem: {
+        id: 'gem_mercury_starter',
+        element: 'Mercury',
+        name: 'Mercury Gem',
+        description: 'Starter water element gem',
+        icon: '💧',
+      },
+      isActivated: true,
+    },
     hp: 70,
     maxHp: 70,
     atk: 15,
@@ -160,7 +230,17 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Shaman',
     role: 'Support',
     tags: ['Nature'],
-    element: 'Venus', // Nature → Earth element
+    element: 'Mercury', // Healing/Adaptive - Support, water magic
+    activeGemState: {
+      activeGem: {
+        id: 'gem_mercury_starter',
+        element: 'Mercury',
+        name: 'Mercury Gem',
+        description: 'Starter water element gem',
+        icon: '💧',
+      },
+      isActivated: true,
+    },
     hp: 75,
     maxHp: 75,
     atk: 18,
@@ -179,7 +259,17 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Bard',
     role: 'Support',
     tags: ['Arcane'],
-    element: 'Mercury', // Arcane → Water element
+    element: 'Jupiter', // Fast/Support - Support, inspiring
+    activeGemState: {
+      activeGem: {
+        id: 'gem_jupiter_starter',
+        element: 'Jupiter',
+        name: 'Jupiter Gem',
+        description: 'Starter wind element gem',
+        icon: '💨',
+      },
+      isActivated: true,
+    },
     hp: 65,
     maxHp: 65,
     atk: 20,
@@ -201,6 +291,16 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     role: 'Specialist',
     tags: ['Undead'],
     element: 'Sun', // Undead → Dark element
+    activeGemState: {
+      activeGem: {
+        id: 'gem_sun_starter',
+        element: 'Sun',
+        name: 'Sun Gem',
+        description: 'Starter dark element gem',
+        icon: '☀️',
+      },
+      isActivated: true,
+    },
     hp: 60,
     maxHp: 60,
     atk: 30,
@@ -219,7 +319,17 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Engineer',
     role: 'Specialist',
     tags: ['Mech'],
-    element: 'Jupiter', // Mech → Wind element
+    element: 'Sun', // Mysterious/Technical - Specialist, unconventional
+    activeGemState: {
+      activeGem: {
+        id: 'gem_sun_starter',
+        element: 'Sun',
+        name: 'Sun Gem',
+        description: 'Starter dark element gem',
+        icon: '☀️',
+      },
+      isActivated: true,
+    },
     hp: 70,
     maxHp: 70,
     atk: 25,
@@ -238,7 +348,17 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Summoner',
     role: 'Specialist',
     tags: ['Beast'],
-    element: 'Mars', // Beast → Fire element
+    element: 'Moon', // Holy/Protective - Specialist, holy summons
+    activeGemState: {
+      activeGem: {
+        id: 'gem_moon_starter',
+        element: 'Moon',
+        name: 'Moon Gem',
+        description: 'Starter light element gem',
+        icon: '🌙',
+      },
+      isActivated: true,
+    },
     hp: 65,
     maxHp: 65,
     atk: 28,
