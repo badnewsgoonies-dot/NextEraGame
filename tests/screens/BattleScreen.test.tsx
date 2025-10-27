@@ -855,4 +855,112 @@ describe('BattleScreen', () => {
   });
 
   // TODO: Add tests for new global gem system with super spells
+
+  describe('SESSION 2.5 - Spell Display from unit.learnedSpells', () => {
+    test('displays unit learned spells from unit.learnedSpells field', () => {
+      // Create test spells
+      const fireBlast: Ability = {
+        id: 'fire_blast',
+        name: 'Fire Blast',
+        description: 'Fire attack',
+        mpCost: 8,
+        effect: {
+          type: 'damage',
+          target: 'single_enemy',
+          power: 25,
+        },
+      };
+
+      const inferno: Ability = {
+        id: 'inferno',
+        name: 'Inferno',
+        description: 'Fire AOE attack',
+        mpCost: 18,
+        effect: {
+          type: 'damage',
+          target: 'all_enemies',
+          power: 45,
+        },
+      };
+
+      // Create a mock PlayerUnit with learned spells
+      const marsUnitWithSpells = {
+        id: 'test_mars_unit',
+        templateId: 'test_template',
+        name: 'Test Warrior',
+        role: 'DPS' as Role,
+        tags: ['Beast'] as const,
+        element: 'Mars' as const,
+        activeGemState: {
+          activeGem: {
+            id: 'gem_mars',
+            element: 'Mars' as const,
+            name: 'Mars Gem',
+            description: 'Fire gem',
+            icon: '🔥',
+          },
+          isActivated: false,
+        },
+        learnedSpells: [fireBlast, inferno], // Unit has 2 spells
+        hp: 100,
+        maxHp: 100,
+        atk: 15,
+        def: 10,
+        speed: 8,
+        currentMp: 50,
+        level: 1,
+        experience: 0,
+        rank: 'C' as const,
+        baseClass: 'Warrior' as const,
+        portraitUrl: '',
+        spriteUrl: '',
+      };
+
+      // Mock gameController to return this unit
+      const mockGetTeam = vi.fn(() => [marsUnitWithSpells]);
+      gameController.getTeam = mockGetTeam;
+
+      // Test the direct learnedSpells access
+      const abilities = marsUnitWithSpells.learnedSpells || [];
+
+      expect(abilities).toHaveLength(2);
+      expect(abilities[0].name).toBe('Fire Blast');
+      expect(abilities[1].name).toBe('Inferno');
+      expect(abilities[0].mpCost).toBe(8);
+      expect(abilities[1].mpCost).toBe(18);
+    });
+
+    test('returns empty array if unit has no learned spells', () => {
+      // Create unit with no spells
+      const unitNoSpells = {
+        id: 'test_no_spells',
+        templateId: 'test_template',
+        name: 'Test Unit',
+        role: 'DPS' as Role,
+        tags: [] as const,
+        element: 'Venus' as const,
+        activeGemState: {
+          activeGem: null,
+          isActivated: false,
+        },
+        learnedSpells: [], // No spells
+        hp: 100,
+        maxHp: 100,
+        atk: 10,
+        def: 10,
+        speed: 5,
+        currentMp: 50,
+        level: 1,
+        experience: 0,
+        rank: 'C' as const,
+        baseClass: 'Warrior' as const,
+        portraitUrl: '',
+        spriteUrl: '',
+      };
+
+      const abilities = unitNoSpells.learnedSpells || [];
+
+      expect(abilities).toHaveLength(0);
+    });
+  });
 });

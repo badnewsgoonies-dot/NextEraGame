@@ -33,7 +33,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import type { BattleUnit, BattleResult, Role, Item, CombatAction, Ability } from '../types/game.js';
 import type { GameController } from '../core/GameController.js';
-import { getAllAbilities, calculateAbilityDamage, calculateAbilityHealing } from '../systems/AbilitySystem.js';
+import { calculateAbilityDamage, calculateAbilityHealing } from '../systems/AbilitySystem.js';
 import { applyBuff, decayAllBuffs, getBuffModifier, removeAllBuffs } from '../systems/BuffSystem.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
 import { BattleUnitSlot } from '../components/battle/BattleUnitSlot.js';
@@ -201,7 +201,8 @@ export function BattleScreen({
   );
 
   /**
-   * Get abilities for a battle unit (uses gameController to access PlayerUnit gem data)
+   * Get abilities for a battle unit
+   * SESSION 2.5: Direct read from unit.learnedSpells (populated by ElementSystem)
    */
   const getUnitAbilitiesForBattle = useCallback((battleUnit: BattleUnit): readonly Ability[] => {
     if (!battleUnit.isPlayer) return []; // Only player units have abilities
@@ -221,13 +222,14 @@ export function BattleScreen({
         return [];
       }
 
-      const abilities = getAllAbilities(playerUnit, gameController.getGemState());
-      return abilities || [];
+      // SESSION 2.5 FIX: Direct read from unit's learned spells
+      // No longer reads from global gameController.getGemState()
+      return playerUnit.learnedSpells || [];
     } catch (error) {
       console.error('❌ Error getting abilities:', error);
       return [];
     }
-  }, [gameController]);
+  }, [gameController]); // Keep gameController for getTeam()
 
   /**
    * Check if battle is over (all players or all enemies defeated)
