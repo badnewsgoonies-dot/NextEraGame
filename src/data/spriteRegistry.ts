@@ -226,25 +226,92 @@ const ROLE_FALLBACK_SPRITES: Record<Role, string> = {
 };
 
 // ============================================
-// Battle Backgrounds (72 total)
+// Battle Backgrounds (20 selected from 72 total)
 // ============================================
 
 export const BATTLE_BACKGROUNDS = [
-  // GS1 Backgrounds (3 for now as requested)
+  // === Core Environments (GS1) ===
   '/sprites/golden-sun/backgrounds/gs1/Cave.gif',
   '/sprites/golden-sun/backgrounds/gs1/Desert.gif',
   '/sprites/golden-sun/backgrounds/gs1/Sol_Sanctum.gif',
-  // More can be added later
+
+  // === Forests & Nature (GS1) ===
+  '/sprites/golden-sun/backgrounds/gs1/Kolima_Forest.gif',
+  '/sprites/golden-sun/backgrounds/gs1/Mogall_Forest.gif',
+  '/sprites/golden-sun/backgrounds/gs1/Altin_Peak.gif', // Mountain peak
+
+  // === Dark & Undead (GS1) ===
+  '/sprites/golden-sun/backgrounds/gs1/Crossbone_Isle_Cave.gif',
+  '/sprites/golden-sun/backgrounds/gs1/Dark_Sky.gif',
+  '/sprites/golden-sun/backgrounds/gs1/Tunnel_Ruins.gif',
+
+  // === Lighthouses & Holy (GS1) ===
+  '/sprites/golden-sun/backgrounds/gs1/Mercury_Lighthouse.gif',
+  '/sprites/golden-sun/backgrounds/gs1/Venus_Lighthouse.gif',
+  '/sprites/golden-sun/backgrounds/gs1/Babi_Lighthouse.gif',
+
+  // === Deserts & Barren (GS1) ===
+  '/sprites/golden-sun/backgrounds/gs1/Lamakan_Desert.gif',
+  '/sprites/golden-sun/backgrounds/gs1/Altmillar_Cave.gif',
+
+  // === Elemental Locations (GS2) ===
+  '/sprites/golden-sun/backgrounds/gs2/Magma_Rock.gif', // Fire element
+  '/sprites/golden-sun/backgrounds/gs2/Aqua_Rock_Inside.gif', // Water element
+  '/sprites/golden-sun/backgrounds/gs2/Gaia_Rock_Inside.gif', // Earth element
+  '/sprites/golden-sun/backgrounds/gs2/Jupiter_Lighthouse.gif', // Wind element
+
+  // === Special Locations (GS2) ===
+  '/sprites/golden-sun/backgrounds/gs2/Mars_Lighthouse.gif',
+  '/sprites/golden-sun/backgrounds/gs2/Anemos_Inner_Sanctum.gif', // Mystical sanctum
 ];
 
 // Tag-based background mapping for thematic battles
+// Each enemy tag now has 3-4 background options for variety
 const BG_BY_TAG: Record<string, string[]> = {
-  Undead: ['/sprites/golden-sun/backgrounds/gs1/Sol_Sanctum.gif'], // Dark temple
-  Beast: ['/sprites/golden-sun/backgrounds/gs1/Cave.gif'], // Natural cave
-  Mech: ['/sprites/golden-sun/backgrounds/gs1/Desert.gif'], // Barren mechanical
-  Holy: ['/sprites/golden-sun/backgrounds/gs1/Sol_Sanctum.gif'], // Sacred temple
-  Arcane: ['/sprites/golden-sun/backgrounds/gs1/Sol_Sanctum.gif'], // Mystical temple
-  Nature: ['/sprites/golden-sun/backgrounds/gs1/Cave.gif'], // Natural environment
+  Undead: [
+    '/sprites/golden-sun/backgrounds/gs1/Sol_Sanctum.gif', // Dark temple
+    '/sprites/golden-sun/backgrounds/gs1/Crossbone_Isle_Cave.gif', // Haunted cave
+    '/sprites/golden-sun/backgrounds/gs1/Dark_Sky.gif', // Ominous sky
+    '/sprites/golden-sun/backgrounds/gs1/Tunnel_Ruins.gif', // Ancient ruins
+  ],
+
+  Mech: [
+    '/sprites/golden-sun/backgrounds/gs1/Babi_Lighthouse.gif', // Tech structure
+    '/sprites/golden-sun/backgrounds/gs1/Tunnel_Ruins.gif', // Industrial ruins
+    '/sprites/golden-sun/backgrounds/gs1/Desert.gif', // Barren mechanical
+    '/sprites/golden-sun/backgrounds/gs2/Mars_Lighthouse.gif', // Advanced tech
+  ],
+
+  Beast: [
+    '/sprites/golden-sun/backgrounds/gs1/Kolima_Forest.gif', // Dense forest
+    '/sprites/golden-sun/backgrounds/gs1/Mogall_Forest.gif', // Wild forest
+    '/sprites/golden-sun/backgrounds/gs1/Cave.gif', // Natural cave
+    '/sprites/golden-sun/backgrounds/gs1/Altmillar_Cave.gif', // Rocky cave
+    '/sprites/golden-sun/backgrounds/gs1/Altin_Peak.gif', // Mountain peak
+    '/sprites/golden-sun/backgrounds/gs1/Lamakan_Desert.gif', // Desert wilderness
+  ],
+
+  Holy: [
+    '/sprites/golden-sun/backgrounds/gs1/Venus_Lighthouse.gif', // Sacred lighthouse
+    '/sprites/golden-sun/backgrounds/gs1/Mercury_Lighthouse.gif', // Holy structure
+    '/sprites/golden-sun/backgrounds/gs2/Jupiter_Lighthouse.gif', // Divine tower
+    '/sprites/golden-sun/backgrounds/gs1/Sol_Sanctum.gif', // Holy temple
+  ],
+
+  Arcane: [
+    '/sprites/golden-sun/backgrounds/gs2/Anemos_Inner_Sanctum.gif', // Mystical sanctum
+    '/sprites/golden-sun/backgrounds/gs2/Aqua_Rock_Inside.gif', // Water magic
+    '/sprites/golden-sun/backgrounds/gs1/Sol_Sanctum.gif', // Ancient magic
+    '/sprites/golden-sun/backgrounds/gs1/Mercury_Lighthouse.gif', // Arcane tower
+  ],
+
+  Nature: [
+    '/sprites/golden-sun/backgrounds/gs1/Kolima_Forest.gif', // Lush forest
+    '/sprites/golden-sun/backgrounds/gs1/Mogall_Forest.gif', // Ancient forest
+    '/sprites/golden-sun/backgrounds/gs2/Gaia_Rock_Inside.gif', // Earth element
+    '/sprites/golden-sun/backgrounds/gs1/Altin_Peak.gif', // Mountain nature
+    '/sprites/golden-sun/backgrounds/gs1/Cave.gif', // Natural cave
+  ],
 };
 
 // ============================================
