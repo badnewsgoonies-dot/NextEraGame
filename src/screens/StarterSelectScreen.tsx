@@ -29,6 +29,7 @@ export function StarterSelectScreen({
   const [focusedIndex, setFocusedIndex] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
   const [gridCols, setGridCols] = useState(4); // Default to 4 columns
+  const [isStarting, setIsStarting] = useState(false); // Prevent double-clicks
 
   const maxSelection = 4;
   const canStart = selectedUnits.size === maxSelection;
@@ -48,7 +49,8 @@ export function StarterSelectScreen({
 
   // Start game with selected units
   const handleStart = () => {
-    if (canStart) {
+    if (canStart && !isStarting) {
+      setIsStarting(true); // Prevent spam clicks
       const selected = STARTER_CATALOG.filter(u => selectedUnits.has(u.id));
       onSelect(selected);
     }
@@ -98,8 +100,8 @@ export function StarterSelectScreen({
         case ' ':
           e.preventDefault();
           if (e.ctrlKey || e.metaKey) {
-            // Ctrl+Enter = Start (if ready)
-            if (canStart) {
+            // Ctrl+Enter = Start (if ready and not already starting)
+            if (canStart && !isStarting) {
               handleStart();
             }
           } else {
@@ -117,7 +119,7 @@ export function StarterSelectScreen({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [focusedIndex, canStart, onCancel, gridCols]);
+  }, [focusedIndex, canStart, isStarting, onCancel, gridCols]);
 
   // Move DOM focus when focusedIndex changes (for screen readers)
   useEffect(() => {
@@ -197,15 +199,15 @@ export function StarterSelectScreen({
           <button
             type="button"
             onClick={handleStart}
-            disabled={!canStart}
+            disabled={!canStart || isStarting}
             className={`px-6 py-3 rounded-lg font-bold text-lg transition-all duration-200 shadow-xl border-2 ${
-              canStart
+              canStart && !isStarting
                 ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-400 hover:from-green-400 hover:to-emerald-500 hover:scale-105 hover:shadow-2xl cursor-pointer animate-pulse'
                 : 'bg-gray-700 text-gray-500 border-gray-600 cursor-not-allowed opacity-50'
             }`}
             aria-label={canStart ? 'Start your journey with selected units' : 'Select 4 units to continue'}
           >
-            {canStart ? '🚀 Start Journey →' : `Select ${maxSelection - selectedUnits.size} more`}
+            {isStarting ? '🚀 Starting...' : canStart ? '🚀 Start Journey →' : `Select ${maxSelection - selectedUnits.size} more`}
           </button>
         </div>
       </div>
