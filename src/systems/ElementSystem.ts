@@ -19,9 +19,9 @@
  * - Resets after each battle
  */
 
-import type { Element, PlayerUnit, ActiveGemState, Ability } from '../types/game';
-import { getCounterElement } from '../data/gems';
-import { MATCHING_SPELLS, COUNTER_SPELLS } from '../data/elementalSpells';
+import type { Element, PlayerUnit, ActiveGemState, Ability } from '../types/game.js';
+import { getCounterElement } from '../data/gems.js';
+import { MATCHING_SPELLS, COUNTER_SPELLS } from '../data/elementalSpells.js';
 
 /**
  * Bonus multipliers for element matching

@@ -32,7 +32,7 @@ import { GameContainer } from './components/GameContainer.js';
 import { ScreenTransition } from './components/ScreenTransition.js';
 import { makeRng } from './utils/rng.js';
 import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit, InventoryData, RosterData, GemChoice } from './types/game.js';
-import { useDevShortcuts, DevShortcutsBadge } from './hooks/useDevShortcuts';
+import { useDevShortcuts, DevShortcutsBadge } from './hooks/useDevShortcuts.js';
 
 type AppScreen =
   | 'menu'
