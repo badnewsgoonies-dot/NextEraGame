@@ -1,19 +1,20 @@
 /*
  * Starter Units Catalog
- * 
+ *
  * 12 balanced starter units covering all roles and tags
  * Player chooses 4 to begin their run
- * 
+ *
  * Distribution:
  * - Tanks: 3 (Holy, Nature, Holy)
  * - DPS: 3 (Beast, Arcane, Nature)
  * - Support: 3 (Holy, Nature, Arcane)
  * - Specialist: 3 (Undead, Mech, Beast)
- * 
+ *
  * Tags: All 6 represented (Undead, Mech, Beast, Holy, Arcane, Nature)
  */
 
 import type { PlayerUnit, Element } from '../types/game.js';
+import { getElementalGem } from './gems.js';
 
 export const STARTER_CATALOG: readonly PlayerUnit[] = [
   // TANKS (3)
@@ -23,17 +24,12 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Warrior',
     role: 'Tank',
     tags: ['Holy'],
-    element: 'Mars' as Element, // Offensive/Aggressive - Tank but offensive
+    element: 'Moon' as Element, // Holy → Light element
     activeGemState: {
-      activeGem: {
-        id: 'gem_mars_starter',
-        element: 'Mars',
-        name: 'Mars Gem',
-        description: 'Starter fire element gem',
-        icon: '🔥',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Moon'), // Matching element gem
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 100,
     maxHp: 100,
     atk: 20,
@@ -54,15 +50,10 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     tags: ['Nature'],
     element: 'Venus' as Element, // Nature → Earth element
     activeGemState: {
-      activeGem: {
-        id: 'gem_venus_starter',
-        element: 'Venus',
-        name: 'Venus Gem',
-        description: 'Starter earth element gem',
-        icon: '🌿',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Venus'),
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 110,
     maxHp: 110,
     atk: 18,
@@ -81,17 +72,12 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Paladin',
     role: 'Tank',
     tags: ['Holy'],
-    element: 'Venus', // Defensive/Sturdy - Tank, holy warrior
+    element: 'Moon', // Holy → Light element
     activeGemState: {
-      activeGem: {
-        id: 'gem_venus_starter',
-        element: 'Venus',
-        name: 'Venus Gem',
-        description: 'Starter earth element gem',
-        icon: '🌿',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Moon'),
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 95,
     maxHp: 95,
     atk: 22,
@@ -114,15 +100,10 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     tags: ['Beast'],
     element: 'Mars', // Beast → Fire element
     activeGemState: {
-      activeGem: {
-        id: 'gem_mars_starter',
-        element: 'Mars',
-        name: 'Mars Gem',
-        description: 'Starter fire element gem',
-        icon: '🔥',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Mars'),
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 60,
     maxHp: 60,
     atk: 35,
@@ -141,17 +122,12 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Mage',
     role: 'DPS',
     tags: ['Arcane'],
-    element: 'Moon', // Holy/Protective - DPS, light magic
+    element: 'Mercury', // Arcane → Water element
     activeGemState: {
-      activeGem: {
-        id: 'gem_moon_starter',
-        element: 'Moon',
-        name: 'Moon Gem',
-        description: 'Starter light element gem',
-        icon: '🌙',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Mercury'),
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 55,
     maxHp: 55,
     atk: 38,
@@ -170,17 +146,12 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Ranger',
     role: 'DPS',
     tags: ['Nature'],
-    element: 'Jupiter', // Fast/Support - DPS, agile
+    element: 'Venus', // Nature → Earth element
     activeGemState: {
-      activeGem: {
-        id: 'gem_jupiter_starter',
-        element: 'Jupiter',
-        name: 'Jupiter Gem',
-        description: 'Starter wind element gem',
-        icon: '💨',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Venus'),
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 65,
     maxHp: 65,
     atk: 33,
@@ -201,17 +172,12 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Cleric',
     role: 'Support',
     tags: ['Holy'],
-    element: 'Mercury', // Healing/Adaptive - Support, healer
+    element: 'Moon', // Holy → Light element
     activeGemState: {
-      activeGem: {
-        id: 'gem_mercury_starter',
-        element: 'Mercury',
-        name: 'Mercury Gem',
-        description: 'Starter water element gem',
-        icon: '💧',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Moon'),
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 70,
     maxHp: 70,
     atk: 15,
@@ -230,17 +196,12 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Shaman',
     role: 'Support',
     tags: ['Nature'],
-    element: 'Mercury', // Healing/Adaptive - Support, water magic
+    element: 'Venus', // Nature → Earth element
     activeGemState: {
-      activeGem: {
-        id: 'gem_mercury_starter',
-        element: 'Mercury',
-        name: 'Mercury Gem',
-        description: 'Starter water element gem',
-        icon: '💧',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Venus'),
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 75,
     maxHp: 75,
     atk: 18,
@@ -259,17 +220,12 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Bard',
     role: 'Support',
     tags: ['Arcane'],
-    element: 'Jupiter', // Fast/Support - Support, inspiring
+    element: 'Mercury', // Arcane → Water element
     activeGemState: {
-      activeGem: {
-        id: 'gem_jupiter_starter',
-        element: 'Jupiter',
-        name: 'Jupiter Gem',
-        description: 'Starter wind element gem',
-        icon: '💨',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Mercury'),
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 65,
     maxHp: 65,
     atk: 20,
@@ -292,15 +248,10 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     tags: ['Undead'],
     element: 'Sun', // Undead → Dark element
     activeGemState: {
-      activeGem: {
-        id: 'gem_sun_starter',
-        element: 'Sun',
-        name: 'Sun Gem',
-        description: 'Starter dark element gem',
-        icon: '☀️',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Sun'),
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 60,
     maxHp: 60,
     atk: 30,
@@ -319,17 +270,12 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Engineer',
     role: 'Specialist',
     tags: ['Mech'],
-    element: 'Sun', // Mysterious/Technical - Specialist, unconventional
+    element: 'Jupiter', // Mech → Wind element
     activeGemState: {
-      activeGem: {
-        id: 'gem_sun_starter',
-        element: 'Sun',
-        name: 'Sun Gem',
-        description: 'Starter dark element gem',
-        icon: '☀️',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Jupiter'),
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 70,
     maxHp: 70,
     atk: 25,
@@ -348,17 +294,12 @@ export const STARTER_CATALOG: readonly PlayerUnit[] = [
     name: 'Summoner',
     role: 'Specialist',
     tags: ['Beast'],
-    element: 'Moon', // Holy/Protective - Specialist, holy summons
+    element: 'Mars', // Beast → Fire element
     activeGemState: {
-      activeGem: {
-        id: 'gem_moon_starter',
-        element: 'Moon',
-        name: 'Moon Gem',
-        description: 'Starter light element gem',
-        icon: '🌙',
-      },
-      isActivated: true,
+      activeGem: getElementalGem('Mars'),
+      isActivated: false,
     },
+    learnedSpells: [], // Will be populated by initializeUnitSpells()
     hp: 65,
     maxHp: 65,
     atk: 28,

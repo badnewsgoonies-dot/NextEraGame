@@ -391,3 +391,73 @@ export function getGemById(id: string): GlobalGem | undefined {
 export function getGemByElement(element: Element): GlobalGem | undefined {
   return ALL_GLOBAL_GEMS.find(gem => gem.element === element);
 }
+
+// ============================================
+// Elemental Gems (for Active Gem State)
+// ============================================
+// Simple gems for unit-level elemental alignment
+// Used in ActiveGemState for spell granting
+
+import type { ElementalGem } from '../types/game.js';
+
+export const MARS_ELEMENTAL_GEM: ElementalGem = {
+  id: 'elemental_mars',
+  element: 'Mars',
+  name: 'Mars Gem',
+  description: 'Fire element gem',
+  icon: '🔥',
+};
+
+export const MERCURY_ELEMENTAL_GEM: ElementalGem = {
+  id: 'elemental_mercury',
+  element: 'Mercury',
+  name: 'Mercury Gem',
+  description: 'Water element gem',
+  icon: '💧',
+};
+
+export const JUPITER_ELEMENTAL_GEM: ElementalGem = {
+  id: 'elemental_jupiter',
+  element: 'Jupiter',
+  name: 'Jupiter Gem',
+  description: 'Wind element gem',
+  icon: '💨',
+};
+
+export const VENUS_ELEMENTAL_GEM: ElementalGem = {
+  id: 'elemental_venus',
+  element: 'Venus',
+  name: 'Venus Gem',
+  description: 'Earth element gem',
+  icon: '🌍',
+};
+
+export const MOON_ELEMENTAL_GEM: ElementalGem = {
+  id: 'elemental_moon',
+  element: 'Moon',
+  name: 'Moon Gem',
+  description: 'Light element gem',
+  icon: '🌙',
+};
+
+export const SUN_ELEMENTAL_GEM: ElementalGem = {
+  id: 'elemental_sun',
+  element: 'Sun',
+  name: 'Sun Gem',
+  description: 'Dark element gem',
+  icon: '☀️',
+};
+
+/**
+ * Get elemental gem by element
+ */
+export function getElementalGem(element: Element): ElementalGem {
+  switch (element) {
+    case 'Mars': return MARS_ELEMENTAL_GEM;
+    case 'Mercury': return MERCURY_ELEMENTAL_GEM;
+    case 'Jupiter': return JUPITER_ELEMENTAL_GEM;
+    case 'Venus': return VENUS_ELEMENTAL_GEM;
+    case 'Moon': return MOON_ELEMENTAL_GEM;
+    case 'Sun': return SUN_ELEMENTAL_GEM;
+  }
+}
