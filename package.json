@@ -12,7 +12,11 @@
     "test:coverage": "vitest run --coverage",
     "type-check": "tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx",
-    "circular": "madge --circular --extensions ts,tsx src/"
+    "circular": "madge --circular --extensions ts,tsx src/",
+    "graphics:audit": "node scripts/graphics-audit.mjs",
+    "graphics:progress": "node scripts/graphics-progress.mjs",
+    "graphics:screenshot": "node scripts/graphics-screenshot.mjs",
+    "graphics:check": "npm run graphics:audit && npm run graphics:progress"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.14",
