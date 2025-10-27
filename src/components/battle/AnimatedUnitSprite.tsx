@@ -11,7 +11,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import type { BattleUnit, Role } from '../../types/game.js';
 import { 
-  getPartySpriteSet, 
+  getPartySpriteSet,
+  getEnemySprite,
   getUnitWeapon, 
   type WeaponType 
 } from '../../data/spriteRegistry.js';
@@ -56,8 +57,26 @@ export function AnimatedUnitSprite({
   // Get weapon for this unit
   const unitWeapon = weapon || getUnitWeapon(unit.name);
 
-  // Get sprite set (or use unit's spriteUrl if available - for recruited enemies)
-  const spriteSet = getPartySpriteSet(unit.name, unitWeapon);
+  // Determine if this is a party member or enemy
+  // Try party sprite first - if it returns null, this is an enemy
+  const partySpriteSet = getPartySpriteSet(unit.name, unitWeapon);
+  const isPartyMember = partySpriteSet !== null;
+  
+  // Get appropriate sprite: party uses sprite set, enemies use single sprite
+  const enemySprite = !isPartyMember ? getEnemySprite(unit.name, unit.role) : null;
+  
+  // For party: use sprite set, for enemies: create sprite set from single sprite
+  const spriteSet = isPartyMember ? partySpriteSet : (
+    enemySprite ? {
+      idle: enemySprite,
+      attack1: enemySprite,
+      attack2: enemySprite,
+      hit: enemySprite,
+      downed: enemySprite,
+      cast1: enemySprite,
+      cast2: enemySprite,
+    } : null
+  );
 
   // Update current sprite based on animator state
   const updateSprite = useCallback(() => {
