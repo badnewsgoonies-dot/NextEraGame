@@ -16,6 +16,7 @@ import { RosterManager } from './systems/RosterManager.js';
 import { SettingsManager } from './systems/SettingsManager.js';
 import { equipItem, unequipItem } from './systems/EquipmentSystem.js';
 import { restoreAllMp } from './systems/AbilitySystem.js';
+import { initializeUnitSpells } from './systems/ElementSystem.js';
 import { MainMenuScreen } from './screens/MainMenuScreen.js';
 import { StarterSelectScreen } from './screens/StarterSelectScreen.js';
 import { OpponentSelectScreen } from './screens/OpponentSelectScreen.js';
@@ -223,7 +224,10 @@ export function App(): React.ReactElement {
 
       // Restore UI state from loaded game
       const gameState = controller.getState();
-      setPlayerTeam(gameState.playerTeam);
+
+      // Re-initialize spells (they're not saved, derived from element + gem)
+      const teamWithSpells = gameState.playerTeam.map(initializeUnitSpells);
+      setPlayerTeam(teamWithSpells);
 
       // Navigate based on what was saved
       if (gameState.currentChoices && gameState.currentChoices.length > 0) {
@@ -262,7 +266,10 @@ export function App(): React.ReactElement {
 
       // Restore UI state (same as handleContinue)
       const gameState = controller.getState();
-      setPlayerTeam(gameState.playerTeam);
+
+      // Re-initialize spells (they're not saved, derived from element + gem)
+      const teamWithSpells = gameState.playerTeam.map(initializeUnitSpells);
+      setPlayerTeam(teamWithSpells);
 
       if (gameState.currentChoices && gameState.currentChoices.length > 0) {
         setPreviews(gameState.currentChoices);
@@ -363,8 +370,14 @@ export function App(): React.ReactElement {
     if (selectedPreview) {
       // Restore MP to full at battle start
       const currentTeam = restoreAllMp(playerTeam);
-      
-      const playerBattleUnits: BattleUnit[] = currentTeam.map((unit, index) => ({
+
+      // Initialize spells based on element + active gem (SESSION 2)
+      const teamWithSpells = currentTeam.map(initializeUnitSpells);
+
+      // Update player team state with spells (persist for after battle)
+      setPlayerTeam(teamWithSpells);
+
+      const playerBattleUnits: BattleUnit[] = teamWithSpells.map((unit, index) => ({
         id: unit.id,
         name: unit.name,
         role: unit.role,

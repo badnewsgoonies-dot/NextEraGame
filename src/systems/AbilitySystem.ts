@@ -201,6 +201,11 @@ export function getMpDisplayInfo(currentMp: number, maxMp: number = 50): {
 
 /**
  * Get all abilities for a unit (base + gem-granted)
+ *
+ * @deprecated SESSION 2.5: This function is deprecated. Use `unit.learnedSpells` directly instead.
+ * Spells are now populated on units by `initializeUnitSpells()` from ElementSystem.
+ * This function remains for backward compatibility but should not be used in new code.
+ *
  * @param unit - Player unit
  * @param gemState - Current gem state
  * @returns Combined array of abilities
@@ -212,6 +217,6 @@ export function getAllAbilities(
   // TODO: Add base abilities when unit.abilities field is implemented
   const baseAbilities: Ability[] = [];
   const gemSpells = getGrantedSpells(unit.element, gemState);
-  
+
   return [...baseAbilities, ...gemSpells];
 }

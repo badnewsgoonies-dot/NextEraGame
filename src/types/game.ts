@@ -354,29 +354,31 @@ export interface PlayerUnit extends Unit {
   readonly templateId: string; // Links to EnemyUnitTemplate (for detecting duplicates in merge system)
   readonly role: Role;
   readonly tags: readonly Tag[];
-  
+
   // ===== ELEMENTAL SYSTEM =====
   readonly element: Element; // Elemental affinity for active gem bonuses
-  readonly activeGemState: ActiveGemState; // Currently active gem (determines available spells)
+  readonly activeGemState: ActiveGemState; // Active gem and activation status (SESSION 1)
+  readonly learnedSpells: readonly Ability[]; // Spells granted by element + gem (SESSION 2)
+
 
   // ===== PROGRESSION SYSTEMS =====
   readonly rank: UnitRank; // Starts at 'C', upgrades via merging duplicates
   readonly baseClass: BaseClass; // Fundamental class (inherited from template)
   readonly subclass?: Subclass; // Granted by equipped gem
-  
+
   // ===== LEVELING (Foundation - implemented later) =====
   readonly level: number;      // Starts at 1
   readonly experience: number; // Starts at 0
-  
+
   // ===== CURRENT BATTLE STATE =====
   readonly currentMp: number; // Current MP (for abilities), max 50
-  
+
   // ===== EQUIPMENT =====
   readonly equippedWeapon?: string;
   readonly equippedArmor?: string;
   readonly equippedAccessory?: string;
   readonly equippedGem?: EquippedGem; // NEW: Gem system
-  
+
   // ===== DISPLAY =====
   readonly portraitUrl?: string;
   readonly spriteUrl?: string;

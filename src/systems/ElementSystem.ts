@@ -21,7 +21,13 @@
 
 import type { Element, PlayerUnit, ActiveGemState, Ability } from '../types/game.js';
 import { getCounterElement } from '../data/gems.js';
-import { MATCHING_SPELLS, COUNTER_SPELLS } from '../data/elementalSpells.js';
+import {
+  MATCHING_SPELLS,
+  COUNTER_SPELLS,
+  AOE_SPELLS,
+  ULTIMATE_SPELLS,
+  SUPPORT_SPELLS
+} from '../data/elementalSpells.js';
 
 /**
  * Bonus multipliers for element matching
@@ -105,33 +111,56 @@ export function getElementRelationship(
  * Get elemental spells granted to a unit based on gem/element match
  * @param unitElement - Unit's element
  * @param gemState - Current gem state
- * @returns Array of abilities granted (0-1 spells)
+ * @returns Array of abilities granted (0-4+ spells depending on relationship)
  */
 export function getGrantedSpells(
   unitElement: Element,
   gemState: ActiveGemState
 ): Ability[] {
   const { activeGem } = gemState;
-  
+
   if (!activeGem) {
     return []; // No gem = no bonus spells
   }
-  
+
   const gemElement = activeGem.element;
-  
+
   // MATCHING: Unit element matches gem element
+  // Grant: basic spell, AOE, ultimate, and support spell
   if (unitElement === gemElement) {
-    const spell = MATCHING_SPELLS[unitElement];
-    return spell ? [spell] : [];
+    return [
+      MATCHING_SPELLS[unitElement],
+      AOE_SPELLS[unitElement],
+      ULTIMATE_SPELLS[unitElement],
+      SUPPORT_SPELLS[unitElement],
+    ];
   }
-  
+
   // COUNTER: Unit element counters gem element
+  // Grant: defensive ward only
   const counterElement = getCounterElement(gemElement);
   if (unitElement === counterElement) {
     const spell = COUNTER_SPELLS[gemElement]; // Ward against gem's element
     return spell ? [spell] : [];
   }
-  
+
   // NEUTRAL: No bonus spells
   return [];
+}
+
+/**
+ * Initialize a unit's learned spells based on their element and active gem
+ * Pure function - returns new unit with learnedSpells populated
+ * @param unit - Unit to initialize spells for
+ * @returns New unit object with learnedSpells populated
+ */
+export function initializeUnitSpells(unit: PlayerUnit): PlayerUnit {
+  // Get spells from element + gem relationship
+  const spells = getGrantedSpells(unit.element, unit.activeGemState);
+
+  // Return new unit with populated spells
+  return {
+    ...unit,
+    learnedSpells: spells,
+  };
 }

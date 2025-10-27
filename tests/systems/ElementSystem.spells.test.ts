@@ -17,11 +17,11 @@ describe('ElementSystem - Spell Granting', () => {
         activeGem: MARS_GEM,
         isActivated: false,
       };
-      
+
       const spells = getGrantedSpells('Mars', gemState);
-      
-      expect(spells).toHaveLength(1);
-      expect(spells[0].name).toBe('Fire Blast');
+
+      expect(spells).toHaveLength(4); // Matching element grants 4 spells: basic, AOE, ultimate, support
+      expect(spells[0].name).toBe('Fire Blast'); // Basic spell
       expect(spells[0].mpCost).toBe(8);
       expect(spells[0].effect.power).toBe(30);
     });
@@ -31,11 +31,11 @@ describe('ElementSystem - Spell Granting', () => {
         activeGem: VENUS_GEM,
         isActivated: false,
       };
-      
+
       const spells = getGrantedSpells('Venus', gemState);
-      
-      expect(spells).toHaveLength(1);
-      expect(spells[0].name).toBe('Stone Wall');
+
+      expect(spells).toHaveLength(4); // Matching element grants 4 spells: basic, AOE, ultimate, support
+      expect(spells[0].name).toBe('Stone Wall'); // Basic spell
       expect(spells[0].mpCost).toBe(8);
     });
 
@@ -44,11 +44,11 @@ describe('ElementSystem - Spell Granting', () => {
         activeGem: JUPITER_GEM,
         isActivated: false,
       };
-      
+
       const spells = getGrantedSpells('Jupiter', gemState);
-      
-      expect(spells).toHaveLength(1);
-      expect(spells[0].name).toBe('Lightning Strike');
+
+      expect(spells).toHaveLength(4); // Matching element grants 4 spells: basic, AOE, ultimate, support
+      expect(spells[0].name).toBe('Lightning Strike'); // Basic spell
       expect(spells[0].effect.power).toBe(25);
     });
 
@@ -57,11 +57,11 @@ describe('ElementSystem - Spell Granting', () => {
         activeGem: MERCURY_GEM,
         isActivated: false,
       };
-      
+
       const spells = getGrantedSpells('Mercury', gemState);
-      
-      expect(spells).toHaveLength(1);
-      expect(spells[0].name).toBe('Healing Wave');
+
+      expect(spells).toHaveLength(4); // Matching element grants 4 spells: basic, AOE, ultimate, support
+      expect(spells[0].name).toBe('Healing Wave'); // Basic spell
       expect(spells[0].effect.type).toBe('heal');
       expect(spells[0].effect.power).toBe(20);
     });
@@ -71,11 +71,11 @@ describe('ElementSystem - Spell Granting', () => {
         activeGem: MOON_GEM,
         isActivated: false,
       };
-      
+
       const spells = getGrantedSpells('Moon', gemState);
-      
-      expect(spells).toHaveLength(1);
-      expect(spells[0].name).toBe('Divine Shield');
+
+      expect(spells).toHaveLength(4); // Matching element grants 4 spells: basic, AOE, ultimate, support
+      expect(spells[0].name).toBe('Divine Shield'); // Basic spell
       expect(spells[0].effect.buffAmount).toBe(15);
     });
 
@@ -84,11 +84,11 @@ describe('ElementSystem - Spell Granting', () => {
         activeGem: SUN_GEM,
         isActivated: false,
       };
-      
+
       const spells = getGrantedSpells('Sun', gemState);
-      
-      expect(spells).toHaveLength(1);
-      expect(spells[0].name).toBe('Shadow Strike');
+
+      expect(spells).toHaveLength(4); // Matching element grants 4 spells: basic, AOE, ultimate, support
+      expect(spells[0].name).toBe('Shadow Strike'); // Basic spell
       expect(spells[0].effect.power).toBe(28);
     });
   });

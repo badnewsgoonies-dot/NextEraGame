@@ -10,6 +10,8 @@
 
 import type { PlayerUnit, EnemyUnitTemplate } from '../types/game.js';
 import { ok, err, type Result } from '../utils/Result.js';
+import { getElementalGem } from '../data/gems.js';
+import { initializeUnitSpells } from './ElementSystem.js';
 
 export class TeamManager {
   private readonly maxTeamSize = 4;
@@ -24,7 +26,10 @@ export class TeamManager {
     replaceUnitId?: string
   ): Result<readonly PlayerUnit[], string> {
     // Convert enemy to player unit
-    const newUnit: PlayerUnit = this.convertEnemyToPlayer(enemyTemplate);
+    const recruitedUnit: PlayerUnit = this.convertEnemyToPlayer(enemyTemplate);
+
+    // Initialize spells based on element + gem (SESSION 2)
+    const newUnit = initializeUnitSpells(recruitedUnit);
 
     // Team not full - just add
     if (currentTeam.length < this.maxTeamSize) {
@@ -62,25 +67,6 @@ export class TeamManager {
     else if (enemyTemplate.tags.includes('Mech')) element = 'Jupiter';
     else if (enemyTemplate.tags.includes('Undead')) element = 'Sun';
 
-    // Create matching gem for the element
-    const elementIcons: Record<typeof element, string> = {
-      'Moon': '🌙',
-      'Venus': '🌿',
-      'Mars': '🔥',
-      'Mercury': '💧',
-      'Jupiter': '💨',
-      'Sun': '☀️',
-    };
-
-    const elementDescriptions: Record<typeof element, string> = {
-      'Moon': 'Light element gem',
-      'Venus': 'Earth element gem',
-      'Mars': 'Fire element gem',
-      'Mercury': 'Water element gem',
-      'Jupiter': 'Wind element gem',
-      'Sun': 'Dark element gem',
-    };
-
     return {
       id: `recruited_${enemyTemplate.id}_${this.recruitCounter}`,
       templateId: enemyTemplate.id, // Use template ID for duplicate detection
@@ -89,15 +75,10 @@ export class TeamManager {
       tags: enemyTemplate.tags,
       element, // Assign based on tags
       activeGemState: {
-        activeGem: {
-          id: `gem_${element.toLowerCase()}_${this.recruitCounter}`,
-          element,
-          name: `${element} Gem`,
-          description: elementDescriptions[element],
-          icon: elementIcons[element],
-        },
-        isActivated: true,
+        activeGem: getElementalGem(element), // Matching element gem
+        isActivated: false,
       },
+      learnedSpells: [], // Will be populated by initializeUnitSpells()
       hp: enemyTemplate.baseStats.hp,
       maxHp: enemyTemplate.baseStats.hp,
       atk: enemyTemplate.baseStats.atk,
