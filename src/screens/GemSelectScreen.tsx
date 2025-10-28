@@ -127,7 +127,7 @@ export function GemSelectScreen({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-900 overflow-y-auto py-8 px-8">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-900 overflow-y-auto pt-8 pb-24 px-4 md:px-8">
       <div className="max-w-7xl w-full mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -201,14 +201,14 @@ export function GemSelectScreen({
             </div>
 
             {/* Confirm Button */}
-            <div className="mt-6 flex gap-4">
+            <div className="mt-6 mb-8 flex gap-4">
               <button
                 onClick={handleConfirm}
                 disabled={!selectedGemId}
                 className={`
-                  flex-1 py-4 px-8 rounded-lg font-bold text-xl transition-all duration-200
+                  flex-1 py-4 px-8 rounded-lg font-bold text-xl transition-all duration-200 touch-manipulation
                   ${selectedGemId
-                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl'
+                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl active:scale-95'
                     : 'bg-gray-700 text-gray-500 cursor-not-allowed'
                   }
                 `}
