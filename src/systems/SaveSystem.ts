@@ -19,6 +19,7 @@ import { ok, err, type Result } from '../utils/Result.js';
 import { InMemorySaveStore } from './SaveStore.js';
 
 export interface GameStateSnapshot {
+  readonly version?: string; // Game version for compatibility checking
   readonly playerTeam: readonly PlayerUnit[];
   readonly inventory: readonly Item[];
   readonly gems: readonly Gem[]; // Djinn equipment system

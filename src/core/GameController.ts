@@ -42,6 +42,7 @@ import { EventLogger } from '../systems/EventLogger.js';
 import { makeRng } from '../utils/rng.js';
 import { ITEM_CATALOG } from '../data/items.js';
 import { getGemById, calculateAffinity } from '../data/gems.js';
+import { VERSION } from '../constants/version.js';
 
 export interface GameControllerState {
   runSeed: number;
@@ -313,6 +314,7 @@ export class GameController {
    */
   async saveGame(slot: string): Promise<Result<void, string>> {
     const snapshot: GameStateSnapshot = {
+      version: VERSION, // Track game version for compatibility
       playerTeam: this.state.playerTeam,
       inventory: this.state.inventory,
       gems: this.state.gems, // Include gems in save (Djinn system)
