@@ -228,6 +228,7 @@ export function App(): React.ReactElement {
       // Re-initialize spells (they're not saved, derived from element + gem)
       const teamWithSpells = gameState.playerTeam.map(initializeUnitSpells);
       setPlayerTeam(teamWithSpells);
+      controller.updateTeam(teamWithSpells); // Sync with controller
 
       // Navigate based on what was saved
       if (gameState.currentChoices && gameState.currentChoices.length > 0) {
@@ -270,6 +271,7 @@ export function App(): React.ReactElement {
       // Re-initialize spells (they're not saved, derived from element + gem)
       const teamWithSpells = gameState.playerTeam.map(initializeUnitSpells);
       setPlayerTeam(teamWithSpells);
+      controller.updateTeam(teamWithSpells); // Sync with controller
 
       if (gameState.currentChoices && gameState.currentChoices.length > 0) {
         setPreviews(gameState.currentChoices);
@@ -376,6 +378,7 @@ export function App(): React.ReactElement {
 
       // Update player team state with spells (persist for after battle)
       setPlayerTeam(teamWithSpells);
+      controller.updateTeam(teamWithSpells); // CRITICAL: Sync with controller for BattleScreen
 
       const playerBattleUnits: BattleUnit[] = teamWithSpells.map((unit, index) => ({
         id: unit.id,

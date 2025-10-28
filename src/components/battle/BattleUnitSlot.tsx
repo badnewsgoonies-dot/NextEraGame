@@ -119,6 +119,7 @@ export const BattleUnitSlot = forwardRef<HTMLDivElement, BattleUnitSlotProps>(
     return (
       <div
         ref={ref}
+        data-unit-id={unit.id} // For damage number positioning
         className={`absolute pointer-events-auto ${className}`}
         style={{
           left: `${position.x}px`,

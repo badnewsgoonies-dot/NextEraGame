@@ -445,6 +445,14 @@ export class GameController {
   }
 
   /**
+   * Update the player team (for spell initialization, recruitment, etc.)
+   * This allows external systems to update the team after initialization
+   */
+  updateTeam(team: PlayerUnit[]): void {
+    this.state.playerTeam = [...team];
+  }
+
+  /**
    * Add items to inventory (from battle rewards)
    */
   addItems(items: readonly Item[]): void {
