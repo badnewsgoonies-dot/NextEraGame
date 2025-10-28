@@ -23,6 +23,13 @@
  *  - Keyboard navigation fully supported
  *  - Screen reader friendly status updates
  *
+ * Visual Enhancements (Session 3B):
+ *  - Enhanced panel depth with shadows and backdrop blur
+ *  - Rounded corners on HUD panels
+ *  - Active character highlight with glow ring
+ *  - Smooth transitions on all UI elements
+ *  - Improved visual hierarchy
+ *
  * Produces a BattleResult compatible with RewardSystem:
  *  - winner: 'player' | 'enemy' | 'draw' (flee = draw)
  *  - actions: CombatAction[]
@@ -1636,10 +1643,13 @@ export function BattleScreen({
           </div>
         </div>
 
-        {/* Right-side HUD - Golden Sun Style */}
+        {/* Right-side HUD - Golden Sun Style (Enhanced Session 3B) */}
         <div
-          className="absolute right-4 md:right-6 w-72 md:w-80 pointer-events-auto z-30"
-          style={{ bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))' }}
+          className="absolute right-4 md:right-6 w-72 md:w-80 pointer-events-auto z-30 transition-all duration-300"
+          style={{
+            bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))',
+            filter: 'drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4))',
+          }}
           role="region"
           aria-label="Battle actions and status"
         >
@@ -1718,13 +1728,24 @@ export function BattleScreen({
           </div>
         </div>
 
-        {/* Top-Left Turn Banner */}
-        <div className="absolute top-6 left-4 md:left-8 pointer-events-auto">
+        {/* Top-Left Turn Banner (Enhanced Session 3B) */}
+        <div
+          className="absolute top-6 left-4 md:left-8 pointer-events-auto transition-all duration-300"
+          style={{
+            filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3))',
+          }}
+        >
           <TurnBanner turn={turnsTaken + 1} />
         </div>
 
-        {/* Left-Side Gem Super Panel */}
-        <div className="absolute left-4 md:left-8 pointer-events-auto" style={{ top: '100px' }}>
+        {/* Left-Side Gem Super Panel (Enhanced Session 3B) */}
+        <div
+          className="absolute left-4 md:left-8 pointer-events-auto transition-all duration-300"
+          style={{
+            top: '100px',
+            filter: 'drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4))',
+          }}
+        >
           <GemSuperPanel
             gemName={gameController.getGlobalGemState().selectedGem?.name || null}
             gemElement={gameController.getGlobalGemState().selectedGem?.element || null}

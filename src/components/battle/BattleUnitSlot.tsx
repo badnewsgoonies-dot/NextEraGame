@@ -101,12 +101,12 @@ export const BattleUnitSlot = forwardRef<HTMLDivElement, BattleUnitSlotProps>(
       ? TARGET_EFFECTS.PLAYER_RING_COLOR
       : TARGET_EFFECTS.ENEMY_RING_COLOR;
 
-    // Build CSS classes for active state
+    // Build CSS classes for active state (Session 3B: Added ring highlight)
     const activeClasses = isActive
-      ? `scale-${activeScale} brightness-${ACTIVE_UNIT_EFFECTS.BRIGHTNESS}`
+      ? `scale-${activeScale} brightness-${ACTIVE_UNIT_EFFECTS.BRIGHTNESS} ring-4 ring-yellow-400 ring-offset-2 ring-offset-black/60 rounded-lg`
       : '';
 
-    // Build CSS classes for targeting ring
+    // Build CSS classes for targeting ring (overrides active ring when targeted)
     const targetClasses = isTargeted
       ? `ring-${TARGET_EFFECTS.RING_WIDTH} ${ringColor} ring-offset-${TARGET_EFFECTS.RING_OFFSET} ring-offset-black/60 rounded-lg`
       : '';
