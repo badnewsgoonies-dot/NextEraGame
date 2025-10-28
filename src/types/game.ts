@@ -466,7 +466,7 @@ export interface ProgressionCounters {
  * Complete save state envelope
  */
 export interface SaveEnvelope {
-  readonly version: 'v1'; // Versioning for future migrations
+  readonly version: string; // Versioning for future migrations
   readonly timestamp: string; // ISO 8601 timestamp
   readonly playerTeam: readonly PlayerUnit[]; // Current team (max 4)
   readonly inventory: readonly Item[]; // Player's items

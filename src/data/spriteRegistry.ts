@@ -259,7 +259,11 @@ export function getPartySpriteSet(
 ): PartySpriteSet | null {
   const mapping = UNIT_TO_GS_CHARACTER[unitName];
   if (!mapping) {
-    console.warn(`[SpriteRegistry] No mapping for unit: ${unitName}`);
+    // Silently return null for enemies (they use getEnemySprite instead)
+    // Only warn for truly unmapped units
+    if (!ENEMY_SPRITE_MAP[unitName]) {
+      console.warn(`[SpriteRegistry] No mapping for unit: ${unitName} (not in party or enemy registry)`);
+    }
     return null;
   }
 

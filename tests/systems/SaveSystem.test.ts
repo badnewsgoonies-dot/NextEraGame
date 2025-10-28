@@ -71,7 +71,7 @@ describe('SaveSystem', () => {
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.value.version).toBe('v1');
+        expect(result.value.version).toBe('7.5.0');
         expect(result.value.playerTeam).toHaveLength(1);
         expect(result.value.runSeed).toBe(12345);
       }
@@ -244,7 +244,7 @@ describe('SaveSystem', () => {
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.value.version).toBe('v1');
+        expect(result.value.version).toBe('7.5.0');
       }
     });
 

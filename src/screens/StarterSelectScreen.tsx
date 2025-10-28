@@ -366,7 +366,7 @@ export function StarterSelectScreen({
                         </div>
                         {unit.learnedSpells.slice(0, 3).map((spell, idx) => (
                           <div key={idx} style={{ color: '#aaa', marginLeft: '8px' }}>
-                            • {spell.name} ({spell.cost} MP)
+                            • {spell.name} ({spell.mpCost} MP)
                           </div>
                         ))}
                         {unit.learnedSpells.length > 3 && (
