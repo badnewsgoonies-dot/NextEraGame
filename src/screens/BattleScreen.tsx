@@ -36,9 +36,13 @@ import type { GameController } from '../core/GameController.js';
 import { calculateAbilityDamage, calculateAbilityHealing } from '../systems/AbilitySystem.js';
 import { applyBuff, decayAllBuffs, getBuffModifier, removeAllBuffs } from '../systems/BuffSystem.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
+import { useScreenShake } from '../hooks/useScreenShake.js';
+import { useFlashEffect } from '../hooks/useFlashEffect.js'; // Note: .tsx file
 import { BattleUnitSlot } from '../components/battle/BattleUnitSlot.js';
 import { AttackAnimation } from '../components/battle/AttackAnimation.js';
 import { HealNumber } from '../components/battle/HealNumber.js';
+import { DamageNumber } from '../components/battle/DamageNumber.js';
+import { PsynergyAnimation } from '../components/battle/PsynergyAnimation.js';
 import { ActionMenu } from '../components/battle/ActionMenu.js';
 import { PlayerStatusPanel } from '../components/battle/PlayerStatusPanel.js';
 import { TurnBanner } from '../components/battle/TurnBanner.js';
@@ -46,6 +50,7 @@ import { TargetHelp } from '../components/battle/TargetHelp.js';
 import { BattlefieldFloor } from '../components/battle/BattlefieldFloor.js';
 import { makeRng } from '../utils/rng.js';
 import { getBattleBackground, preloadCommonSprites } from '../data/spriteRegistry.js';
+import { getPsynergySprite } from '../data/psynergySprites.js';
 import { ANIMATION_TIMING } from '../components/battle/battleConstants.js';
 
 // ============================================
@@ -96,7 +101,28 @@ export function BattleScreen({
   // Preload sprites on mount for smoother animations
   useEffect(() => {
     preloadCommonSprites().catch(err => console.warn('Sprite preload failed:', err));
+
+    // Preload psynergy sprites for common spells
+    const commonPsynergySpells = [
+      'fire_blast', 'healing_wave', 'lightning_strike', 'stone_wall',
+      'divine_shield', 'shadow_strike', 'inferno', 'tidal_wave',
+      'thunderstorm', 'earthquake', 'divine_wrath', 'shadow_storm'
+    ];
+
+    commonPsynergySpells.forEach(spellId => {
+      const spriteUrl = getPsynergySprite(spellId);
+      const img = new Image();
+      img.src = spriteUrl;
+    });
   }, []);
+
+  // ==================== Visual Effects ====================
+
+  // Screen shake effect
+  const { shake } = useScreenShake();
+
+  // Flash effect overlay
+  const { flash, FlashOverlay } = useFlashEffect();
 
   // Reset gem super at battle start
   useEffect(() => {
@@ -141,6 +167,24 @@ export function BattleScreen({
   const [showHealAnim, setShowHealAnim] = useState(false);
   const [healAmount, setHealAmount] = useState(0);
   const [healPos, setHealPos] = useState({ x: 0, y: 0 });
+
+  // Damage number animations (multiple simultaneous for AoE)
+  interface DamageNumberInstance {
+    id: string;
+    amount: number;
+    type: 'damage' | 'heal' | 'miss' | 'critical';
+    position: { x: number; y: number };
+  }
+  const [damageNumbers, setDamageNumbers] = useState<DamageNumberInstance[]>([]);
+
+  // Psynergy sprite animations (multiple for AoE spells)
+  interface PsynergyAnimationInstance {
+    id: string;
+    spellId: string;
+    position: { x: number; y: number };
+    size: number;
+  }
+  const [psynergyAnimations, setPsynergyAnimations] = useState<PsynergyAnimationInstance[]>([]);
 
   // Ability system state (gem-granted abilities)
   const [abilityMenuIndex, setAbilityMenuIndex] = useState(0);
@@ -319,6 +363,80 @@ export function BattleScreen({
     if (defending.current.has(defenderId)) {
       defending.current.delete(defenderId);
     }
+  }, []);
+
+  /**
+   * Show damage number at target position
+   */
+  const showDamageNumber = useCallback((
+    targetId: string,
+    amount: number,
+    type: 'damage' | 'heal' | 'miss' | 'critical'
+  ) => {
+    const targetEl = enemyEls.current[targetId];
+    if (!targetEl) {
+      console.warn('Target element not found for damage number:', targetId);
+      return;
+    }
+
+    const rect = targetEl.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 3, // Slightly above center
+    };
+
+    const instance: DamageNumberInstance = {
+      id: `${targetId}-${Date.now()}-${Math.random()}`,
+      amount,
+      type,
+      position,
+    };
+
+    setDamageNumbers(prev => [...prev, instance]);
+  }, []);
+
+  /**
+   * Remove damage number by ID (called when animation completes)
+   */
+  const removeDamageNumber = useCallback((id: string) => {
+    setDamageNumbers(prev => prev.filter(n => n.id !== id));
+  }, []);
+
+  /**
+   * Play psynergy animation at target position
+   */
+  const playPsynergyAnimation = useCallback((
+    spellId: string,
+    targetId: string,
+    size: number = 128
+  ) => {
+    const targetEl = enemyEls.current[targetId];
+    if (!targetEl) {
+      console.warn('Target element not found for psynergy:', targetId);
+      return;
+    }
+
+    const rect = targetEl.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    };
+
+    const instance: PsynergyAnimationInstance = {
+      id: `${spellId}-${targetId}-${Date.now()}`,
+      spellId,
+      position,
+      size,
+    };
+
+    setPsynergyAnimations(prev => [...prev, instance]);
+  }, []);
+
+  /**
+   * Remove psynergy animation by ID (called when animation completes)
+   */
+  const removePsynergyAnimation = useCallback((id: string) => {
+    setPsynergyAnimations(prev => prev.filter(a => a.id !== id));
   }, []);
 
   /**
@@ -533,6 +651,8 @@ export function BattleScreen({
       // Apply damage after delay
       const damageTimeout = setTimeout(() => {
         applyDamage(target.id, dmg);
+        // Show damage number
+        showDamageNumber(target.id, dmg, 'damage');
       }, ANIMATION_TIMING.DAMAGE_APPLY_DELAY);
       registerTimeout(damageTimeout);
 
@@ -745,6 +865,8 @@ export function BattleScreen({
     // Apply damage after delay
     const damageTimeout = setTimeout(() => {
       applyDamage(target.id, dmg);
+      // Show damage number
+      showDamageNumber(target.id, dmg, 'damage');
     }, ANIMATION_TIMING.DAMAGE_APPLY_DELAY);
     registerTimeout(damageTimeout);
 
@@ -975,17 +1097,31 @@ export function BattleScreen({
           // Calculate and apply damage with RNG variance
           const damage = calculateAbilityDamage(abilityToUse, actorUnit.atk, rngRef.current);
 
-          // Show animation at target position
-          if (i === 0 || targets.length === 1) {
+          // Show psynergy animation at target position
+          if (i === 0) {
             setTargetedId(target.id);
-            setAttackAnimRole(actorUnit.role);
-            setAttackAnimPos(getTargetCenter(target.id));
-            setShowAttackAnim(true);
+            // Larger size for AoE spells
+            const spellSize = targetType === 'all_enemies' || targetType === 'all_allies' ? 192 : 128;
+            playPsynergyAnimation(abilityToUse.id, target.id, spellSize);
           }
 
           // Apply damage after delay
           const damageTimeout = setTimeout(() => {
             applyDamage(target.id, damage);
+            // Show damage number
+            showDamageNumber(target.id, damage, 'damage');
+
+            // Visual impact effects (flash + shake)
+            flash('rgba(255, 0, 0, 0.3)'); // Red flash for damage
+
+            // Scale shake intensity based on damage
+            if (damage > 100) {
+              shake('heavy');
+            } else if (damage > 50) {
+              shake('medium');
+            } else if (damage > 0) {
+              shake('light');
+            }
           }, ANIMATION_TIMING.DAMAGE_APPLY_DELAY);
           registerTimeout(damageTimeout);
 
@@ -1004,9 +1140,16 @@ export function BattleScreen({
           const healing = calculateAbilityHealing(abilityToUse, rngRef.current);
           const actualHeal = Math.min(healing, target.maxHp - target.currentHp);
 
-          // Show heal animation
-          if (i === 0 || targets.length === 1) {
+          // Show psynergy healing animation
+          if (i === 0) {
             setTargetedId(target.id);
+            // Larger size for AoE heals
+            const spellSize = targetType === 'all_allies' ? 192 : 128;
+            playPsynergyAnimation(abilityToUse.id, target.id, spellSize);
+          }
+
+          // Also show heal number (reuse existing)
+          if (i === 0 || targets.length === 1) {
             setHealAmount(actualHeal);
             setHealPos(getTargetCenter(target.id));
             setShowHealAnim(true);
@@ -1019,6 +1162,9 @@ export function BattleScreen({
                 u.id === target.id ? { ...u, currentHp: Math.min(u.maxHp, u.currentHp + actualHeal) } : u
               )
             );
+
+            // Green flash for healing
+            flash('rgba(0, 255, 0, 0.3)');
           }, 200);
           registerTimeout(healTimeout);
 
@@ -1048,10 +1194,16 @@ export function BattleScreen({
             );
           }
 
-          // Show visual feedback (reuse heal animation for now)
-          if (i === 0 || targets.length === 1) {
+          // Show psynergy buff animation
+          if (i === 0) {
             setTargetedId(target.id);
-            setHealAmount(abilityToUse.effect.buffAmount || 0); // Show buff amount
+            const spellSize = targetType === 'all_allies' || targetType === 'self' ? 128 : 192;
+            playPsynergyAnimation(abilityToUse.id, target.id, spellSize);
+          }
+
+          // Also show buff number (reuse heal animation)
+          if (i === 0 || targets.length === 1) {
+            setHealAmount(abilityToUse.effect.buffAmount || 0);
             setHealPos(getTargetCenter(target.id));
             setShowHealAnim(true);
           }
@@ -1332,6 +1484,9 @@ export function BattleScreen({
       role="application"
       aria-label="Battle screen"
     >
+      {/* Flash overlay for impact effects */}
+      <FlashOverlay />
+
       {/* Golden Sun Battle Background */}
       <div
         className="absolute inset-0 bg-cover bg-center z-0"
@@ -1535,6 +1690,28 @@ export function BattleScreen({
           onComplete={() => setShowHealAnim(false)}
         />
       )}
+
+      {/* Damage number overlays (multiple simultaneous for AoE) */}
+      {damageNumbers.map(instance => (
+        <DamageNumber
+          key={instance.id}
+          amount={instance.amount}
+          type={instance.type}
+          position={instance.position}
+          onComplete={() => removeDamageNumber(instance.id)}
+        />
+      ))}
+
+      {/* Psynergy animation overlays (Golden Sun spell sprites) */}
+      {psynergyAnimations.map(instance => (
+        <PsynergyAnimation
+          key={instance.id}
+          spellId={instance.spellId}
+          position={instance.position}
+          size={instance.size}
+          onComplete={() => removePsynergyAnimation(instance.id)}
+        />
+      ))}
 
       {/* Gem activation message overlay */}
       {gemActivationMessage && (
