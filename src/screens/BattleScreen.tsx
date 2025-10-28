@@ -46,7 +46,6 @@ import { PsynergyAnimation } from '../components/battle/PsynergyAnimation.js';
 import { ActionMenu } from '../components/battle/ActionMenu.js';
 import { PlayerStatusPanel } from '../components/battle/PlayerStatusPanel.js';
 import { TurnBanner } from '../components/battle/TurnBanner.js';
-import { TargetHelp } from '../components/battle/TargetHelp.js';
 import { BattlefieldFloor } from '../components/battle/BattlefieldFloor.js';
 import { makeRng } from '../utils/rng.js';
 import { getBattleBackground, preloadCommonSprites } from '../data/spriteRegistry.js';
@@ -1606,9 +1605,6 @@ export function BattleScreen({
                       title="Items"
                       onSelect={consumables.length > 0 ? handleItemSelect : undefined}
                     />
-                    <div className="mt-2 text-center text-sm text-gray-400">
-                      Press Escape to cancel
-                    </div>
                   </>
                 )}
                 {phase === 'item-targeting' && (
@@ -1620,9 +1616,6 @@ export function BattleScreen({
                       title="Choose Ally"
                       onSelect={handleActionSelect}
                     />
-                    <div className="mt-2 text-center text-sm text-yellow-300">
-                      ← → to select ally, Enter to confirm
-                    </div>
                   </>
                 )}
               </>
@@ -1640,10 +1633,11 @@ export function BattleScreen({
                   title="Abilities"
                   onSelect={unitAbilities.length > 0 ? handleAbilitySelect : undefined}
                 />
-                <div className="mt-2 text-center text-sm text-gray-400">
-                  {activeUnit && <div className="text-blue-400 font-semibold">MP: {activeUnit.currentMp}/50</div>}
-                  Press Escape to cancel
-                </div>
+                {activeUnit && (
+                  <div className="mt-2 text-center text-sm text-blue-400 font-semibold">
+                    MP: {activeUnit.currentMp}/50
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -1660,12 +1654,6 @@ export function BattleScreen({
                   }
                   onSelect={handleActionSelect}
                 />
-                {phase === 'targeting' && <TargetHelp />}
-                {phase === 'ability-targeting' && (
-                  <div className="mt-2 text-center text-sm text-yellow-300">
-                    ← → to select target, Enter to confirm
-                  </div>
-                )}
               </>
             )}
           </div>

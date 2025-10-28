@@ -76,9 +76,10 @@ export function AnimatedEnemySprite({
           ${spriteLoading ? 'opacity-0' : 'opacity-100'}
           transition-opacity duration-300
         `}
-        style={{ 
+        style={{
           imageRendering: 'pixelated',
           transition: 'opacity 500ms, filter 500ms',
+          transform: 'scaleX(-1)', // Flip enemies to face left (toward party)
           ...style,
         }}
         onLoad={() => setSpriteLoading(false)}

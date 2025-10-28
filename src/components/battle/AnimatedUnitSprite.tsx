@@ -165,6 +165,7 @@ export function AnimatedUnitSprite({
         style={{
           imageRendering: 'pixelated',
           filter: unit.currentHp <= 0 ? 'grayscale(100%) opacity(0.5)' : 'none',
+          // Party sprites face right by default (toward enemies) - no flip needed
           ...style,
         }}
         onLoad={() => setSpriteLoading(false)}

@@ -347,11 +347,6 @@ export function GemSelectScreen({
             )}
           </div>
         </div>
-
-        {/* Help Text */}
-        <div className="mt-6 mb-8 text-center text-gray-400 text-sm">
-          <p>Use Arrow Keys to navigate, Enter to select, Escape to cancel</p>
-        </div>
       </div>
     </div>
   );

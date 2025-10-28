@@ -193,27 +193,6 @@ export function OpponentSelectScreen({
         </div>
       )}
 
-      {/* Instructions - Golden Sun Style Panel */}
-      <div className="max-w-7xl mx-auto mt-8 flex justify-center">
-        <div className="bg-gradient-to-b from-blue-900/95 to-blue-950/95 border-2 border-yellow-500/80 rounded-lg px-6 py-3 backdrop-blur-sm shadow-2xl">
-          <div className="text-sm text-gray-300 text-center space-y-1">
-            <p className="flex items-center justify-center gap-2">
-              <span className="text-yellow-400 font-bold">◄</span>
-              <span>and</span>
-              <span className="text-yellow-400 font-bold">►</span>
-              <span>to navigate</span>
-            </p>
-            <p className="flex items-center justify-center gap-2 text-xs">
-              <span className="px-2 py-0.5 bg-green-600/30 text-green-300 rounded border border-green-500/50 font-semibold">Enter</span>
-              <span>to select</span>
-              <span className="mx-1">•</span>
-              <span className="px-2 py-0.5 bg-gray-600/30 text-gray-300 rounded border border-gray-500/50 font-semibold">Esc</span>
-              <span>to cancel</span>
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Live Region for Screen Readers */}
       <div
         role="status"
