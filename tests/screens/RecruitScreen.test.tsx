@@ -174,7 +174,7 @@ describe('RecruitScreen', () => {
         />
       );
 
-      expect(screen.getByText(/Current team: 2\/4 units/)).toBeInTheDocument();
+      expect(screen.getByText(/Active Party: 2\/4 units/)).toBeInTheDocument();
     });
   });
 
@@ -228,7 +228,7 @@ describe('RecruitScreen', () => {
         />
       );
 
-      expect(screen.getByText('You may recruit one defeated enemy.')).toBeInTheDocument();
+      expect(screen.getByText(/You may recruit one defeated enemy/)).toBeInTheDocument();
       expect(screen.queryByText(/Your roster is full/)).not.toBeInTheDocument();
     });
 
@@ -284,7 +284,7 @@ describe('RecruitScreen', () => {
       expect(screen.getByText('Choose Unit to Replace')).toBeInTheDocument();
     });
 
-    test('displays warning when roster is full', () => {
+    test('displays warning when roster is full (team + bench both 4/4)', () => {
       const defeatedEnemies = [createEnemy('orc', 'Orc Warrior', 'Tank')];
       const currentTeam = [
         createPlayerUnit('hero1', 'Hero 1', 5),
@@ -292,16 +292,26 @@ describe('RecruitScreen', () => {
         createPlayerUnit('hero3', 'Hero 3', 7),
         createPlayerUnit('hero4', 'Hero 4', 2),
       ];
+      const bench = [
+        createPlayerUnit('bench1', 'Bench 1', 5),
+        createPlayerUnit('bench2', 'Bench 2', 5),
+        createPlayerUnit('bench3', 'Bench 3', 5),
+        createPlayerUnit('bench4', 'Bench 4', 5),
+      ];
 
       render(
         <RecruitScreen
           defeatedEnemies={defeatedEnemies}
           currentTeam={currentTeam}
+          bench={bench}
           {...mockHandlers}
         />
       );
 
-      expect(screen.getByText(/Your roster is full - choose a unit to replace/)).toBeInTheDocument();
+      const recruitButton = screen.getByRole('button', { name: 'Recruit' });
+      fireEvent.click(recruitButton);
+
+      expect(screen.getByText(/Your roster is full.*4\/4.*Select a unit to replace/i)).toBeInTheDocument();
     });
 
     test('replacement modal shows all current team members', () => {
@@ -585,10 +595,10 @@ describe('RecruitScreen', () => {
         />
       );
 
-      expect(screen.getByText(/Current team: 0\/4 units/)).toBeInTheDocument();
+      expect(screen.getByText(/Active Party: 0\/4 units/)).toBeInTheDocument();
     });
 
-    test('handles exactly 4 units (edge of full)', () => {
+    test('handles exactly 4 units (edge of full) - offers bench if space available', () => {
       const defeatedEnemies = [createEnemy('orc', 'Orc Warrior', 'Tank')];
       const currentTeam = [
         createPlayerUnit('hero1', 'Hero 1', 5),
@@ -605,8 +615,9 @@ describe('RecruitScreen', () => {
         />
       );
 
-      expect(screen.getByText(/Current team: 4\/4 units/)).toBeInTheDocument();
-      expect(screen.getByText(/Your roster is full/)).toBeInTheDocument();
+      expect(screen.getByText(/Active Party: 4\/4 units/)).toBeInTheDocument();
+      // With bench space available, should show bench info not "roster full"
+      expect(screen.getByText(/Bench: 0\/4 units/)).toBeInTheDocument();
     });
 
     test('handles single defeated enemy', () => {
@@ -756,7 +767,7 @@ describe('RecruitScreen', () => {
         />
       );
 
-      expect(screen.getByText(/Current team: 0\/4 units/)).toBeInTheDocument();
+      expect(screen.getByText(/Active Party: 0\/4 units/)).toBeInTheDocument();
     });
 
     test('displays team size correctly at 3/4', () => {
@@ -775,7 +786,7 @@ describe('RecruitScreen', () => {
         />
       );
 
-      expect(screen.getByText(/Current team: 3\/4 units/)).toBeInTheDocument();
+      expect(screen.getByText(/Active Party: 3\/4 units/)).toBeInTheDocument();
     });
 
     test('replacement modal has proper backdrop', () => {

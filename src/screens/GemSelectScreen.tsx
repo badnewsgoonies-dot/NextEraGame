@@ -230,42 +230,42 @@ export function GemSelectScreen({
           </div>
 
           {/* Right Panel: Details & Team Preview */}
-          <div className="lg:col-span-1 space-y-4">
+          <div className="lg:col-span-1 space-y-2">
             {/* Gem Details */}
             {displayGem && (
-              <div className="bg-gray-900/80 rounded-xl p-6 border-2 border-gray-700">
-                <div className="flex items-center gap-3 mb-4">
-                  <img 
+              <div className="bg-gray-900/80 rounded-xl p-4 border-2 border-gray-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <img
                     src={displayGem.iconPath}
                     alt={`${displayGem.name} icon`}
-                    className="w-12 h-12 pixelated"
+                    className="w-10 h-10 pixelated"
                     style={{ imageRendering: 'pixelated' }}
                   />
                   <div>
-                    <h3 className="text-2xl font-bold text-white">
+                    <h3 className="text-xl font-bold text-white">
                       {displayGem.name}
                     </h3>
-                    <p className="text-gray-400 text-sm">{displayGem.element} Element</p>
+                    <p className="text-gray-400 text-xs">{displayGem.element} Element</p>
                   </div>
                 </div>
 
-                <p className="text-gray-300 text-sm mb-4">
+                <p className="text-gray-300 text-xs mb-2">
                   {displayGem.description}
                 </p>
 
                 {/* Super Spell Preview */}
-                <div className="mb-4 p-3 bg-purple-900/50 rounded-lg border border-purple-500">
-                  <h4 className="text-yellow-300 font-bold text-sm mb-1">
+                <div className="mb-2 p-2 bg-purple-900/50 rounded-lg border border-purple-500">
+                  <h4 className="text-yellow-300 font-bold text-xs mb-1">
                     Super Spell
                   </h4>
-                  <p className="text-white font-semibold">{displayGem.superSpell.name}</p>
+                  <p className="text-white font-semibold text-sm">{displayGem.superSpell.name}</p>
                   <p className="text-gray-300 text-xs">{displayGem.superSpell.description}</p>
                 </div>
 
                 {/* Stat Bonuses Preview */}
-                <div className="space-y-2">
-                  <h4 className="text-white font-bold text-sm">Stat Bonuses:</h4>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="space-y-1">
+                  <h4 className="text-white font-bold text-xs">Stat Bonuses:</h4>
+                  <div className="grid grid-cols-3 gap-1 text-xs">
                     <div className="text-center">
                       <div className="text-green-300 font-bold">Strong</div>
                       <div className="text-gray-400">+{displayGem.strongBonus.atk} ATK</div>
@@ -288,18 +288,18 @@ export function GemSelectScreen({
 
             {/* Team Affinity Preview */}
             {displayGem && (
-              <div className="bg-gray-900/80 rounded-xl p-6 border-2 border-gray-700">
-                <h3 className="text-white font-bold mb-4">Your Team Affinity</h3>
-                <div className="space-y-3">
+              <div className="bg-gray-900/80 rounded-xl p-4 border-2 border-gray-700">
+                <h3 className="text-white font-bold text-sm mb-2">Your Team Affinity</h3>
+                <div className="space-y-2">
                   {playerUnits.map((unit) => {
                     const affinity = calculateAffinity(unit.element, displayGem.element);
                     return (
                       <div
                         key={unit.id}
-                        className={`flex items-center justify-between p-3 rounded-lg border-2 ${getAffinityStyle(affinity)}`}
+                        className={`flex items-center justify-between p-2 rounded-lg border-2 ${getAffinityStyle(affinity)}`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-white">
+                          <span className="text-xs font-semibold text-white">
                             {unit.name}
                           </span>
                           <span className="text-xs text-gray-400">

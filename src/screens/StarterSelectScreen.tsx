@@ -233,10 +233,10 @@ export function StarterSelectScreen({
         overflow: 'hidden'
       }}>
         <h3 style={{
-          margin: '0 0 20px 0',
-          fontSize: '22px',
+          margin: '0 0 16px 0',
+          fontSize: '20px',
           borderBottom: '2px solid #444',
-          paddingBottom: '10px'
+          paddingBottom: '8px'
         }}>
           Your Team ({selectedUnits.length}/4)
         </h3>
@@ -245,9 +245,9 @@ export function StarterSelectScreen({
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
+          gap: '8px',
           overflowY: 'auto',
-          marginBottom: '16px'
+          marginBottom: '12px'
         }}>
           {[0, 1, 2, 3].map(slotIndex => {
             const unit = selectedUnits[slotIndex];
@@ -258,9 +258,9 @@ export function StarterSelectScreen({
                 style={{
                   border: '2px solid #444',
                   borderRadius: '8px',
-                  padding: '12px',
+                  padding: '10px',
                   backgroundColor: unit ? '#1a1a2e' : '#0f1419',
-                  minHeight: '160px'
+                  minHeight: '120px'
                 }}
               >
                 {unit ? (
@@ -269,12 +269,12 @@ export function StarterSelectScreen({
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      marginBottom: '10px',
-                      gap: '12px'
+                      marginBottom: '8px',
+                      gap: '10px'
                     }}>
                       <div style={{
-                        width: '60px',
-                        height: '60px',
+                        width: '48px',
+                        height: '48px',
                         borderRadius: '8px',
                         overflow: 'hidden',
                         border: '2px solid #444',
@@ -294,13 +294,13 @@ export function StarterSelectScreen({
 
                       <div style={{ flex: 1 }}>
                         <div style={{
-                          fontSize: '16px',
+                          fontSize: '14px',
                           fontWeight: 'bold',
-                          marginBottom: '4px'
+                          marginBottom: '3px'
                         }}>
                           {unit.name}
                         </div>
-                        <div style={{ fontSize: '12px' }}>
+                        <div style={{ fontSize: '11px' }}>
                           <span style={{ color: getRoleColor(unit.role) }}>
                             {unit.role}
                           </span>

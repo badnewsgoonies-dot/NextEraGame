@@ -17,7 +17,9 @@ import { getRankDisplay, canUpgradeRank, getRankBonusDescription, getNextRank } 
 export interface RecruitScreenProps {
   defeatedEnemies: readonly EnemyUnitTemplate[];
   currentTeam: readonly PlayerUnit[];
+  bench?: readonly PlayerUnit[]; // Reserve units on bench
   onRecruit: (enemyId: string, replaceUnitId?: string) => void;
+  onAddToBench?: (enemyId: string) => void; // Add to bench without replacing
   onMerge?: (enemyTemplateId: string, targetUnitId: string) => void;
   onSkip: () => void;
 }
@@ -32,32 +34,50 @@ const ROLE_COLORS: Record<Role, string> = {
 export function RecruitScreen({
   defeatedEnemies,
   currentTeam,
+  bench = [],
   onRecruit,
+  onAddToBench,
   onMerge,
   onSkip,
 }: RecruitScreenProps): React.ReactElement {
   const [selectedEnemyId, setSelectedEnemyId] = useState<string | null>(null);
   const [showReplacementModal, setShowReplacementModal] = useState(false);
+  const [showAddToBenchModal, setShowAddToBenchModal] = useState(false);
   const [showMergeModal, setShowMergeModal] = useState(false);
   const [duplicateUnit, setDuplicateUnit] = useState<PlayerUnit | null>(null);
 
   const teamManager = new TeamManager();
   const teamIsFull = currentTeam.length >= 4;
+  const benchHasSpace = bench.length < 4;
+  const MAX_BENCH_SIZE = 4;
 
   const handleRecruitClick = (enemy: EnemyUnitTemplate) => {
     // Check if team has a duplicate (same templateId)
     const duplicate = teamManager.findDuplicate(currentTeam, enemy.id);
-    
+
     if (duplicate && canUpgradeRank(duplicate.rank) && onMerge) {
       // Show merge option!
       setSelectedEnemyId(enemy.id);
       setDuplicateUnit(duplicate);
       setShowMergeModal(true);
+    } else if (benchHasSpace && onAddToBench) {
+      // Bench has space - show add-to-bench option
+      setSelectedEnemyId(enemy.id);
+      setShowAddToBenchModal(true);
     } else if (teamIsFull) {
+      // Team full and no bench space - must replace
       setSelectedEnemyId(enemy.id);
       setShowReplacementModal(true);
     } else {
+      // Active party not full - add directly to active party
       onRecruit(enemy.id);
+    }
+  };
+
+  const handleAddToBench = () => {
+    if (selectedEnemyId && onAddToBench) {
+      onAddToBench(selectedEnemyId);
+      setShowAddToBenchModal(false);
     }
   };
 
@@ -84,11 +104,12 @@ export function RecruitScreen({
             Recruit Defeated Unit
           </h1>
           <p className="text-sm text-purple-200">
-            You may recruit one defeated enemy. 
-            {teamIsFull && ' Your roster is full - choose a unit to replace.'}
+            You may recruit one defeated enemy.
+            {!benchHasSpace && teamIsFull && ' Roster is full - must replace a unit.'}
+            {benchHasSpace && ' You can add to bench or replace a unit.'}
           </p>
           <p className="text-xs text-purple-300 mt-1">
-            Current team: {currentTeam.length}/4 units
+            Active Party: {currentTeam.length}/4 units • Bench: {bench.length}/{MAX_BENCH_SIZE} units
           </p>
         </div>
       </div>
@@ -200,6 +221,45 @@ export function RecruitScreen({
           </button>
         </div>
       </div>
+
+      {/* Add to Bench Modal */}
+      {showAddToBenchModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-lg w-full shadow-2xl">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              Add to Bench or Replace?
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Bench has space ({bench.length}/{MAX_BENCH_SIZE}). You can add this unit to your bench for later use, or replace an active party member.
+            </p>
+
+            <div className="space-y-3 mb-6">
+              <button
+                onClick={handleAddToBench}
+                className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors text-lg"
+              >
+                ✅ Add to Bench
+              </button>
+              <button
+                onClick={() => {
+                  setShowAddToBenchModal(false);
+                  setShowReplacementModal(true);
+                }}
+                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors"
+              >
+                🔄 Replace Unit Instead
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowAddToBenchModal(false)}
+              className="w-full py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Replacement Modal */}
       {showReplacementModal && (

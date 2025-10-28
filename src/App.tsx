@@ -1,9 +1,10 @@
 /*
  * App: Main application component
- * 
+ *
  * Full game loop with all screens:
- * - Menu → StarterSelect → OpponentSelect → Battle → Rewards → Recruit → (loop)
+ * - Menu → StarterSelect → OpponentSelect → Battle → Recruit → Roster → (loop)
  * - Settings screen accessible from menu
+ * - Rewards shown as TreasurePopup overlay on BattleScreen (Session 3)
  * - Full integration with GameController, RewardSystem, TeamManager
  */
 
@@ -21,7 +22,6 @@ import { MainMenuScreen } from './screens/MainMenuScreen.js';
 import { StarterSelectScreen } from './screens/StarterSelectScreen.js';
 import { OpponentSelectScreen } from './screens/OpponentSelectScreen.js';
 import { BattleScreen } from './screens/BattleScreen.js';
-import { RewardsScreen } from './screens/RewardsScreen.js';
 import { GemSelectScreen } from './screens/GemSelectScreen.js';
 // Equipment screen removed - equipment management now handled in RosterManagementScreen
 import { RecruitScreen } from './screens/RecruitScreen.js';
@@ -44,7 +44,6 @@ type AppScreen =
   | 'global_gem_select' // NEW: Gem selection at game start
   | 'opponent_select'
   | 'battle'
-  | 'rewards'
   | 'gem_select' // OLD: Gem selection from rewards (deprecated)
   | 'recruit'
   | 'roster_management'
@@ -121,15 +120,8 @@ export function App(): React.ReactElement {
     // Shift+N: Skip to next screen
     onNextScreen: () => {
       console.log(`[DEV] Next screen from: ${screen}`);
-      
-      if (screen === 'rewards' && rewards) {
-        if (rewards.gemChoices && rewards.gemChoices.length > 0) {
-          setScreen('gem_select');
-        } else {
-          // Skip equipment screen - go directly to recruit
-          handleEquipmentContinue();
-        }
-      } else if (screen === 'gem_select' && rewards?.gemChoices) {
+
+      if (screen === 'gem_select' && rewards?.gemChoices) {
         // Auto-select first gem
         controller.addGem(rewards.gemChoices[0]);
         // Skip equipment screen - go directly to recruit
@@ -146,16 +138,10 @@ export function App(): React.ReactElement {
     // Shift+B: Go to previous screen
     onPrevScreen: () => {
       console.log(`[DEV] Previous screen from: ${screen}`);
-      
-      if (screen === 'gem_select' && rewards) {
-        setScreen('rewards');
-      } else if (screen === 'recruit') {
-        // Go back to rewards or gem_select
-        if (rewards && rewards.gemChoices && rewards.gemChoices.length > 0) {
-          setScreen('gem_select');
-        } else {
-          setScreen('rewards');
-        }
+
+      if (screen === 'recruit') {
+        // Go back to battle screen
+        setScreen('battle');
       } else {
         console.warn(`[DEV] Cannot go back from ${screen} screen`);
       }
@@ -494,9 +480,37 @@ export function App(): React.ReactElement {
     }
 
     if (result.winner === 'player') {
-      // Transition state machine first
-      controller.getStateMachine().transitionTo('rewards');
-      setScreen('rewards');
+      // Add rewards to inventory (Session 3: TreasurePopup replaces RewardsScreen)
+      if (rewards) {
+        // Add equipment to inventory
+        if (rewards.equipment && rewards.equipment.length > 0) {
+          setInventory(prev => ({
+            ...prev,
+            unequippedItems: [...prev.unequippedItems, ...rewards.equipment]
+          }));
+        }
+
+        // Add items (consumables) to game controller inventory
+        if (rewards.items && rewards.items.length > 0) {
+          controller.addItems(rewards.items);
+        }
+      }
+
+      // Transition directly to recruit (skip rewards screen)
+      const transition = controller.handleRewardsContinue();
+      if (!transition.ok) {
+        console.error('Failed to transition to recruit state:', transition.error);
+        return;
+      }
+
+      // Skip recruit if no enemies defeated
+      if (rewards && rewards.defeatedEnemies.length === 0) {
+        console.log('No enemies defeated - skipping recruitment');
+        handleSkipRecruit();
+        return;
+      }
+
+      setScreen('recruit');
     } else if (result.winner === 'enemy') {
       controller.getStateMachine().transitionTo('defeat');
       setScreen('defeat');
@@ -504,36 +518,6 @@ export function App(): React.ReactElement {
       // Draw - back to menu
       controller.getStateMachine().transitionTo('menu');
       setScreen('menu');
-    }
-  };
-
-  // Rewards handlers
-  const handleRewardsContinue = () => {
-    // Add equipment to inventory
-    if (rewards?.equipment && rewards.equipment.length > 0) {
-      setInventory(prev => ({
-        ...prev,
-        unequippedItems: [...prev.unequippedItems, ...rewards.equipment]
-      }));
-    }
-
-    // Add items (consumables) to game controller inventory
-    if (rewards?.items && rewards.items.length > 0) {
-      controller.addItems(rewards.items);
-    }
-
-    // Check if there are gem choices
-    if (rewards?.gemChoices && rewards.gemChoices.length > 0) {
-      // Go to gem selection screen
-      setScreen('gem_select');
-    } else {
-      // Skip gem selection and equipment screen, go directly to recruit
-      const transition = controller.handleRewardsContinue();
-      if (!transition.ok) {
-        console.error('Failed to transition to recruit state:', transition.error);
-        return;
-      }
-      handleEquipmentContinue();
     }
   };
 
@@ -730,17 +714,6 @@ export function App(): React.ReactElement {
             onComplete={handleBattleComplete}
             battleIndex={controller.getState().battleIndex}
             gameController={controller}
-          />
-        );
-
-      case 'rewards':
-        if (!rewards) {
-          return <div>Loading rewards...</div>;
-        }
-        return (
-          <RewardsScreen
-            rewards={rewards}
-            onContinue={handleRewardsContinue}
           />
         );
 
