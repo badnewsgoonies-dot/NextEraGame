@@ -202,6 +202,7 @@ export const ENEMY_SPRITE_MAP: Record<string, string> = {
   // HOLY FACTION (3 enemies) - Using divine/knight sprites
   'Paladin Knight': 'Minotaurus',
   'Cleric Healer': 'Faery',
+  'cleric_healer': 'Faery', // Support underscore variant for safety
   'Holy Avenger': 'Gargoyle',
 
   // ARCANE FACTION (3 enemies) - Using magical creatures

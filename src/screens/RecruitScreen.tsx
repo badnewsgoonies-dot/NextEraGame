@@ -107,12 +107,12 @@ export function RecruitScreen({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
-              {defeatedEnemies.map((enemy) => {
+              {defeatedEnemies.map((enemy, index) => {
               const spriteColor = ROLE_COLORS[enemy.role];
-              
+
               return (
                 <div
-                  key={enemy.id}
+                  key={`${enemy.id}-${index}`}
                   className="bg-white dark:bg-gray-800 rounded-lg p-6 border-2 border-gray-300 dark:border-gray-600 hover:border-purple-400 transition-[colors,shadow] duration-200 hover:shadow-lg"
                 >
                 {/* Enemy Sprite */}

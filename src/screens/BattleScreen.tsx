@@ -373,26 +373,29 @@ export function BattleScreen({
     amount: number,
     type: 'damage' | 'heal' | 'miss' | 'critical'
   ) => {
-    const targetEl = enemyEls.current[targetId];
-    if (!targetEl) {
-      console.warn('Target element not found for damage number:', targetId);
-      return;
-    }
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      const targetEl = enemyEls.current[targetId];
+      if (!targetEl) {
+        // Silently skip if element not found (may have been removed)
+        return;
+      }
 
-    const rect = targetEl.getBoundingClientRect();
-    const position = {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 3, // Slightly above center
-    };
+      const rect = targetEl.getBoundingClientRect();
+      const position = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 3, // Slightly above center
+      };
 
-    const instance: DamageNumberInstance = {
-      id: `${targetId}-${Date.now()}-${Math.random()}`,
-      amount,
-      type,
-      position,
-    };
+      const instance: DamageNumberInstance = {
+        id: `${targetId}-${Date.now()}-${Math.random()}`,
+        amount,
+        type,
+        position,
+      };
 
-    setDamageNumbers(prev => [...prev, instance]);
+      setDamageNumbers(prev => [...prev, instance]);
+    });
   }, []);
 
   /**
@@ -410,26 +413,29 @@ export function BattleScreen({
     targetId: string,
     size: number = 128
   ) => {
-    const targetEl = enemyEls.current[targetId];
-    if (!targetEl) {
-      console.warn('Target element not found for psynergy:', targetId);
-      return;
-    }
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      const targetEl = enemyEls.current[targetId];
+      if (!targetEl) {
+        // Silently skip if element not found (may have been removed)
+        return;
+      }
 
-    const rect = targetEl.getBoundingClientRect();
-    const position = {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    };
+      const rect = targetEl.getBoundingClientRect();
+      const position = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
 
-    const instance: PsynergyAnimationInstance = {
-      id: `${spellId}-${targetId}-${Date.now()}`,
-      spellId,
-      position,
-      size,
-    };
+      const instance: PsynergyAnimationInstance = {
+        id: `${spellId}-${targetId}-${Date.now()}`,
+        spellId,
+        position,
+        size,
+      };
 
-    setPsynergyAnimations(prev => [...prev, instance]);
+      setPsynergyAnimations(prev => [...prev, instance]);
+    });
   }, []);
 
   /**

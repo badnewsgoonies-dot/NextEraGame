@@ -34,6 +34,7 @@ import { ScreenTransition } from './components/ScreenTransition.js';
 import { makeRng } from './utils/rng.js';
 import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit, InventoryData, RosterData, GemChoice } from './types/game.js';
 import { useDevShortcuts, DevShortcutsBadge } from './hooks/useDevShortcuts.js';
+import { VERSION } from './constants/version.js';
 
 type AppScreen =
   | 'menu'
@@ -859,6 +860,21 @@ export function App(): React.ReactElement {
           onDelete={handleDeleteSave}
         />
       )}
+
+      {/* Version indicator */}
+      <div style={{
+        position: 'fixed',
+        bottom: '8px',
+        right: '8px',
+        fontSize: '11px',
+        opacity: 0.4,
+        color: '#888',
+        fontFamily: 'monospace',
+        pointerEvents: 'none',
+        zIndex: 10000
+      }}>
+        v{VERSION}
+      </div>
     </GameContainer>
   );
 }
