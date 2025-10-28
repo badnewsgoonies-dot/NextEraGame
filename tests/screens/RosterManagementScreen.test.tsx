@@ -8,7 +8,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import userEvent from '@testing-library/user-event';
 import { RosterManagementScreen } from '../../src/screens/RosterManagementScreen.js';
-import type { PlayerUnit } from '../../src/types/game.js';
+import type { PlayerUnit, InventoryData } from '../../src/types/game.js';
 
 expect.extend(toHaveNoViolations);
 
@@ -16,14 +16,30 @@ expect.extend(toHaveNoViolations);
 // Test Helpers
 // ============================================
 
+// Helper: Create mock inventory
+const createMockInventory = (): InventoryData => ({
+  items: [],
+  equippedItems: new Map(),
+  unequippedItems: [],
+  maxItemSlots: 50,
+  maxEquipmentSlots: 50
+});
+
 // Helper: Create mock unit with defaults
 const createMockUnit = (id: string, overrides: Partial<PlayerUnit> = {}): PlayerUnit => ({
   id,
+  templateId: 'test-template',
   name: `Unit ${id}`,
   role: 'Tank',
   tags: ['Holy'],
+  element: 'Venus',
+  activeGemState: { gem: null, isActivated: false },
+  learnedSpells: [],
+  rank: 'C',
+  baseClass: 'Warrior',
   hp: 100,
   maxHp: 100,
+  currentMp: 50,
   atk: 20,
   def: 15,
   speed: 10,
@@ -50,11 +66,18 @@ describe('RosterManagementScreen', () => {
   // Test fixture helper (kept for backward compatibility with existing tests)
   const createUnit = (id: string, name: string, role: 'Tank' | 'DPS' | 'Support' | 'Specialist', level = 1): PlayerUnit => ({
     id,
+    templateId: 'test-template',
     name,
     role,
     tags: ['Holy'],
+    element: 'Venus',
+    activeGemState: { gem: null, isActivated: false },
+    learnedSpells: [],
+    rank: 'C',
+    baseClass: 'Warrior',
     hp: 100,
     maxHp: 100,
+    currentMp: 50,
     atk: 20,
     def: 15,
     speed: 10,
@@ -67,6 +90,8 @@ describe('RosterManagementScreen', () => {
     onContinue: vi.fn(),
   };
 
+  const mockInventory = createMockInventory();
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -75,6 +100,7 @@ describe('RosterManagementScreen', () => {
     test('renders header with title and instructions', () => {
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[createUnit('1', 'Unit1', 'Tank')]}
           bench={[]}
           {...mockHandlers}
@@ -93,6 +119,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           {...mockHandlers}
@@ -118,6 +145,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[createUnit('1', 'Unit1', 'Tank')]}
           bench={bench}
           {...mockHandlers}
@@ -132,6 +160,7 @@ describe('RosterManagementScreen', () => {
     test('shows "No units on bench" message when bench is empty', () => {
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[createUnit('1', 'Unit1', 'Tank')]}
           bench={[]}
           {...mockHandlers}
@@ -144,6 +173,7 @@ describe('RosterManagementScreen', () => {
     test('always renders continue button', () => {
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[createUnit('1', 'Unit1', 'Tank')]}
           bench={[]}
           {...mockHandlers}
@@ -163,6 +193,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[createUnit('b1', 'Bench1', 'Support')]}
           {...mockHandlers}
@@ -182,6 +213,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[createUnit('b1', 'Bench1', 'Support')]}
           {...mockHandlers}
@@ -209,6 +241,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[createUnit('a1', 'Active1', 'Tank')]}
           bench={bench}
           {...mockHandlers}
@@ -228,6 +261,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[createUnit('a1', 'Active1', 'Tank')]}
           bench={bench}
           {...mockHandlers}
@@ -253,6 +287,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           {...mockHandlers}
@@ -283,6 +318,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           {...mockHandlers}
@@ -310,6 +346,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           {...mockHandlers}
@@ -342,6 +379,7 @@ describe('RosterManagementScreen', () => {
     test('clicking continue button calls onContinue', () => {
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[createUnit('a1', 'Active1', 'Tank')]}
           bench={[]}
           {...mockHandlers}
@@ -366,6 +404,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[unit]}
           bench={[]}
           {...mockHandlers}
@@ -387,6 +426,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           {...mockHandlers}
@@ -416,6 +456,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -441,6 +482,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -468,6 +510,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -496,6 +539,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={vi.fn()}
@@ -523,6 +567,7 @@ describe('RosterManagementScreen', () => {
     test('no accessibility violations on initial render', async () => {
       const { container } = render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={createFullParty()}
           bench={createBench(3)}
           onSwap={vi.fn()}
@@ -540,6 +585,7 @@ describe('RosterManagementScreen', () => {
 
       const { container } = render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={vi.fn()}
@@ -563,6 +609,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -579,6 +626,7 @@ describe('RosterManagementScreen', () => {
     test('Continue button is keyboard accessible', () => {
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={createFullParty()}
           bench={[]}
           onSwap={vi.fn()}
@@ -599,6 +647,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[createMockUnit('a1')]}
           bench={bench}
           onSwap={vi.fn()}
@@ -614,6 +663,7 @@ describe('RosterManagementScreen', () => {
     test('active and bench sections have semantic headings', () => {
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={createFullParty()}
           bench={createBench(2)}
           onSwap={vi.fn()}
@@ -631,6 +681,7 @@ describe('RosterManagementScreen', () => {
     test('keyboard navigation with empty bench shows accessible message', () => {
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={createFullParty()}
           bench={[]}
           onSwap={vi.fn()}
@@ -646,6 +697,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={createFullParty()}
           bench={largeBench}
           onSwap={vi.fn()}
@@ -667,6 +719,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={onSwap}
@@ -700,6 +753,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -717,6 +771,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={vi.fn()}
@@ -739,6 +794,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={vi.fn()}
@@ -758,6 +814,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -780,6 +837,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -800,6 +858,7 @@ describe('RosterManagementScreen', () => {
     test('handles empty active party (0 units)', () => {
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[]}
           bench={createBench(2)}
           onSwap={vi.fn()}
@@ -815,6 +874,7 @@ describe('RosterManagementScreen', () => {
     test('handles full active party (4 units) with empty bench', () => {
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={createFullParty()}
           bench={[]}
           onSwap={vi.fn()}
@@ -831,6 +891,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={createFullParty()}
           bench={largeBench}
           onSwap={vi.fn()}
@@ -852,6 +913,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -868,6 +930,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[knockedOutUnit]}
           bench={[]}
           onSwap={vi.fn()}
@@ -892,6 +955,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[maxStatsUnit]}
           bench={[]}
           onSwap={vi.fn()}
@@ -913,6 +977,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={diverseParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -940,6 +1005,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={partialParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -961,6 +1027,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={singleUnit}
           bench={[]}
           onSwap={vi.fn()}
@@ -979,6 +1046,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={createFullParty()}
           bench={bench}
           onSwap={vi.fn()}
@@ -1001,6 +1069,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -1025,6 +1094,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -1051,6 +1121,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -1077,6 +1148,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[createMockUnit('a1')]}
           bench={bench}
           onSwap={vi.fn()}
@@ -1101,6 +1173,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={vi.fn()}
@@ -1123,6 +1196,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={vi.fn()}
@@ -1154,6 +1228,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={[unit]}
           bench={[]}
           onSwap={vi.fn()}
@@ -1175,6 +1250,7 @@ describe('RosterManagementScreen', () => {
         
         const { container } = render(
           <RosterManagementScreen
+          inventory={mockInventory}
             activeParty={[unit]}
             bench={[]}
             onSwap={vi.fn()}
@@ -1204,6 +1280,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={onSwap}
@@ -1234,6 +1311,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={onSwap}
@@ -1259,6 +1337,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={createFullParty()}
           bench={createBench(2)}
           onSwap={vi.fn()}
@@ -1285,6 +1364,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={onSwap}
@@ -1313,6 +1393,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={createFullParty()}
           bench={[]}
           onSwap={vi.fn()}
@@ -1333,6 +1414,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={onSwap}
@@ -1359,6 +1441,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={createFullParty()}
           bench={largeBench}
           onSwap={vi.fn()}
@@ -1376,6 +1459,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={[]}
           onSwap={vi.fn()}
@@ -1402,6 +1486,7 @@ describe('RosterManagementScreen', () => {
 
       render(
         <RosterManagementScreen
+          inventory={mockInventory}
           activeParty={activeParty}
           bench={bench}
           onSwap={vi.fn()}

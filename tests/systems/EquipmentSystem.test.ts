@@ -28,13 +28,20 @@ describe('EquipmentSystem', () => {
   // Helper: Create test unit
   const createUnit = (overrides?: Partial<PlayerUnit>): PlayerUnit => ({
     id: 'unit-1',
+    templateId: 'test-template',
     name: 'Test Warrior',
     role: 'Tank',
     tags: [],
+    element: 'Venus',
+    activeGemState: { gem: null, isActivated: false },
+    learnedSpells: [],
+    rank: 'C',
+    baseClass: 'Warrior',
     level: 1,
     experience: 0,
     hp: 100,
     maxHp: 100,
+    currentMp: 50,
     atk: 20,
     def: 15,
     speed: 10,
@@ -263,16 +270,16 @@ describe('EquipmentSystem', () => {
 
   describe('getUnitStats', () => {
     test('calculates base stats without equipment', () => {
-      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100 });
+      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100, currentMp: 30 });
       const inventory = createEmptyInventory();
 
       const stats = getUnitStats(unit, inventory);
 
-      expect(stats).toEqual({ hp: 100, atk: 20, def: 15, speed: 10 });
+      expect(stats).toEqual({ hp: 100, mp: 30, atk: 20, def: 15, speed: 10 });
     });
 
     test('adds weapon bonus to attack', () => {
-      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100 });
+      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100, currentMp: 50 });
       const weapon = createEquipment({ stats: { atk: 10 } });
       const inventory: InventoryData = {
         ...createEmptyInventory(),
@@ -283,6 +290,7 @@ describe('EquipmentSystem', () => {
 
       expect(stats.atk).toBe(30); // 20 base + 10 from weapon
       expect(stats.def).toBe(15); // unchanged
+      expect(stats.mp).toBe(50); // no equipment bonuses for MP
     });
 
     test('adds armor bonus to defense', () => {
@@ -312,11 +320,11 @@ describe('EquipmentSystem', () => {
     });
 
     test('combines multiple equipment bonuses', () => {
-      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100 });
+      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100, currentMp: 50 });
       const weapon = createEquipment({ slot: 'weapon', stats: { atk: 10 } });
       const armor = createEquipment({ id: 'armor-1', slot: 'armor', stats: { def: 20 } });
       const accessory = createEquipment({ id: 'acc-1', slot: 'accessory', stats: { speed: 5 } });
-      
+
       const inventory: InventoryData = {
         ...createEmptyInventory(),
         equippedItems: new Map([
@@ -328,11 +336,11 @@ describe('EquipmentSystem', () => {
 
       const stats = getUnitStats(unit, inventory);
 
-      expect(stats).toEqual({ hp: 100, atk: 30, def: 35, speed: 15 });
+      expect(stats).toEqual({ hp: 100, mp: 50, atk: 30, def: 35, speed: 15 });
     });
 
     test('handles missing stat bonuses gracefully', () => {
-      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100 });
+      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100, currentMp: 50 });
       const weapon = createEquipment({ stats: {} }); // No bonuses
       const inventory: InventoryData = {
         ...createEmptyInventory(),
@@ -341,17 +349,17 @@ describe('EquipmentSystem', () => {
 
       const stats = getUnitStats(unit, inventory);
 
-      expect(stats).toEqual({ hp: 100, atk: 20, def: 15, speed: 10 });
+      expect(stats).toEqual({ hp: 100, mp: 50, atk: 20, def: 15, speed: 10 });
     });
 
     test('handles equipment with multiple stat bonuses', () => {
-      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100 });
-      const weapon = createEquipment({ 
-        stats: { 
-          atk: 10, 
-          def: 5, 
-          speed: 2 
-        } 
+      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100, currentMp: 50 });
+      const weapon = createEquipment({
+        stats: {
+          atk: 10,
+          def: 5,
+          speed: 2
+        }
       });
       const inventory: InventoryData = {
         ...createEmptyInventory(),
@@ -360,15 +368,15 @@ describe('EquipmentSystem', () => {
 
       const stats = getUnitStats(unit, inventory);
 
-      expect(stats).toEqual({ hp: 100, atk: 30, def: 20, speed: 12 });
+      expect(stats).toEqual({ hp: 100, mp: 50, atk: 30, def: 20, speed: 12 });
     });
 
     test('handles HP bonuses from equipment', () => {
-      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100 });
-      const armor = createEquipment({ 
+      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100, currentMp: 50 });
+      const armor = createEquipment({
         id: 'armor-1',
         slot: 'armor',
-        stats: { hp: 50, def: 10 } 
+        stats: { hp: 50, def: 10 }
       });
       const inventory: InventoryData = {
         ...createEmptyInventory(),
@@ -379,6 +387,53 @@ describe('EquipmentSystem', () => {
 
       expect(stats.hp).toBe(150); // 100 base + 50 from armor
       expect(stats.def).toBe(25); // 15 base + 10 from armor
+      expect(stats.mp).toBe(50); // no equipment bonuses for MP
+    });
+
+    test('MP stat is always equal to currentMp (no equipment bonuses)', () => {
+      const unit = createUnit({ currentMp: 35 });
+      const weapon = createEquipment({ stats: { atk: 10 } });
+      const inventory: InventoryData = {
+        ...createEmptyInventory(),
+        equippedItems: new Map([['unit-1-weapon', weapon]])
+      };
+
+      const stats = getUnitStats(unit, inventory);
+
+      expect(stats.mp).toBe(35);
+    });
+
+    test('MP stat varies with different currentMp values', () => {
+      const inventory = createEmptyInventory();
+
+      const unit1 = createUnit({ currentMp: 0 });
+      expect(getUnitStats(unit1, inventory).mp).toBe(0);
+
+      const unit2 = createUnit({ currentMp: 25 });
+      expect(getUnitStats(unit2, inventory).mp).toBe(25);
+
+      const unit3 = createUnit({ currentMp: 50 });
+      expect(getUnitStats(unit3, inventory).mp).toBe(50);
+    });
+
+    test('all five stats are returned (hp, mp, atk, def, speed)', () => {
+      const unit = createUnit({
+        maxHp: 120,
+        currentMp: 40,
+        atk: 25,
+        def: 18,
+        speed: 12
+      });
+      const inventory = createEmptyInventory();
+
+      const stats = getUnitStats(unit, inventory);
+
+      expect(stats).toHaveProperty('hp');
+      expect(stats).toHaveProperty('mp');
+      expect(stats).toHaveProperty('atk');
+      expect(stats).toHaveProperty('def');
+      expect(stats).toHaveProperty('speed');
+      expect(Object.keys(stats)).toHaveLength(5);
     });
   });
 
@@ -487,7 +542,7 @@ describe('EquipmentSystem', () => {
     });
 
     test('handles equipment with no stat bonuses', () => {
-      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100 });
+      const unit = createUnit({ atk: 20, def: 15, speed: 10, maxHp: 100, currentMp: 50 });
       const weapon = createEquipment({ stats: {} });
       const inventory: InventoryData = {
         ...createEmptyInventory(),
@@ -497,7 +552,7 @@ describe('EquipmentSystem', () => {
       const stats = getUnitStats(unit, inventory);
 
       // Stats should remain unchanged
-      expect(stats).toEqual({ hp: 100, atk: 20, def: 15, speed: 10 });
+      expect(stats).toEqual({ hp: 100, mp: 50, atk: 20, def: 15, speed: 10 });
     });
   });
 

@@ -14,7 +14,7 @@ import { RewardSystem } from './systems/RewardSystem.js';
 import { TeamManager } from './systems/TeamManager.js';
 import { RosterManager } from './systems/RosterManager.js';
 import { SettingsManager } from './systems/SettingsManager.js';
-import { equipItem, unequipItem, getUnitStats } from './systems/EquipmentSystem.js';
+import { /* equipItem, unequipItem, */ getUnitStats } from './systems/EquipmentSystem.js'; // equipItem/unequipItem TODO: Re-enable in Task 3
 import { restoreAllMp } from './systems/AbilitySystem.js';
 import { initializeUnitSpells } from './systems/ElementSystem.js';
 import { MainMenuScreen } from './screens/MainMenuScreen.js';
@@ -23,7 +23,7 @@ import { OpponentSelectScreen } from './screens/OpponentSelectScreen.js';
 import { BattleScreen } from './screens/BattleScreen.js';
 import { RewardsScreen } from './screens/RewardsScreen.js';
 import { GemSelectScreen } from './screens/GemSelectScreen.js';
-import { EquipmentScreen } from './screens/EquipmentScreen.js';
+// Equipment screen removed - equipment management now handled in RosterManagementScreen
 import { RecruitScreen } from './screens/RecruitScreen.js';
 import { RosterManagementScreen } from './screens/RosterManagementScreen.js';
 import { InventoryScreen } from './screens/InventoryScreen.js';
@@ -46,7 +46,6 @@ type AppScreen =
   | 'battle'
   | 'rewards'
   | 'gem_select' // OLD: Gem selection from rewards (deprecated)
-  | 'equipment'
   | 'recruit'
   | 'roster_management'
   | 'defeat'
@@ -127,13 +126,13 @@ export function App(): React.ReactElement {
         if (rewards.gemChoices && rewards.gemChoices.length > 0) {
           setScreen('gem_select');
         } else {
-          setScreen('equipment');
+          // Skip equipment screen - go directly to recruit
+          handleEquipmentContinue();
         }
       } else if (screen === 'gem_select' && rewards?.gemChoices) {
         // Auto-select first gem
         controller.addGem(rewards.gemChoices[0]);
-        setScreen('equipment');
-      } else if (screen === 'equipment') {
+        // Skip equipment screen - go directly to recruit
         handleEquipmentContinue();
       } else if (screen === 'recruit') {
         handleSkipRecruit();
@@ -150,14 +149,13 @@ export function App(): React.ReactElement {
       
       if (screen === 'gem_select' && rewards) {
         setScreen('rewards');
-      } else if (screen === 'equipment' && rewards) {
-        if (rewards.gemChoices && rewards.gemChoices.length > 0) {
+      } else if (screen === 'recruit') {
+        // Go back to rewards or gem_select
+        if (rewards && rewards.gemChoices && rewards.gemChoices.length > 0) {
           setScreen('gem_select');
         } else {
           setScreen('rewards');
         }
-      } else if (screen === 'recruit') {
-        setScreen('equipment');
       } else {
         console.warn(`[DEV] Cannot go back from ${screen} screen`);
       }
@@ -529,13 +527,13 @@ export function App(): React.ReactElement {
       // Go to gem selection screen
       setScreen('gem_select');
     } else {
-      // Skip gem selection, go directly to equipment
+      // Skip gem selection and equipment screen, go directly to recruit
       const transition = controller.handleRewardsContinue();
       if (!transition.ok) {
-        console.error('Failed to transition to equipment state:', transition.error);
+        console.error('Failed to transition to recruit state:', transition.error);
         return;
       }
-      setScreen('equipment');
+      handleEquipmentContinue();
     }
   };
 
@@ -543,34 +541,34 @@ export function App(): React.ReactElement {
   const handleGemSelect = (gem: GemChoice) => {
     // Add selected gem to controller's gem inventory
     controller.addGem(gem);
-    
-    // Transition FSM from rewards → equipment
+
+    // Skip equipment screen - transition directly to recruit
     const transition = controller.handleRewardsContinue();
     if (!transition.ok) {
-      console.error('Failed to transition to equipment state:', transition.error);
+      console.error('Failed to transition to recruit state:', transition.error);
       return;
     }
-    setScreen('equipment');
+    handleEquipmentContinue();
   };
 
-  // Equipment handlers
-  const handleEquip = (unitId: string, equipment: any) => {
-    const result = equipItem(inventory, unitId, equipment);
-    if (result.ok) {
-      setInventory(result.value);
-    } else {
-      console.error('Failed to equip item:', result.error);
-    }
-  };
+  // Equipment handlers - TODO: Will be used in Task 3 (Equipment Panel)
+  // const handleEquip = (unitId: string, equipment: any) => {
+  //   const result = equipItem(inventory, unitId, equipment);
+  //   if (result.ok) {
+  //     setInventory(result.value);
+  //   } else {
+  //     console.error('Failed to equip item:', result.error);
+  //   }
+  // };
 
-  const handleUnequip = (unitId: string, slot: 'weapon' | 'armor' | 'accessory') => {
-    const result = unequipItem(inventory, unitId, slot);
-    if (result.ok) {
-      setInventory(result.value);
-    } else {
-      console.error('Failed to unequip item:', result.error);
-    }
-  };
+  // const handleUnequip = (unitId: string, slot: 'weapon' | 'armor' | 'accessory') => {
+  //   const result = unequipItem(inventory, unitId, slot);
+  //   if (result.ok) {
+  //     setInventory(result.value);
+  //   } else {
+  //     console.error('Failed to unequip item:', result.error);
+  //   }
+  // };
 
   const handleEquipmentContinue = () => {
     // Transition FSM from equipment → recruit
@@ -753,23 +751,13 @@ export function App(): React.ReactElement {
           handleGemSelect(rewards.gemChoices[0]); // Auto-select first gem
           return <div>Selecting gem...</div>;
         }
-        // Skip to equipment
+        // Skip equipment screen - go directly to recruit
         const transition = controller.handleRewardsContinue();
         if (transition.ok) {
-          setScreen('equipment');
+          // Call equipment continue handler to transition to recruit
+          handleEquipmentContinue();
         }
         return <div>Loading...</div>;
-
-      case 'equipment':
-        return (
-          <EquipmentScreen
-            team={playerTeam}
-            inventory={inventory}
-            onEquip={handleEquip}
-            onUnequip={handleUnequip}
-            onContinue={handleEquipmentContinue}
-          />
-        );
 
       case 'recruit':
         if (!rewards) {
@@ -789,6 +777,7 @@ export function App(): React.ReactElement {
           <RosterManagementScreen
             activeParty={roster.activeParty}
             bench={roster.bench}
+            inventory={inventory}
             onSwap={handleRosterSwap}
             onContinue={handleRosterContinue}
           />

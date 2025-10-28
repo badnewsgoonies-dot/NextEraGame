@@ -9,11 +9,14 @@
  */
 
 import React, { useState } from 'react';
-import type { PlayerUnit, Role } from '../types/game.js';
+import type { PlayerUnit, Role, InventoryData } from '../types/game.js';
+import { getUnitStats } from '../systems/EquipmentSystem.js';
+import { EquipmentPanel } from '../components/roster/EquipmentPanel.js';
 
 export interface RosterManagementScreenProps {
   readonly activeParty: readonly PlayerUnit[];
   readonly bench: readonly PlayerUnit[];
+  readonly inventory: InventoryData;
   readonly onSwap: (benchUnitId: string, activeUnitId: string) => void;
   readonly onContinue: () => void;
 }
@@ -28,13 +31,38 @@ const ROLE_COLORS: Record<Role, string> = {
 export function RosterManagementScreen({
   activeParty,
   bench,
+  inventory,
   onSwap,
   onContinue,
 }: RosterManagementScreenProps): React.ReactElement {
   const [selectedBenchUnit, setSelectedBenchUnit] = useState<string | null>(null);
   const [selectedActiveUnit, setSelectedActiveUnit] = useState<string | null>(null);
+  const [equipmentPanelUnit, setEquipmentPanelUnit] = useState<PlayerUnit | null>(null);
 
   const canSwap = selectedBenchUnit !== null && selectedActiveUnit !== null;
+
+  // Helper function to render stat with equipment bonuses
+  const renderStat = (label: string, baseValue: number, totalValue: number) => {
+    const hasBonus = totalValue !== baseValue;
+
+    return (
+      <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
+        <div className="text-gray-500 dark:text-gray-400 text-xs">{label}</div>
+        <div className="font-bold text-xs">
+          {hasBonus ? (
+            <>
+              <span className="text-gray-400">{baseValue}</span>
+              <span className="text-gray-400"> → </span>
+              <span className="text-green-400">{totalValue}</span>
+              <span className="text-yellow-400"> (+{totalValue - baseValue})</span>
+            </>
+          ) : (
+            <span className="text-gray-900 dark:text-white">{baseValue}</span>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   const handleSwap = () => {
     if (canSwap && selectedBenchUnit && selectedActiveUnit) {
@@ -104,16 +132,25 @@ export function RosterManagementScreen({
 
               const isSelected = selectedActiveUnit === unit.id;
               const spriteColor = ROLE_COLORS[unit.role];
+              const stats = getUnitStats(unit, inventory);
 
               return (
-                <button
+                <div
                   key={unit.id}
                   onClick={() => handleActiveClick(unit.id)}
-                  className={`bg-white dark:bg-gray-800 rounded-lg p-6 border-2 transition-[colors,shadow] duration-200 hover:shadow-lg text-left ${
+                  className={`bg-white dark:bg-gray-800 rounded-lg p-6 border-2 transition-[colors,shadow] duration-200 hover:shadow-lg cursor-pointer ${
                     isSelected
                       ? 'border-yellow-400 shadow-yellow-400/50 shadow-lg'
                       : 'border-green-500 hover:border-green-400'
                   }`}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleActiveClick(unit.id);
+                    }
+                  }}
                 >
                   {/* Selected Badge */}
                   {isSelected && (
@@ -156,23 +193,25 @@ export function RosterManagementScreen({
                     <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
                       <div className="text-gray-500 dark:text-gray-400">HP</div>
                       <div className="font-bold text-gray-900 dark:text-white">
-                        {unit.hp}/{unit.maxHp}
+                        {unit.hp}/{stats.hp}
                       </div>
                     </div>
-                    <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                      <div className="text-gray-500 dark:text-gray-400 text-xs">ATK</div>
-                      <div className="font-bold text-gray-900 dark:text-white text-sm">{unit.atk}</div>
-                    </div>
-                    <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                      <div className="text-gray-500 dark:text-gray-400 text-xs">DEF</div>
-                      <div className="font-bold text-gray-900 dark:text-white text-sm">{unit.def}</div>
-                    </div>
-                    <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                      <div className="text-gray-500 dark:text-gray-400 text-xs">SPD</div>
-                      <div className="font-bold text-gray-900 dark:text-white text-sm">{unit.speed}</div>
-                    </div>
+                    {renderStat('ATK', unit.atk, stats.atk)}
+                    {renderStat('DEF', unit.def, stats.def)}
+                    {renderStat('SPD', unit.speed, stats.speed)}
                   </div>
-                </button>
+
+                  {/* Show Equipment Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEquipmentPanelUnit(unit);
+                    }}
+                    className="mt-3 w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded transition-colors"
+                  >
+                    ⚔️ Show Equipment
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -193,16 +232,25 @@ export function RosterManagementScreen({
               {bench.map((unit) => {
                 const isSelected = selectedBenchUnit === unit.id;
                 const spriteColor = ROLE_COLORS[unit.role];
+                const stats = getUnitStats(unit, inventory);
 
                 return (
-                  <button
+                  <div
                     key={unit.id}
                     onClick={() => handleBenchClick(unit.id)}
-                    className={`bg-white dark:bg-gray-800 rounded-lg p-4 border-2 transition-[colors,shadow] duration-200 hover:shadow-lg text-left ${
+                    className={`bg-white dark:bg-gray-800 rounded-lg p-4 border-2 transition-[colors,shadow] duration-200 hover:shadow-lg cursor-pointer ${
                       isSelected
                         ? 'border-yellow-400 shadow-yellow-400/50 shadow-lg'
                         : 'border-gray-500 hover:border-gray-400'
                     }`}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleBenchClick(unit.id);
+                      }
+                    }}
                   >
                     {/* Selected Badge */}
                     {isSelected && (
@@ -245,23 +293,25 @@ export function RosterManagementScreen({
                       <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded">
                         <div className="text-gray-500 dark:text-gray-400 text-xs">HP</div>
                         <div className="font-bold text-gray-900 dark:text-white text-xs">
-                          {unit.hp}/{unit.maxHp}
+                          {unit.hp}/{stats.hp}
                         </div>
                       </div>
-                      <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded">
-                        <div className="text-gray-500 dark:text-gray-400 text-xs">ATK</div>
-                        <div className="font-bold text-gray-900 dark:text-white text-xs">{unit.atk}</div>
-                      </div>
-                      <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded">
-                        <div className="text-gray-500 dark:text-gray-400 text-xs">DEF</div>
-                        <div className="font-bold text-gray-900 dark:text-white text-xs">{unit.def}</div>
-                      </div>
-                      <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded">
-                        <div className="text-gray-500 dark:text-gray-400 text-xs">SPD</div>
-                        <div className="font-bold text-gray-900 dark:text-white text-xs">{unit.speed}</div>
-                      </div>
+                      {renderStat('ATK', unit.atk, stats.atk)}
+                      {renderStat('DEF', unit.def, stats.def)}
+                      {renderStat('SPD', unit.speed, stats.speed)}
                     </div>
-                  </button>
+
+                    {/* Show Equipment Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEquipmentPanelUnit(unit);
+                      }}
+                      className="mt-2 w-full px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded transition-colors"
+                    >
+                      ⚔️ Equipment
+                    </button>
+                  </div>
                 );
               })}
             </div>
@@ -281,6 +331,15 @@ export function RosterManagementScreen({
           </button>
         </div>
       </div>
+
+      {/* Equipment Panel Overlay */}
+      {equipmentPanelUnit && (
+        <EquipmentPanel
+          unit={equipmentPanelUnit}
+          inventory={inventory}
+          onClose={() => setEquipmentPanelUnit(null)}
+        />
+      )}
     </div>
   );
 }
