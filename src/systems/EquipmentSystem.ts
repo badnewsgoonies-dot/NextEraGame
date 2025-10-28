@@ -88,20 +88,22 @@ export function getEquippedItem(
 
 /**
  * Calculate unit stats with equipment bonuses
+ * Returns total stats (base + equipment bonuses) for display
  */
 export function getUnitStats(
   unit: PlayerUnit,
   inventory: InventoryData
-): { hp: number; atk: number; def: number; speed: number } {
+): { hp: number; mp: number; atk: number; def: number; speed: number } {
   // Base stats
   let hp = unit.maxHp;
   let atk = unit.atk;
   let def = unit.def;
   let speed = unit.speed;
-  
+  const mp = unit.currentMp; // No equipment bonuses for MP
+
   // Add bonuses from each slot
   const slots: Array<'weapon' | 'armor' | 'accessory'> = ['weapon', 'armor', 'accessory'];
-  
+
   for (const slot of slots) {
     const equipped = getEquippedItem(inventory, unit.id, slot);
     if (equipped?.stats) {
@@ -111,8 +113,8 @@ export function getUnitStats(
       speed += equipped.stats.speed ?? 0;
     }
   }
-  
-  return { hp, atk, def, speed };
+
+  return { hp, mp, atk, def, speed };
 }
 
 /**
