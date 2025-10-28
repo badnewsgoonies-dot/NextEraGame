@@ -47,6 +47,8 @@ import { ActionMenu } from '../components/battle/ActionMenu.js';
 import { PlayerStatusPanel } from '../components/battle/PlayerStatusPanel.js';
 import { TurnBanner } from '../components/battle/TurnBanner.js';
 import { BattlefieldFloor } from '../components/battle/BattlefieldFloor.js';
+import { GemSuperPanel } from '../components/battle/GemSuperPanel.js';
+import { executeGemSuper } from '../systems/GemSuperSystem.js';
 import { makeRng } from '../utils/rng.js';
 import { getBattleBackground, preloadCommonSprites } from '../data/spriteRegistry.js';
 import { getPsynergySprite } from '../data/psynergySprites.js';
@@ -78,7 +80,7 @@ type Phase =
   | 'animating'
   | 'resolving';
 
-const ACTIONS = ['Attack', 'Defend', 'Abilities', 'Gem Super', 'Items', 'Flee'] as const;
+const ACTIONS = ['Attack', 'Defend', 'Abilities', 'Items', 'Flee'] as const;
 
 // ============================================
 // Main Component
@@ -480,66 +482,66 @@ export function BattleScreen({
     setPhase('menu');
   }, [roundIdx, roundOrder, computeRoundOrder]);
 
-  /**
-   * Execute global gem super spell effect
-   * Simplified implementation for MVP
-   */
-  const executeGemSuperSpell = useCallback((superSpell: { effect: string; power: number; name: string }) => {
-    console.log(`🔮 Executing Gem Super: ${superSpell.name} (${superSpell.effect})`);
-
-    switch (superSpell.effect) {
-      case 'aoe_damage':
-        // Deal damage to all enemies
-        setEnemies(prev => prev.map(enemy => ({
-          ...enemy,
-          currentHp: Math.max(0, enemy.currentHp - superSpell.power)
-        })));
-        setGemActivationMessage(`💥 ${superSpell.name}! All enemies take ${superSpell.power} damage!`);
-        break;
-
-      case 'party_heal':
-        // Heal all player units
-        setPlayers(prev => prev.map(player => ({
-          ...player,
-          currentHp: Math.min(player.maxHp, player.currentHp + superSpell.power),
-          buffState: { buffs: [] } // Remove all debuffs
-        })));
-        setGemActivationMessage(`✨ ${superSpell.name}! Party healed for ${superSpell.power} HP!`);
-        break;
-
-      case 'party_buff':
-        // TODO: Implement proper buff system integration
-        setGemActivationMessage(`🛡️ ${superSpell.name}! Party defense increased!`);
-        console.log('TODO: Apply defense buff to party');
-        break;
-
-      case 'enemy_debuff':
-        // Apply damage to all enemies (debuff part TODO)
-        setEnemies(prev => prev.map(enemy => ({
-          ...enemy,
-          currentHp: Math.max(0, enemy.currentHp - superSpell.power)
-        })));
-        setGemActivationMessage(`💀 ${superSpell.name}! Enemies damaged!`);
-        break;
-        break;
-
-      case 'revive':
-        // Massive heal to all player units (doesn't actually revive dead units in this simplified version)
-        setPlayers(prev => prev.map(player => ({
-          ...player,
-          currentHp: Math.min(player.maxHp, player.currentHp + superSpell.power)
-        })));
-        setGemActivationMessage(`🌟 ${superSpell.name}! Massive party heal!`);
-        break;
-
-      default:
-        console.warn(`Unknown super spell effect: ${superSpell.effect}`);
-        setGemActivationMessage(`✨ ${superSpell.name} activated!`);
-    }
-
-    // Clear message after delay
-    setTimeout(() => setGemActivationMessage(null), 2500);
-  }, []);
+  //   /**
+  //    * Execute global gem super spell effect
+  //    * Simplified implementation for MVP
+  //    */
+  //   const executeGemSuperSpell = useCallback((superSpell: { effect: string; power: number; name: string }) => {
+  //     console.log(`🔮 Executing Gem Super: ${superSpell.name} (${superSpell.effect})`);
+  // 
+  //     switch (superSpell.effect) {
+  //       case 'aoe_damage':
+  //         // Deal damage to all enemies
+  //         setEnemies(prev => prev.map(enemy => ({
+  //           ...enemy,
+  //           currentHp: Math.max(0, enemy.currentHp - superSpell.power)
+  //         })));
+  //         setGemActivationMessage(`💥 ${superSpell.name}! All enemies take ${superSpell.power} damage!`);
+  //         break;
+  // 
+  //       case 'party_heal':
+  //         // Heal all player units
+  //         setPlayers(prev => prev.map(player => ({
+  //           ...player,
+  //           currentHp: Math.min(player.maxHp, player.currentHp + superSpell.power),
+  //           buffState: { buffs: [] } // Remove all debuffs
+  //         })));
+  //         setGemActivationMessage(`✨ ${superSpell.name}! Party healed for ${superSpell.power} HP!`);
+  //         break;
+  // 
+  //       case 'party_buff':
+  //         // TODO: Implement proper buff system integration
+  //         setGemActivationMessage(`🛡️ ${superSpell.name}! Party defense increased!`);
+  //         console.log('TODO: Apply defense buff to party');
+  //         break;
+  // 
+  //       case 'enemy_debuff':
+  //         // Apply damage to all enemies (debuff part TODO)
+  //         setEnemies(prev => prev.map(enemy => ({
+  //           ...enemy,
+  //           currentHp: Math.max(0, enemy.currentHp - superSpell.power)
+  //         })));
+  //         setGemActivationMessage(`💀 ${superSpell.name}! Enemies damaged!`);
+  //         break;
+  //         break;
+  // 
+  //       case 'revive':
+  //         // Massive heal to all player units (doesn't actually revive dead units in this simplified version)
+  //         setPlayers(prev => prev.map(player => ({
+  //           ...player,
+  //           currentHp: Math.min(player.maxHp, player.currentHp + superSpell.power)
+  //         })));
+  //         setGemActivationMessage(`🌟 ${superSpell.name}! Massive party heal!`);
+  //         break;
+  // 
+  //       default:
+  //         console.warn(`Unknown super spell effect: ${superSpell.effect}`);
+  //         setGemActivationMessage(`✨ ${superSpell.name} activated!`);
+  //     }
+  // 
+  //     // Clear message after delay
+  //     setTimeout(() => setGemActivationMessage(null), 2500);
+  //   }, []);
 
   /**
    * Get the center position of a unit's DOM element
@@ -718,31 +720,6 @@ export function BattleScreen({
     } else if (label === 'Abilities') {
       // Show abilities menu
       setPhase('ability-menu');
-    } else if (label === 'Gem Super') {
-      // NEW: Global Gem Super Spell
-      const gemSuperResult = gameController.useGemSuper();
-      if (!gemSuperResult.ok) {
-        console.warn('💎 Gem Super unavailable:', gemSuperResult.error);
-        // Stay in menu phase - show feedback
-        setGemActivationMessage(gemSuperResult.error);
-        setTimeout(() => setGemActivationMessage(null), 2000);
-      } else {
-        // Execute super spell immediately
-        const superSpell = gemSuperResult.value;
-        console.log('💎 Using Gem Super:', superSpell.name);
-
-        // Set animating phase while super spell executes
-        setPhase('animating');
-
-        // Execute super spell effect (simplified for MVP)
-        executeGemSuperSpell(superSpell);
-
-        // Advance turn after animation
-        setTimeout(() => {
-          setPhase('resolving');
-          advanceTurnPointer();
-        }, 1500); // Gem activation duration
-      }
     } else if (label === 'Items') {
       // Show item menu (keyboard/enter flow)
       const consumables = gameController.getConsumables();
@@ -801,23 +778,6 @@ export function BattleScreen({
         } else if (label === 'Abilities') {
           // Show abilities menu
           setPhase('ability-menu');
-        } else if (label === 'Gem Super') {
-          // NEW: Global Gem Super Spell (click flow)
-          const gemSuperResult = gameController.useGemSuper();
-          if (!gemSuperResult.ok) {
-            console.warn('💎 Gem Super unavailable:', gemSuperResult.error);
-            setGemActivationMessage(gemSuperResult.error);
-            setTimeout(() => setGemActivationMessage(null), 2000);
-          } else {
-            const superSpell = gemSuperResult.value;
-            console.log('💎 Using Gem Super:', superSpell.name);
-            setPhase('animating');
-            executeGemSuperSpell(superSpell);
-            setTimeout(() => {
-              setPhase('resolving');
-              advanceTurnPointer();
-            }, 1500); // Gem activation duration
-          }
         } else if (label === 'Items') {
           // Show item menu (always, even if empty - will show "No items available")
           setItemMenuIndex(0);
@@ -1291,6 +1251,105 @@ export function BattleScreen({
   }, []);
 
   /**
+   * Handle gem super activation from left panel
+   */
+  const handleGemSuperActivate = useCallback(() => {
+    // Don't allow if not in menu phase or currently processing
+    if (phase !== 'menu' || isProcessing) return;
+
+    // Try to use gem super through game controller
+    const gemSuperResult = gameController.useGemSuper();
+    if (!gemSuperResult.ok) {
+      console.warn('💎 Gem Super unavailable:', gemSuperResult.error);
+      setGemActivationMessage(gemSuperResult.error);
+      setTimeout(() => setGemActivationMessage(null), 2000);
+      return;
+    }
+
+    const superSpell = gemSuperResult.value;
+    const gemState = gameController.getGlobalGemState();
+    if (!gemState.selectedGem) return;
+
+    console.log(`💎 Using Gem Super: ${superSpell.name}`);
+
+    // Enter animating phase
+    setPhase('animating');
+    setIsProcessing(true);
+
+    // Execute gem super with new system
+    const gemElement = gemState.selectedGem.element;
+    const gemPower = superSpell.power;
+
+    // Apply damage to all enemies using new system
+    const updatedEnemies = executeGemSuper(enemies, gemElement, gemPower, rngRef.current);
+
+    // Show psynergy animation for gem super
+    setTargetedId(enemies[0]?.id || null);
+    const spellId = superSpell.id;
+    if (enemies[0]) {
+      playPsynergyAnimation(spellId, enemies[0].id, 256); // Large size for super spell
+    }
+
+    // Show damage numbers for each enemy
+    updatedEnemies.forEach((enemy, i) => {
+      const originalEnemy = enemies[i];
+      const damage = originalEnemy.currentHp - enemy.currentHp;
+      if (damage > 0) {
+        // Show damage number at enemy position
+        const pos = getTargetCenter(enemy.id);
+        setDamageNumbers(prev => [
+          ...prev,
+          {
+            id: `gem-super-${enemy.id}-${Date.now()}`,
+            amount: damage,
+            type: 'damage',
+            position: pos,
+          },
+        ]);
+      }
+    });
+
+    // Update enemies state
+    setEnemies(updatedEnemies);
+
+    // Flash effect for dramatic impact
+    flash('rgba(255, 215, 0, 0.4)'); // Gold flash for gem super
+
+    // Log action
+    pushAction({
+      type: 'ability-used',
+      actorId: activeId || 'gem-super',
+      targetId: 'all-enemies',
+      abilityId: superSpell.id,
+      abilityName: superSpell.name,
+      effectType: 'damage',
+      effectValue: gemPower,
+    });
+
+    // Clean up and advance turn after animation
+    const cleanupTimeout = setTimeout(() => {
+      setShowAttackAnim(false);
+      setTargetedId(null);
+      setPhase('resolving');
+      setIsProcessing(false);
+      advanceTurnPointer();
+    }, 1500);
+    registerTimeout(cleanupTimeout);
+  }, [
+    phase,
+    isProcessing,
+    gameController,
+    enemies,
+    rngRef,
+    getTargetCenter,
+    flash,
+    pushAction,
+    activeId,
+    advanceTurnPointer,
+    registerTimeout,
+  ]);
+
+  /**
    * Handle mouse click on enemy unit (targeting)
    */
   const handleEnemyClick = useCallback((enemyIndex: number) => {
@@ -1662,6 +1721,16 @@ export function BattleScreen({
         {/* Top-Left Turn Banner */}
         <div className="absolute top-6 left-4 md:left-8 pointer-events-auto">
           <TurnBanner turn={turnsTaken + 1} />
+        </div>
+
+        {/* Left-Side Gem Super Panel */}
+        <div className="absolute left-4 md:left-8 pointer-events-auto" style={{ top: '100px' }}>
+          <GemSuperPanel
+            gemName={gameController.getGlobalGemState().selectedGem?.name || null}
+            gemElement={gameController.getGlobalGemState().selectedGem?.element || null}
+            isAvailable={!gameController.getGlobalGemState().superUsedThisBattle && phase === 'menu'}
+            onActivate={handleGemSuperActivate}
+          />
         </div>
       </div>
 
