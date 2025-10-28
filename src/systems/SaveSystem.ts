@@ -17,6 +17,7 @@ import type { ILogger } from './Logger.js';
 import type { ISaveStore, SaveEnvelope, PlayerUnit, Item, ProgressionCounters, SaveSliceChoice, InventoryData, Gem, ActiveGemState } from '../types/game.js';
 import { ok, err, type Result } from '../utils/Result.js';
 import { InMemorySaveStore } from './SaveStore.js';
+import { VERSION } from '../version.js';
 
 export interface GameStateSnapshot {
   readonly version?: string; // Game version for compatibility checking
@@ -53,7 +54,7 @@ export class SaveSystem {
   async save(slot: string, state: GameStateSnapshot): Promise<Result<void, string>> {
     try {
       const envelope: SaveEnvelope = {
-        version: 'v1',
+        version: VERSION,
         timestamp: new Date().toISOString(),
         playerTeam: state.playerTeam,
         inventory: state.inventory,
@@ -104,10 +105,11 @@ export class SaveSystem {
         return value;
       }) as SaveEnvelope;
 
-      // Validate version
-      if (envelope.version !== 'v1') {
-        this.logger.warn('save:unsupported_version', { slot, version: envelope.version });
-        return err(`Unsupported save version: ${envelope.version}`);
+      // Validate version (allow current version or migration-compatible versions)
+      if (envelope.version !== VERSION) {
+        this.logger.warn('save:version_mismatch', { slot, saved: envelope.version, current: VERSION });
+        // For now, continue loading (future: add migration logic here)
+        this.logger.info('save:attempting_load', { slot, note: 'Version mismatch - may need migration' });
       }
 
       // Ensure backward compatibility: provide default empty inventory if not present

@@ -14,7 +14,7 @@ import { RewardSystem } from './systems/RewardSystem.js';
 import { TeamManager } from './systems/TeamManager.js';
 import { RosterManager } from './systems/RosterManager.js';
 import { SettingsManager } from './systems/SettingsManager.js';
-import { equipItem, unequipItem } from './systems/EquipmentSystem.js';
+import { equipItem, unequipItem, getUnitStats } from './systems/EquipmentSystem.js';
 import { restoreAllMp } from './systems/AbilitySystem.js';
 import { initializeUnitSpells } from './systems/ElementSystem.js';
 import { MainMenuScreen } from './screens/MainMenuScreen.js';
@@ -34,7 +34,9 @@ import { ScreenTransition } from './components/ScreenTransition.js';
 import { makeRng } from './utils/rng.js';
 import type { OpponentPreview, BattleResult, BattleUnit, BattleReward, PlayerUnit, InventoryData, RosterData, GemChoice } from './types/game.js';
 import { useDevShortcuts, DevShortcutsBadge } from './hooks/useDevShortcuts.js';
+
 import { VERSION } from './constants/version.js';
+
 
 type AppScreen =
   | 'menu'
@@ -381,24 +383,28 @@ export function App(): React.ReactElement {
       setPlayerTeam(teamWithSpells);
       controller.updateTeam(teamWithSpells); // CRITICAL: Sync with controller for BattleScreen
 
-      const playerBattleUnits: BattleUnit[] = teamWithSpells.map((unit, index) => ({
-        id: unit.id,
-        name: unit.name,
-        role: unit.role,
-        tags: unit.tags,
-        currentHp: unit.hp,
-        maxHp: unit.maxHp,
-        currentMp: unit.currentMp, // PRESERVE MP for ability system
-        maxMp: 50,
-        buffState: { buffs: [] },
-        atk: unit.atk,
-        def: unit.def,
-        speed: unit.speed,
-        isPlayer: true,
-        originalIndex: index,
-        spriteUrl: unit.spriteUrl, // PRESERVE sprite URL for recruited enemies!
-        portraitUrl: unit.portraitUrl,
-      }));
+      // Calculate stats WITH equipment bonuses for each unit
+      const playerBattleUnits: BattleUnit[] = teamWithSpells.map((unit, index) => {
+        const statsWithEquipment = getUnitStats(unit, inventory);
+        return {
+          id: unit.id,
+          name: unit.name,
+          role: unit.role,
+          tags: unit.tags,
+          currentHp: unit.hp,
+          maxHp: statsWithEquipment.hp, // Use equipment-adjusted HP
+          currentMp: unit.currentMp, // PRESERVE MP for ability system
+          maxMp: 50,
+          buffState: { buffs: [] },
+          atk: statsWithEquipment.atk, // Use equipment-adjusted ATK
+          def: statsWithEquipment.def, // Use equipment-adjusted DEF
+          speed: statsWithEquipment.speed, // Use equipment-adjusted SPEED
+          isPlayer: true,
+          originalIndex: index,
+          spriteUrl: unit.spriteUrl, // PRESERVE sprite URL for recruited enemies!
+          portraitUrl: unit.portraitUrl,
+        };
+      });
 
       const enemyBattleUnits: BattleUnit[] = selectedPreview.spec.units.map((template, index) => ({
         id: `${template.id}_${index}`, // Make unique when same template used multiple times
@@ -848,6 +854,9 @@ export function App(): React.ReactElement {
 
   return (
     <GameContainer>
+      <div className="fixed top-2 right-2 text-xs text-gray-500 dark:text-gray-400 font-mono z-50">
+        v{VERSION}
+      </div>
       <DevShortcutsBadge />
       <ScreenTransition screenKey={screen} type="fade" duration={300}>
         {renderScreen()}
